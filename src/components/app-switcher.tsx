@@ -18,18 +18,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { AppSwitcherUrlConfig } from "@/constants/appSwitcherUrls"
 
 export function AppSwitcher({
-  teams,
+  apps,
 }: {
-  teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
+  apps: AppSwitcherUrlConfig[]
 }) {
   const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const [activeTeam, setActiveTeam] = React.useState(apps[0])
 
   if (!activeTeam) {
     return null
@@ -51,7 +48,7 @@ export function AppSwitcher({
                 <span className="truncate font-semibold">
                   {activeTeam.name}
                 </span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate text-xs">{activeTeam.name}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -65,16 +62,16 @@ export function AppSwitcher({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Apps
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {apps.map((app, index) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
+                key={app.name}
+                onClick={() => setActiveTeam(app)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-4 shrink-0" />
+                  <app.logo className="size-4 shrink-0" />
                 </div>
-                {team.name}
+                {app.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}

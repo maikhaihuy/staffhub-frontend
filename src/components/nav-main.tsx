@@ -1,44 +1,40 @@
 "use client"
 
-import { type LucideIcon } from "lucide-react"
-
 import {
   SidebarGroup,
+  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { RouteConfig } from "@/constants/routes"
 
 export function NavMain({
   title,
   items,
 }: {
   title?: string,
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
+  items: RouteConfig[]
 }) {
+  console.log(items);
   return (
     <SidebarGroup>
-      {title ?? <SidebarGroupLabel>{title}</SidebarGroupLabel>}
-      <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton tooltip={item.title}>
-              {item.icon && <item.icon />}
-              <span>{item.title}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
+      {title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton tooltip={item.name}>
+                {item.icon && <item.icon />}
+                <a href={item.path} className="font-medium">
+                  <span>{item.name}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
     </SidebarGroup>
   )
 }

@@ -22,7 +22,6 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavSetting } from "@/components/nav-setting"
 import { NavUser } from "@/components/nav-user"
 import { AppSwitcher } from "@/components/app-switcher"
 import {
@@ -32,6 +31,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { MainRoutes, SettingRoutes } from "@/constants/routes"
+import { AppsSwitcherRoutes } from "@/constants/appSwitcherUrls"
 
 // This is sample data.
 const data = {
@@ -40,74 +41,17 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  apps: [
-    {
-      name: "Employee Management App",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Inventory Managenement App",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Selas Management App",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  staff: [
-    {
-      title: "Tổng quan",
-      url: "#",
-      icon: SquareTerminal,
-    },
-    {
-      title: "Ca đăng ký",
-      url: "#",
-      icon: CalendarClock
-    },
-    {
-      title: "Ca làm việc",
-      url: "#",
-      icon: CalendarRange,
-    },
-    {
-      title: "Xếp ca",
-      url: "#",
-      icon: CalendarCog,
-    },
-    {
-      title: "Ship",
-      url: "#",
-      icon: Bike,
-    },
-    {
-      title: "Điểm danh",
-      url: "#",
-      icon: MapPinned,
-    },
-  ],
-  admin: [
-    {
-      title: "Nhân viên",
-      url: "#",
-      icon: Users,
-    },
-    {
-      title: "Chi nhánh",
-      url: "#",
-      icon: Store,
-    },
-  ],
+  apps: AppsSwitcherRoutes,
+  staff: MainRoutes,
+  admin: SettingRoutes,
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <AppSwitcher teams={data.apps} />
+        <AppSwitcher apps={data.apps} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain key='staff' items={data.staff} />
