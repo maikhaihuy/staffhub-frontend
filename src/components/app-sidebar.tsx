@@ -1,38 +1,19 @@
 "use client"
 
-import * as React from "react"
-import {
-  AudioWaveform,
-  Bike,
-  BookOpen,
-  Bot,
-  CalendarClock,
-  CalendarCog,
-  CalendarRange,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  MapPinned,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  Store,
-  Users,
-} from "lucide-react"
+import * as React from "react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { AppSwitcher } from "@/components/app-switcher"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { AppSwitcher } from "@/components/app-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { MainRoutes, SettingRoutes } from "@/constants/routes"
-import { AppsSwitcherRoutes } from "@/constants/appSwitcherUrls"
+} from "@/components/ui/sidebar";
+import { MAIN_ROUTES, SETTING_ROUTES } from "@/constants/routes";
+import { AppsSwitcherRoutes } from "@/constants/appSwitcherUrls";
 
 // This is sample data.
 const data = {
@@ -42,8 +23,8 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   apps: AppsSwitcherRoutes,
-  staff: MainRoutes,
-  admin: SettingRoutes,
+  staff: MAIN_ROUTES,
+  admin: SETTING_ROUTES,
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

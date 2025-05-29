@@ -7,7 +7,7 @@ import {
   SquareTerminal,
   Store,
   Users,
-} from "lucide-react"
+} from 'lucide-react';
 
 // routes.ts
 export interface RouteConfig {
@@ -18,7 +18,7 @@ export interface RouteConfig {
   children?: RouteConfig[];
 }
 
-export const MainRoutes: RouteConfig[] = [
+export const MAIN_ROUTES: RouteConfig[] = [
   {
     path: '/',
     name: 'Tổng quan',
@@ -38,36 +38,36 @@ export const MainRoutes: RouteConfig[] = [
     icon: CalendarRange,
   },
   {
-    path: '#',
+    path: '/shiftArrangements',
     name: 'Xếp ca',
     breadcrumb: 'Xếp ca',
     icon: CalendarCog,
   },
   {
-    path: "#",
+    path: '/shipLogs',
     name: 'Ship',
     breadcrumb: 'Ship',
     icon: Bike,
   },
   {
-    path: "#",
-    name: "Điểm danh",
-    breadcrumb: "Điểm danh",
+    path: '/attendanceTracking',
+    name: 'Điểm danh',
+    breadcrumb: 'Điểm danh',
     icon: MapPinned,
   },
 ];
 
-export const SettingRoutes: RouteConfig[] = [
+export const SETTING_ROUTES: RouteConfig[] = [
   {
-    path: "/employees",
-    name: "Nhân viên",
-    breadcrumb: "Nhân viên",
+    path: '/employees',
+    name: 'Nhân viên',
+    breadcrumb: 'Nhân viên',
     icon: Users,
   },
   {
-    path: "/branches",
-    name: "Chi nhánh",
-    breadcrumb: "Chi nhánh",
+    path: '/branches',
+    name: 'Chi nhánh',
+    breadcrumb: 'Chi nhánh',
     icon: Store,
   },
 ];
