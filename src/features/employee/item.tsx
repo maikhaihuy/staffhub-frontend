@@ -69,7 +69,7 @@ export function EmployeeItem({ employee }: { employee: Employee }) {
       <TableCell className="hidden md:table-cell">{employee.level}</TableCell>
       <TableCell className="hidden md:table-cell">{employee.branch}</TableCell>
       <TableCell className="hidden md:table-cell">
-        {employee.availableAt}
+        {employee.role}
       </TableCell>
       <TableCell>
         <DropdownMenu>

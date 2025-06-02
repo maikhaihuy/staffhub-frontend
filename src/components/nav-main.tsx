@@ -17,7 +17,6 @@ export function NavMain({
   title?: string,
   items: RouteConfig[]
 }) {
-  console.log(items);
   return (
     <SidebarGroup>
       {title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}

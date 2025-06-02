@@ -1,6 +1,3 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth'; // write logic to check auth
 import { AppSidebar } from '@/components/app-sidebar';
 import { Separator } from "@/components/ui/separator"
 import {

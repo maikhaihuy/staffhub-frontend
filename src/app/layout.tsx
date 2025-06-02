@@ -1,7 +1,12 @@
 import Providers from '@/components/providers';
 import '@/app/globals.css';
+import { ReactNode } from 'react';
 
-export default function RootLayout({ children }) {
+type RootLayoutProps = {
+  children: ReactNode;
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className="flex flex-col">
