@@ -7,12 +7,47 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Employee } from './types';
 import { AvatarImage, AvatarFallback, Avatar } from '@radix-ui/react-avatar';
+import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
+import EmployeeForm from './form';
+import { MoreHorizontal } from 'lucide-react';
 
 export function EmployeeItem({ employee }: { employee: Employee }) {
+  function TableCellViewer({ item }: { item: Employee }) {
+    const isMobile = useIsMobile()
+    return (
+      <Drawer direction={isMobile ? "bottom" : "right"}>
+        <DrawerTrigger asChild>
+          <Button variant="link" className="text-foreground w-fit px-0 text-left">
+            {item.name}
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent onInteractOutside={(e) => {
+          e.preventDefault();
+        }}>
+          <DrawerHeader className="gap-1">
+            <DrawerTitle>{item.name}</DrawerTitle>
+            <DrawerDescription>
+              Display the 
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+            <EmployeeForm />
+          </div>
+          <DrawerFooter>
+            <Button>Submit</Button>
+            <DrawerClose asChild>
+              <Button variant="outline">Done</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
+
   return (
     <TableRow>
       <TableCell className="hidden sm:table-cell">
@@ -23,7 +58,9 @@ export function EmployeeItem({ employee }: { employee: Employee }) {
           </Avatar>
         </div>
       </TableCell>
-      <TableCell className="font-medium">{employee.name}</TableCell>
+      <TableCell className="font-medium">
+        <TableCellViewer item={employee} />
+      </TableCell>
       <TableCell>
         <Badge variant="outline" className="capitalize">
           {employee.status}
@@ -56,3 +93,5 @@ export function EmployeeItem({ employee }: { employee: Employee }) {
     </TableRow>
   );
 }
+
+

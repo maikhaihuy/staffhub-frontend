@@ -17,12 +17,16 @@ export default function EmployeeForm() {
       reset();
     },
   });
-
+  
   return (
     <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="bg-white p-4 rounded shadow">
       <input {...register('name')} placeholder="Name" className="w-full mb-2 p-2 border rounded" />
       <input {...register('email')} placeholder="Email" className="w-full mb-2 p-2 border rounded" />
       <select {...register('role')} className="w-full mb-2 p-2 border rounded">
+        <option value="employee">Employee</option>
+        <option value="admin">Admin</option>
+      </select>
+      <select {...register('branch')} className="w-full mb-2 p-2 border rounded">
         <option value="employee">Employee</option>
         <option value="admin">Admin</option>
       </select>

@@ -1,29 +1,29 @@
 import axios from '@/lib/axios';
-import { Employee } from './types';
+import { Branch } from './types';
 
-const ENDPONT_NAME = '/api/employees';
+const ENDPONT_NAME = '/api/branches';
 
-export const getEmployees = async (): Promise<Employee[]> => {
+export const getBranches = async (): Promise<Branch[]> => {
   const res = await axios.get(ENDPONT_NAME);
   return res.data;
 };
 
-export const getEmployee = async (id: string): Promise<Employee> => {
+export const getBranch = async (id: string): Promise<Branch> => {
   const res = await axios.get(`${ENDPONT_NAME}/${id}`);
   return res.data;
 };
 
-export const createEmployee = async (data: Partial<Employee>) => {
+export const createBranch = async (data: Partial<Branch>) => {
   const res = await axios.post(ENDPONT_NAME, data);
   return res.data;
 };
 
-export const updateEmployee = async (data: Partial<Employee>) => {
+export const updateBranch = async (data: Partial<Branch>) => {
   const res = await axios.put(`${ENDPONT_NAME}/${data.id}`, data);
   return res.data;
 };
 
-export const deleteEmployee = async (id: string) => {
+export const deleteBranch = async (id: string) => {
   const res = await axios.delete(`${ENDPONT_NAME}/${id}`);
   return res.data;
 };
