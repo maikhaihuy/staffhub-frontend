@@ -34,7 +34,7 @@ export function BranchItem({ branch }: { branch: Branch }) {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-            <BranchForm />
+            <BranchForm branchId={branch.id}/>
           </div>
           <DrawerFooter>
             <Button>Submit</Button>

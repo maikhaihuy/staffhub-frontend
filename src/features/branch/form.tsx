@@ -1,45 +1,51 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Branch, branchSchema } from './types';
-import { createBranch, updateBranch } from './api';
+import { createBranch, updateBranch, getBranch } from './api';
+import { useEffect } from 'react';
 
 type BranchFormProps = {
-  branch?: Branch; // If provided, form is in edit mode
+  branchId?: string; // If provided, form is in edit mode
   onSuccess?: () => void; // Optional callback after successful submit
 };
 
-export default function BranchForm({ branch, onSuccess }: BranchFormProps) {
+export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
   const queryClient = useQueryClient();
+
+  const { data: branchData } = useQuery({ queryKey: ['branch', branchId], queryFn: () => getBranch(branchId!), enabled: !!branchId});
   const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Branch>({
     resolver: zodResolver(branchSchema),
-    defaultValues: branch
-      ? {
-          ...branch,
-          // Ensure optional fields are strings for controlled inputs
-          address: branch.address ?? '',
-          phone: branch.phone ?? '',
-          email: branch.email ?? '',
-        }
-      : {},
+    defaultValues: undefined,
   });
+
+  useEffect(() => {
+    if (branchData) {
+      reset({
+        ...branchData,
+        address: branchData.address ?? '',
+        phone: branchData.phone ?? '',
+        email: branchData.email ?? '',
+      });
+    }
+  }, [branchData, reset]);
 
   const mutation = useMutation({
     mutationFn: (data: Branch) =>
-    branch && branch.id
-      ? updateBranch(data)
-      : createBranch(data),
+      branchData && branchData.id
+        ? updateBranch(data)
+        : createBranch(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branches'] });
       reset();
       onSuccess?.();
     },
   });
-  
+
   return (
     <form 
       onSubmit={handleSubmit((data) => {
-        // Simple sanitization example
+        // Sanitize and trim input values before mutation
         const sanitizedData = {
           ...data,
           name: data.name.trim(),
@@ -52,6 +58,10 @@ export default function BranchForm({ branch, onSuccess }: BranchFormProps) {
       })}
       className="bg-white p-4 rounded shadow"
     >
+      {/* 
+        NOTE: Always validate and sanitize again on the backend to prevent security issues,
+        as frontend validation can be bypassed.
+      */}
       {mutation.isError && (
         <div className="text-red-600 mb-2">
           {mutation.error?.message || 'An error occurred while creating the branch.'}
@@ -70,7 +80,7 @@ export default function BranchForm({ branch, onSuccess }: BranchFormProps) {
       <button
         type="submit"
         className="bg-blue-600 text-white py-2 px-4 rounded"
-        disabled={mutation.isPending || (!isDirty && !!branch)}
+        disabled={mutation.isPending}
       >
         {mutation.isPending ? 'Saving...' : 'Save'}
       </button>

@@ -38,10 +38,7 @@ function TableCellViewer({ item }: { item: Branch }) {
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button
-          variant="link"
-          className="text-foreground w-fit px-0 text-left"
-        >
+        <Button variant="link" className="text-foreground w-fit px-0 text-left">
           {item.name}
         </Button>
       </DrawerTrigger>
@@ -79,7 +76,7 @@ const columns: ColumnConfig<Branch>[] = [
   {
     key: "name",
     label: "Name",
-    render => TableCellViewer()
+    className: "font-medium",
   },
   {
     key: "abbreviation",
@@ -137,8 +134,6 @@ export default function BranchList() {
   });
 
   if (isLoading) return <p>Loading...</p>;
-
-  
 
   return (
     <Table>
