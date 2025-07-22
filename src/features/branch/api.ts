@@ -1,14 +1,19 @@
-import axios from '@/lib/axios';
-import { Branch } from './types';
+import { Branch } from "./types";
+import axios from "@/lib/axios";
 
-const ENDPONT_NAME = '/api/branches';
+const ENDPONT_NAME = "/api/branches";
 
-export const getBranches = async (): Promise<Branch[]> => {
-  const res = await axios.get(ENDPONT_NAME);
+export const getBranches = async (
+  page: number,
+  pageSize: number
+): Promise<{ data: Branch[]; total: number }> => {
+  const res = await axios.get(
+    `${ENDPONT_NAME}?page=${page}&pageSize=${pageSize}`
+  );
   return res.data;
 };
 
-export const getBranch = async (id: string): Promise<Branch> => {
+export const getBranch = async (id: number): Promise<Branch> => {
   const res = await axios.get(`${ENDPONT_NAME}/${id}`);
   return res.data;
 };

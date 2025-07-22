@@ -1,3 +1,4 @@
+import { withAudit } from "../../prisma-wrapper";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -20,11 +21,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log("test");
     const id = await getId(params);
-    console.log("test1");
     const branch = await prisma.branch.findUnique({ where: { id } });
-    console.log("test2");
     if (!branch) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 });
     }
@@ -49,14 +47,28 @@ export async function PUT(
 ) {
   try {
     const id = await getId(params);
-    const data = await request.json();
+    const updatedBranch = await request.json();
+    const userId = 1;
+    const requiredFields = ["name", "abbreviation", "address"];
+    const missingFields = requiredFields.filter(
+      (field) =>
+        !updatedBranch[field] ||
+        typeof updatedBranch[field] !== "string" ||
+        updatedBranch[field].trim() === ""
+    );
+
+    if (missingFields.length > 0) {
+      return NextResponse.json(
+        { error: `Missing or invalid fields: ${missingFields.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    const data = withAudit(userId, updatedBranch, "update");
     const branch = await prisma.branch.update({ where: { id }, data });
     return NextResponse.json(branch);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update branch" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error }, { status: 400 });
   }
 }
 
@@ -74,9 +86,6 @@ export async function DELETE(
     await prisma.branch.delete({ where: { id } });
     return NextResponse.json({ message: "Branch deleted" });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete branch" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error }, { status: 400 });
   }
 }

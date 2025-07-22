@@ -1,89 +1,177 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Branch, branchSchema } from './types';
-import { createBranch, updateBranch, getBranch } from './api';
-import { useEffect } from 'react';
+import { createBranch, updateBranch, getBranch } from "./api";
+import { Branch, branchSchema } from "./types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AlertCircleIcon } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 type BranchFormProps = {
-  branchId?: string; // If provided, form is in edit mode
-  onSuccess?: () => void; // Optional callback after successful submit
+  branchId: number; // If provided, form is in edit mode
+  onSuccess?: (d: Branch) => void; // Optional callback after successful submit
 };
 
 export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
-  const queryClient = useQueryClient();
-
-  const { data: branchData } = useQuery({ queryKey: ['branch', branchId], queryFn: () => getBranch(branchId!), enabled: !!branchId});
-  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Branch>({
-    resolver: zodResolver(branchSchema),
-    defaultValues: undefined,
+  const { data: branchData } = useQuery({
+    queryKey: ["branch", branchId],
+    queryFn: () => getBranch(branchId),
+    enabled: !!branchId,
   });
+  const form = useForm<Branch>({
+    resolver: zodResolver(branchSchema),
+    defaultValues: {
+      name: "",
+      abbreviation: "",
+      address: "",
+      phone: "",
+      email: "",
+    },
+  });
+  const {
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = form;
 
   useEffect(() => {
     if (branchData) {
       reset({
         ...branchData,
-        address: branchData.address ?? '',
-        phone: branchData.phone ?? '',
-        email: branchData.email ?? '',
+        address: branchData.address ?? "",
+        phone: branchData.phone ?? "",
+        email: branchData.email ?? "",
       });
     }
   }, [branchData, reset]);
 
   const mutation = useMutation({
     mutationFn: (data: Branch) =>
-      branchData && branchData.id
-        ? updateBranch(data)
-        : createBranch(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
+      branchData && branchData.id ? updateBranch(data) : createBranch(data),
+    onSuccess: (d) => {
       reset();
-      onSuccess?.();
+      onSuccess?.(d);
     },
   });
 
   return (
-    <form 
-      onSubmit={handleSubmit((data) => {
-        // Sanitize and trim input values before mutation
-        const sanitizedData = {
-          ...data,
-          name: data.name.trim(),
-          abbreviation: data.abbreviation.trim(),
-          address: data.address?.replace(/[<>]/g, '').trim(),
-          phone: data.phone?.replace(/[^0-9+()-\s]/g, '').trim(),
-          email: data.email?.trim().toLowerCase(),
-        };
-        mutation.mutate(sanitizedData);
-      })}
-      className="bg-white p-4 rounded shadow"
-    >
-      {/* 
-        NOTE: Always validate and sanitize again on the backend to prevent security issues,
-        as frontend validation can be bypassed.
-      */}
-      {mutation.isError && (
-        <div className="text-red-600 mb-2">
-          {mutation.error?.message || 'An error occurred while creating the branch.'}
-        </div>
-      )}
-      <input {...register('name')} placeholder="Name" className="w-full mb-2 p-2 border rounded" />
-      {errors.name && <p className="text-red-600 text-sm mb-2">{errors.name.message}</p>}
-      <input {...register('abbreviation')} placeholder="Abbreviation" className="w-full mb-2 p-2 border rounded" />
-      {errors.abbreviation && <p className="text-red-600 text-sm mb-2">{errors.abbreviation.message}</p>}
-      <input {...register('address')} placeholder="Address" className="w-full mb-2 p-2 border rounded" />
-      {errors.address && <p className="text-red-600 text-sm mb-2">{errors.address.message}</p>}
-      <input {...register('phone')} placeholder="Phone" className="w-full mb-2 p-2 border rounded" />
-      {errors.phone && <p className="text-red-600 text-sm mb-2">{errors.phone.message}</p>}
-      <input {...register('email')} placeholder="Email" className="w-full mb-2 p-2 border rounded" />
-      {errors.email && <p className="text-red-600 text-sm mb-2">{errors.email.message}</p>}
-      <button
-        type="submit"
-        className="bg-blue-600 text-white py-2 px-4 rounded"
-        disabled={mutation.isPending}
+    <Form {...form}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          console.log(data);
+          // Sanitize and trim input values before mutation
+          const sanitizedData = {
+            ...data,
+            name: data.name.trim(),
+            abbreviation: data.abbreviation.trim(),
+            address: data.address?.replace(/[<>]/g, "").trim(),
+            phone: data.phone?.replace(/[^0-9+()-\s]/g, "").trim(),
+            email: data.email?.trim().toLowerCase(),
+          };
+          console.log("sumbit");
+          mutation.mutate(sanitizedData);
+        })}
+        className="bg-white p-4 rounded shadow"
       >
-        {mutation.isPending ? 'Saving...' : 'Save'}
-      </button>
-    </form>
+        {mutation.isError && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              <p>{mutation.error.message}</p>
+            </AlertDescription>
+          </Alert>
+        )}
+        {JSON.stringify(errors)}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="Name" {...field} />
+              </FormControl>
+              <FormDescription>Name</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="abbreviation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Abbreviation</FormLabel>
+              <FormControl>
+                <Input placeholder="Abbreviation" {...field} />
+              </FormControl>
+              <FormDescription>Abbreviation</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input placeholder="Address" {...field} />
+              </FormControl>
+              <FormDescription>Address</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl>
+                <Input placeholder="Phone" {...field} />
+              </FormControl>
+              <FormDescription>Phone</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="Email" {...field} />
+              </FormControl>
+              <FormDescription>Email</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          type="submit"
+          className="bg-blue-600 text-white py-2 px-4 rounded"
+          disabled={mutation.isPending || !isDirty}
+        >
+          {mutation.isPending ? "Saving..." : "Save"}
+        </Button>
+      </form>
+    </Form>
   );
 }
