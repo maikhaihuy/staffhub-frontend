@@ -1,4 +1,8 @@
 import { Branch } from "./types";
+import {
+  GenericTable,
+  ColumnConfig,
+} from "@/components/organisms/generic-table";
 import PageNavigator from "@/components/organisms/page-navigator";
 import {
   Card,
@@ -7,24 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-
-type ColumnConfig<T> = {
-  key: keyof T | string;
-  label: string;
-  className?: string;
-  render?: (item: T) => React.ReactNode;
-};
 
 type BranchListProp = {
-  branches: Branch[];
+  title: string;
+  description?: string;
+  data: Branch[];
   columns: ColumnConfig<Branch>[];
   page: number;
   pageSize: number;
@@ -34,7 +25,9 @@ type BranchListProp = {
 };
 
 export default function BranchList({
-  branches,
+  title,
+  description,
+  data,
   columns,
   page,
   pageSize,
@@ -45,32 +38,15 @@ export default function BranchList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Chi nhánh</CardTitle>
-        <CardDescription>Thông tin chi tiết các nhi nhánh</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        {description ?? <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.map((col) => (
-                <TableHead key={col.key as string} className={col.className}>
-                  {col.label}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {branches?.map((branch) => (
-              <TableRow key={branch.id}>
-                {columns.map((col) => (
-                  <TableCell key={col.key as string} className={col.className}>
-                    {col.render ? col.render(branch) : (branch as any)[col.key]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <GenericTable
+          columns={columns}
+          data={data}
+          rowKey={(branch) => branch.id!}
+        />
         <PageNavigator
           page={page}
           pageSize={pageSize}

@@ -1,24 +1,22 @@
 "use client";
 
+import DrawerForm from "@/components/organisms/drawer-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerClose,
-} from "@/components/ui/drawer";
-import { getBranches } from "@/features/branch/api";
+  createBranch,
+  getBranch,
+  getBranches,
+  updateBranch,
+} from "@/features/branch/api";
 import BranchForm from "@/features/branch/form";
 import BranchList from "@/features/branch/list";
-import { Branch } from "@/features/branch/types";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Branch, branchSchema } from "@/features/branch/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 
 type ColumnConfig<T> = {
   key: keyof T | string;
@@ -26,55 +24,6 @@ type ColumnConfig<T> = {
   className?: string;
   render?: (item: T) => React.ReactNode;
 };
-
-type DrawerFormProp = {
-  id: number;
-  open: boolean;
-  onSuccess: (data: Branch) => void;
-  onOpenChange: (open: boolean) => void;
-  onClose: () => void;
-};
-
-function DrawerForm({
-  id,
-  open,
-  onSuccess,
-  onOpenChange,
-  onClose,
-}: DrawerFormProp) {
-  const isMobile = useIsMobile();
-  if (!open) return;
-
-  return (
-    <Drawer
-      direction={isMobile ? "bottom" : "right"}
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-      <DrawerContent
-        onInteractOutside={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{!id ? "Thêm mới" : "Chỉnh sửa"}</DrawerTitle>
-          <DrawerDescription>Thông tin chi nhánh</DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <BranchForm branchId={id} onSuccess={onSuccess} />
-        </div>
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline" onClick={onClose}>
-              Done
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-}
 
 export default function BranchPage() {
   const queryClient = useQueryClient();
@@ -151,10 +100,70 @@ export default function BranchPage() {
     console.log("open", open);
     console.log("selectedBranchId", selectedBranchId);
   };
-  const onSuccess = (d: Branch) => {
-    console.log("onSuccess", d);
-    queryClient.invalidateQueries({ queryKey: ["branches"] });
-    // Optionally, you can refetch branches here
+
+  // Only fetch branch detail when drawer is open and branchId is set
+  const { data: branchData } = useQuery({
+    queryKey: ["branch", selectedBranchId],
+    queryFn: () => getBranch(selectedBranchId!),
+    enabled: !!selectedBranchId && open,
+  });
+
+  const branchForm = useForm<Branch>({
+    resolver: zodResolver(branchSchema),
+    defaultValues: {
+      name: "",
+      abbreviation: "",
+      address: "",
+      phone: "",
+      email: "",
+    },
+  });
+  const {
+    formState: { isDirty },
+  } = branchForm;
+  // Reset form when branchData changes (for edit)
+  useEffect(() => {
+    if (branchData) {
+      branchForm.reset(branchData);
+    } else {
+      branchForm.reset({
+        name: "",
+        abbreviation: "",
+        address: "",
+        phone: "",
+        email: "",
+      });
+    }
+  }, [branchData, branchForm]);
+
+  const mutation = useMutation({
+    mutationFn: (data: Branch) =>
+      branchData && branchData.id ? updateBranch(data) : createBranch(data),
+    onSuccess: (d) => {
+      queryClient.invalidateQueries({ queryKey: ["branches"] });
+      setSelectedBranchId(d.id!);
+      branchForm.reset(d); // Reset form to new data here
+      console.log("data submit: ", d);
+    },
+  });
+
+  const handleSubmit = (data: Branch) => {
+    console.log(data);
+    // Sanitize and trim input values before mutation
+    const sanitizedData = {
+      ...data,
+      name: data.name.trim(),
+      abbreviation: data.abbreviation.trim(),
+      address: data.address?.replace(/[<>]/g, "").trim(),
+      phone: data.phone?.replace(/[^0-9+()-\s]/g, "").trim(),
+      email: data.email?.trim().toLowerCase(),
+    };
+    console.log("sumbit");
+    mutation.mutate(sanitizedData);
+  };
+  const handleDiscard = () => {
+    branchForm.reset();
+    setOpen(false);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -172,28 +181,33 @@ export default function BranchPage() {
         </div>
       </div>
       <BranchList
-        branches={data?.data ?? []}
+        title="Chi nhánh"
+        description="Thông tin chi tiết các chi nhánh"
+        data={data?.data ?? []}
         columns={columns}
         page={page}
         pageSize={pageSize}
         total={data?.total ?? 0}
-        setPage={(value) => {
-          console.log("setPage: branch page ", value);
-          //queryClient.invalidateQueries({ queryKey: ["branches"], value });
-          setPage(value);
-        }}
-        setPageSize={(value) => {
-          console.log("setPageSize: branch page ", value);
-          setPageSize(value);
-        }}
+        setPage={setPage}
+        setPageSize={setPageSize}
       />
       <DrawerForm
-        id={selectedBranchId}
         open={open}
-        onSuccess={onSuccess}
+        setOpen={setOpen}
         onOpenChange={handleOpenChange}
-        onClose={() => setOpen(false)}
-      />
+        onDiscard={handleDiscard}
+        isDirty={isDirty}
+        isLoading={mutation.isPending}
+        formId="branch-form"
+        title={!selectedBranchId ? "Thêm mới" : "Chỉnh sửa"}
+        description="Thông tin chi nhánh"
+      >
+        <BranchForm
+          formId="branch-form"
+          form={branchForm}
+          onSubmit={handleSubmit}
+        />
+      </DrawerForm>
     </div>
   );
 }

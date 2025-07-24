@@ -1,109 +1,55 @@
-import { createBranch, updateBranch, getBranch } from "./api";
-import { Branch, branchSchema } from "./types";
+import { Branch } from "./types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircleIcon } from "lucide-react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 
 type BranchFormProps = {
-  branchId: number; // If provided, form is in edit mode
-  onSuccess?: (d: Branch) => void; // Optional callback after successful submit
+  formId: string;
+  form: UseFormReturn<Branch>;
+  onSubmit(data: Branch): void;
+  error?: string;
 };
 
-export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
-  const { data: branchData } = useQuery({
-    queryKey: ["branch", branchId],
-    queryFn: () => getBranch(branchId),
-    enabled: !!branchId,
-  });
-  const form = useForm<Branch>({
-    resolver: zodResolver(branchSchema),
-    defaultValues: {
-      name: "",
-      abbreviation: "",
-      address: "",
-      phone: "",
-      email: "",
-    },
-  });
-  const {
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = form;
-
-  useEffect(() => {
-    if (branchData) {
-      reset({
-        ...branchData,
-        address: branchData.address ?? "",
-        phone: branchData.phone ?? "",
-        email: branchData.email ?? "",
-      });
-    }
-  }, [branchData, reset]);
-
-  const mutation = useMutation({
-    mutationFn: (data: Branch) =>
-      branchData && branchData.id ? updateBranch(data) : createBranch(data),
-    onSuccess: (d) => {
-      reset();
-      onSuccess?.(d);
-    },
-  });
-
+export default function BranchForm({
+  formId,
+  form,
+  onSubmit,
+  error,
+}: BranchFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={handleSubmit((data) => {
-          console.log(data);
-          // Sanitize and trim input values before mutation
-          const sanitizedData = {
-            ...data,
-            name: data.name.trim(),
-            abbreviation: data.abbreviation.trim(),
-            address: data.address?.replace(/[<>]/g, "").trim(),
-            phone: data.phone?.replace(/[^0-9+()-\s]/g, "").trim(),
-            email: data.email?.trim().toLowerCase(),
-          };
-          console.log("sumbit");
-          mutation.mutate(sanitizedData);
-        })}
-        className="bg-white p-4 rounded shadow"
+        id={formId}
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
       >
-        {mutation.isError && (
+        {error && (
           <Alert variant="destructive">
             <AlertCircleIcon />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
-              <p>{mutation.error.message}</p>
+              <p>{error}</p>
             </AlertDescription>
           </Alert>
         )}
-        {JSON.stringify(errors)}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Tên chi nhánh</FormLabel>
               <FormControl>
-                <Input placeholder="Name" {...field} />
+                <Input placeholder="Soli 62 - Tân Tạo" {...field} />
               </FormControl>
-              <FormDescription>Name</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -113,11 +59,10 @@ export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
           name="abbreviation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Abbreviation</FormLabel>
+              <FormLabel>Ký hiệu - Viết tắt</FormLabel>
               <FormControl>
-                <Input placeholder="Abbreviation" {...field} />
+                <Input placeholder="TT" {...field} />
               </FormControl>
-              <FormDescription>Abbreviation</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -127,11 +72,13 @@ export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Địa chỉ</FormLabel>
               <FormControl>
-                <Input placeholder="Address" {...field} />
+                <Input
+                  placeholder="123 Lương Văn Cù, phường Bình Xuyên, Tp. Hồ Chí Minh"
+                  {...field}
+                />
               </FormControl>
-              <FormDescription>Address</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -141,11 +88,10 @@ export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Số điện thoại</FormLabel>
               <FormControl>
-                <Input placeholder="Phone" {...field} />
+                <Input placeholder="0987654321" {...field} />
               </FormControl>
-              <FormDescription>Phone</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -157,20 +103,12 @@ export default function BranchForm({ branchId, onSuccess }: BranchFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input placeholder="soli62@gmail.com" {...field} />
               </FormControl>
-              <FormDescription>Email</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded"
-          disabled={mutation.isPending || !isDirty}
-        >
-          {mutation.isPending ? "Saving..." : "Save"}
-        </Button>
       </form>
     </Form>
   );
