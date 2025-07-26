@@ -1,5 +1,4 @@
 import { Separator } from "../ui/separator";
-import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -13,11 +12,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 type DrawerFormProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  onOpenChange: (open: boolean) => void;
-  onDiscard: () => void;
-  formId: string;
-  isDirty: boolean;
-  isLoading: boolean;
+  onOpenChange?: (open: boolean) => void;
+  isPreventInteractOutside: boolean;
   title: React.ReactNode;
   description?: React.ReactNode;
   children: React.ReactNode;
@@ -28,10 +24,7 @@ export default function DrawerForm({
   open,
   setOpen,
   onOpenChange,
-  onDiscard,
-  formId,
-  isDirty,
-  isLoading,
+  isPreventInteractOutside,
   title,
   description,
   children,
@@ -48,9 +41,7 @@ export default function DrawerForm({
     >
       <DrawerContent
         onInteractOutside={
-          !isDirty && !isLoading
-            ? () => setOpen(false)
-            : () => onOpenChange(false)
+          !isPreventInteractOutside ? () => setOpen(false) : undefined
         }
       >
         <DrawerHeader className="gap-1">
@@ -61,25 +52,7 @@ export default function DrawerForm({
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           {children}
         </div>
-        <DrawerFooter>
-          {footer}
-          <Button
-            type="submit"
-            form={formId}
-            className="bg-blue-600 text-white py-2 px-4 rounded"
-            disabled={isLoading || !isDirty}
-          >
-            {isLoading ? "Saving..." : "Save"}
-          </Button>
-          <Button
-            variant="outline"
-            className="py-2 px-4 rounded"
-            onClick={() => onDiscard()}
-            disabled={isLoading || !isDirty}
-          >
-            Discard
-          </Button>
-        </DrawerFooter>
+        <DrawerFooter>{footer}</DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

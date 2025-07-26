@@ -1,9 +1,10 @@
+import { Label } from "../ui/label";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
+  PaginationFirst,
   PaginationItem,
-  PaginationLink,
+  PaginationLast,
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
@@ -14,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { PAGINATION } from "@/constants";
 
 export type PageNavigatorProp = {
   page: number;
@@ -29,75 +31,76 @@ export default function PageNavigator({
   setPage,
   setPageSize,
 }: PageNavigatorProp) {
-  const delta = 3;
-  const minPage = 1;
-  const pageSizeOptions = [1, 2, 5];
+  const minPage = PAGINATION.DEFAULT_PAGE;
+  const pageSizeOptions = PAGINATION.DEFAULT_PAGE_SIZE_OPTIONS;
   const maxPage = Math.ceil(total / pageSize);
-  const curPage = page;
-  const startPage = curPage - delta > minPage ? curPage - delta : minPage;
-  const endPage = curPage + delta < maxPage ? curPage + delta : maxPage;
-  const pages = [];
-  if (startPage > minPage) {
-    pages.push(
-      <PaginationItem key="pre-page">
-        <PaginationEllipsis />
-      </PaginationItem>
-    );
-  }
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(
-      <PaginationItem key={i}>
-        <PaginationLink isActive={i === curPage} onClick={() => setPage(i)}>
-          {i}
-        </PaginationLink>
-      </PaginationItem>
-    );
-  }
-  if (endPage < maxPage) {
-    pages.push(
-      <PaginationItem key="post-page">
-        <PaginationEllipsis />
-      </PaginationItem>
-    );
-  }
+  const pages = (
+    <Select
+      onValueChange={(value) => setPage(Number(value))}
+      value={page.toString()}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder={page.toString()} />
+      </SelectTrigger>
+      <SelectContent>
+        {Array.from(
+          { length: maxPage - minPage + 1 },
+          (_, i) => minPage + i
+        ).map((page) => (
+          <SelectItem key={page} value={page.toString()}>
+            {page}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
   return (
-    <div className="flex items-center justify-between">
-      <Select
-        onValueChange={(value) => {
-          setPageSize(Number(value));
-          setPage(minPage);
-        }}
-        value={pageSize.toString()}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder={pageSize.toString()} />
-        </SelectTrigger>
-        <SelectContent>
-          {pageSizeOptions.map((size) => (
-            <SelectItem key={size} value={size.toString()}>
-              {size} items per page
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {total} items
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={() => setPage(Math.max(curPage - 1, minPage))}
-            />
-          </PaginationItem>
-          {pages}
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => setPage(Math.min(curPage + 1, maxPage))}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+    <div className="flex flex-row gap-8">
+      <div className="flex flex-row items-center gap-2">
+        <Label htmlFor="rows-per-page" className="text-sm font-medium">
+          Rows per page
+        </Label>
+        <Select
+          onValueChange={(value) => {
+            setPageSize(Number(value));
+            setPage(minPage);
+          }}
+          value={pageSize.toString()}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={pageSize.toString()} />
+          </SelectTrigger>
+          <SelectContent>
+            {pageSizeOptions.map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-row items-center gap-2 text-sm font-medium">
+        Page {pages} of {maxPage} ({total} items)
+      </div>
+      <div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationFirst onClick={() => setPage(minPage)} />
+              <PaginationPrevious
+                onClick={() => setPage(Math.max(page - 1, minPage))}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setPage(Math.min(page + 1, maxPage))}
+              />
+              <PaginationLast onClick={() => setPage(maxPage)} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }

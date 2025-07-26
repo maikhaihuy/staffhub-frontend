@@ -30,7 +30,7 @@ export function GenericTable<T>({
 }: GenericTableProps<T>) {
   return (
     <Table>
-      <TableHeader>
+      <TableHeader className="bg-muted sticky top-0 z-10">
         <TableRow>
           {columns.map((col) => (
             <TableHead key={col.key as string} className={col.className}>
