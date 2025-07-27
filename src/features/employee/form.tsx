@@ -1,5 +1,5 @@
 import { Branch } from "../branch/types";
-import { Employee } from "./types";
+import { EmployeeFormData } from "./types";
 import { Input } from "@/components/ui";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,8 @@ import { UseFormReturn } from "react-hook-form";
 
 type EmployeeFormProps = {
   formId: string;
-  form: UseFormReturn<Employee>;
-  onSubmit(data: Employee): void;
+  form: UseFormReturn<EmployeeFormData>;
+  onSubmit(data: EmployeeFormData): void;
   error?: string;
   branches: Branch[];
 };

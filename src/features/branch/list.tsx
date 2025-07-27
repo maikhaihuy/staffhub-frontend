@@ -55,6 +55,7 @@ export default function BranchList({ columns }: BranchListProp) {
     const params = new URLSearchParams(searchParams?.toString());
     params.set("pageSize", newPageSize.toString());
     params.set("page", "1"); // reset to first page
+    console.log(` ${params.toString()}`);
     router.replace(`?${params.toString()}`);
 
     setPageSize(newPageSize);

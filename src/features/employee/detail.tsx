@@ -1,7 +1,7 @@
 import { getBranches } from "../branch/api";
 import { createEmployee, getEmployee, updateEmployee } from "./api";
 import EmployeeForm from "./form";
-import { Employee, employeeSchema } from "./types";
+import { EmployeeFormData, employeeSchema } from "./types";
 import DrawerForm from "@/components/organisms/drawer-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +15,7 @@ type EmployeeDetailProps = {
   setOpen: (open: boolean) => void;
 };
 
-export default function BrancDetail({
+export default function EmployeeDetail({
   id,
   open,
   setOpen,
@@ -34,7 +34,7 @@ export default function BrancDetail({
     queryFn: () => getBranches({ all: true }),
   });
 
-  const form = useForm<Employee>({
+  const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     defaultValues: employee || {},
   });
@@ -50,13 +50,14 @@ export default function BrancDetail({
       form.reset({
         name: "",
         phone: "",
+        isActive: true,
         branchIds: [],
       });
     }
   }, [employee, form]);
 
   const mutation = useMutation({
-    mutationFn: (data: Employee) =>
+    mutationFn: (data: EmployeeFormData) =>
       employee && employee.id ? updateEmployee(data) : createEmployee(data),
     onSuccess: (d) => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
@@ -69,7 +70,7 @@ export default function BrancDetail({
     },
   });
 
-  const handleSubmit = (data: Employee) => {
+  const handleSubmit = (data: EmployeeFormData) => {
     console.log(data);
     // Sanitize and trim input values before mutation
     const sanitizedData = {

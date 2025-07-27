@@ -1,20 +1,15 @@
 import { Branch } from "./types";
 import axios from "@/lib/axios";
+import { QueryRequest } from "@/lib/interface";
+import { buildQueryString } from "@/lib/utils";
 
 const ENDPONT_NAME = "/api/branches";
 
-export const getBranches = async ({
-  page,
-  pageSize,
-  all,
-}: {
-  page?: number;
-  pageSize?: number;
-  all?: boolean;
-}): Promise<{ data: Branch[]; total: number }> => {
-  const res = await axios.get(
-    `${ENDPONT_NAME}?all=${all}page=${page}&pageSize=${pageSize}`
-  );
+export const getBranches = async (
+  queryRequest: QueryRequest<Branch>
+): Promise<{ data: Branch[]; total: number }> => {
+  const queryString = buildQueryString(queryRequest);
+  const res = await axios.get(`${ENDPONT_NAME}${queryString}`);
   return res.data;
 };
 

@@ -5,4 +5,13 @@ interface ColumnConfig<T> {
   render?: (item: T) => React.ReactNode;
 }
 
-export type { ColumnConfig };
+interface QueryRequest<T> {
+  search?: T;
+  orderBy?: keyof T;
+  order?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+  all?: boolean;
+}
+
+export type { ColumnConfig, QueryRequest };

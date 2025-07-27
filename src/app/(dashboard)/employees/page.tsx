@@ -4,13 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EmployeeDetail from "@/features/employee/detail";
 import EmployeeList from "@/features/employee/list";
-import { EmployeeWithBranches } from "@/features/employee/types";
+import { Employee } from "@/features/employee/types";
 import { ColumnConfig } from "@/lib/interface";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function EmployeePage() {
-  const columns: ColumnConfig<EmployeeWithBranches>[] = useMemo(
+  const columns: ColumnConfig<Employee>[] = useMemo(
     () => [
       {
         key: "name",

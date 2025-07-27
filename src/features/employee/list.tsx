@@ -1,5 +1,5 @@
 import { getEmployees } from "./api";
-import { EmployeeWithBranches } from "./types";
+import { Employee } from "./types";
 import {
   GenericTable,
   ColumnConfig,
@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type EmployeeListProp = {
-  columns: ColumnConfig<EmployeeWithBranches>[];
+  columns: ColumnConfig<Employee>[];
 };
 
 function EmployeeListHeader() {
@@ -63,7 +63,7 @@ export default function EmployeeList({ columns }: EmployeeListProp) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["employees", page, pageSize],
-    queryFn: () => getEmployees(page, pageSize),
+    queryFn: () => getEmployees({ page, pageSize }),
   });
 
   if (isLoading) return <p>Loading...</p>;
