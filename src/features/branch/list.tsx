@@ -1,5 +1,5 @@
-import { getEmployees } from "./api";
-import { EmployeeWithBranches } from "./types";
+import { getBranches } from "./api";
+import { Branch } from "./types";
 import {
   GenericTable,
   ColumnConfig,
@@ -13,16 +13,16 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type EmployeeListProp = {
-  columns: ColumnConfig<EmployeeWithBranches>[];
+type BranchListProp = {
+  columns: ColumnConfig<Branch>[];
 };
 
-function EmployeeListHeader() {
-  console.log("EmployeeListHeader rendered");
+function BranchListHeader() {
+  console.log("BranchListHeader rendered");
   return (
     <div className="flex flex-row justify-between">
       <div className="flex flex-row gap-2">
-        <Input placeholder="Search employeees..." className="w-md" />
+        <Input placeholder="Search branches..." className="w-md" />
         <Button>Search</Button>
       </div>
       <Button disabled={true}>Column</Button>
@@ -30,7 +30,7 @@ function EmployeeListHeader() {
   );
 }
 
-export default function EmployeeList({ columns }: EmployeeListProp) {
+export default function BranchList({ columns }: BranchListProp) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -62,20 +62,20 @@ export default function EmployeeList({ columns }: EmployeeListProp) {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ["employees", page, pageSize],
-    queryFn: () => getEmployees(page, pageSize),
+    queryKey: ["branches", page, pageSize],
+    queryFn: () => getBranches({ page, pageSize }),
   });
 
   if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="flex flex-col gap-4">
-      <EmployeeListHeader />
+      <BranchListHeader />
       <div className="overflow-hidden rounded-lg border">
         <GenericTable
           columns={columns}
           data={data?.data || []}
-          rowKey={(employee) => employee.id!}
+          rowKey={(branch) => branch.id!}
         />
       </div>
       <PageNavigator

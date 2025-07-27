@@ -2,10 +2,19 @@ import { withAudit } from "../prisma-wrapper";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET /api/employees - List all employees
+// GET /api/branches - List all branches
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+
+    if (searchParams.get("all"))
+      return NextResponse.json({
+        data: await prisma.branch.findMany({
+          orderBy: { name: "asc" },
+        }),
+        total: 0, // No pagination for "all" branches
+      });
+
     // Pagination params
     const page = parseInt(searchParams.get("page") || "1", 10);
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
@@ -42,26 +51,12 @@ export async function GET(request: Request) {
     //   };
     // }
 
-    const [employees, total] = await Promise.all([
-      prisma.employee.findMany({
-        where,
-        skip,
-        take,
-        include: {
-          branches: true,
-        },
-      }),
-      prisma.employee.count({ where }),
+    const [branches, total] = await Promise.all([
+      prisma.branch.findMany({ where, skip, take }),
+      prisma.branch.count({ where }),
     ]);
-
-    // Add branchIds to each employee
-    const employeesWithBranchIds = employees.map((emp) => ({
-      ...emp,
-      branchIds: emp.branches.map((b) => b.id),
-    }));
-
     return NextResponse.json({
-      data: employeesWithBranchIds,
+      data: branches,
       page,
       pageSize,
       total,
@@ -72,26 +67,19 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/employees - Create a new employee
+// POST /api/branches - Create a new branch
 export async function POST(request: Request) {
   try {
-    const createdEmployee = await request.json();
+    const createdBranch = await request.json();
 
     // Simple validation
-    const requiredFields = ["name", "phone", "branchIds"];
-    const missingFields = requiredFields.filter((field) => {
-      if (field === "branchIds") {
-        return (
-          !Array.isArray(createdEmployee.branchIds) ||
-          createdEmployee.branchIds.length === 0
-        );
-      }
-      return (
-        !createdEmployee[field] ||
-        typeof createdEmployee[field] !== "string" ||
-        createdEmployee[field].trim() === ""
-      );
-    });
+    const requiredFields = ["name", "abbreviation", "address"];
+    const missingFields = requiredFields.filter(
+      (field) =>
+        !createdBranch[field] ||
+        typeof createdBranch[field] !== "string" ||
+        createdBranch[field].trim() === ""
+    );
 
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -99,33 +87,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // Prepare data for Prisma, linking branches
-    const data = withAudit(
-      1,
-      {
-        ...createdEmployee,
-        branches: {
-          connect: createdEmployee.branchIds.map((id: number) => ({ id })),
-        },
-      },
-      "create"
-    );
+    const data = withAudit(1, createdBranch, "create");
 
-    // Remove branchIds from data to avoid unknown field error
-    delete data.branchIds;
-
-    const employee = await prisma.employee.create({
-      data,
-      include: { branches: true }, // Optionally include linked branches in response
-    });
-
-    // Add branchIds to an employee
-    const employeeWithBranchIds = {
-      ...employee,
-      branchIds: employee.branches.map((b) => b.id),
-    };
-
-    return NextResponse.json(employeeWithBranchIds, { status: 201 });
+    const branch = await prisma.branch.create({ data });
+    return NextResponse.json(branch, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error }, { status: 400 });
   }

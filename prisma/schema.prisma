@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id              Int            @id @default(autoincrement())
+  name            String
+  phone           String
+  avatar          String?
+  email           String?
+  address         String?
+  isActive        Boolean         @default(true)
+  shiftRequests   ShiftRequest[]
+  assignedSchedules ShiftSchedule[] @relation("AssignedByEmployee")
+  shiftSchedules  ShiftSchedule[] @relation("EmployeeShiftSchedule")
+  branches        Branch[]
+  createdAt         DateTime
+  createdBy         Int
+  updatedAt         DateTime
+  updatedBy         Int
+}
+
+model ShiftRequest {
+  id             Int             @id @default(autoincrement())
+  employeeId     Int
+  employee       Employee        @relation(fields: [employeeId], references: [id])
+  dateRegister   DateTime        @db.Date
+  startTime      DateTime        
+  duration       Int
+  shiftSchedules ShiftSchedule[]
+  createdAt         DateTime
+  createdBy         Int
+  updatedAt         DateTime
+  updatedBy         Int
+}
+
+model ShiftSchedule {
+  id            Int            @id @default(autoincrement())
+  employeeId    Int
+  employee      Employee       @relation("EmployeeShiftSchedule", fields: [employeeId], references: [id])
+  dateRegister  DateTime       @db.Date
+  startTime     DateTime       
+  duration      Int
+  assignedBy    Int            @map("AssignedBy")
+  assigner      Employee       @relation("AssignedByEmployee", fields: [assignedBy], references: [id])
+  shiftRequestId Int
+  shiftRequest  ShiftRequest   @relation(fields: [shiftRequestId], references: [id])
+  note          String?        
+  branchId      Int
+  branch        Branch         @relation(fields: [branchId], references: [id])
+  createdAt         DateTime
+  createdBy         Int
+  updatedAt         DateTime
+  updatedBy         Int
+}
+
+model Branch {
+  id             Int              @id @default(autoincrement())
+  name           String
+  abbreviation   String
+  address        String
+  email          String?
+  phone          String?
+  shiftSchedules ShiftSchedule[]
+  employees        Employee[]
+  createdAt         DateTime
+  createdBy         Int
+  updatedAt         DateTime
+  updatedBy         Int
+}
