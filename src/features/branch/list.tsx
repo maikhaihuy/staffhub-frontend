@@ -63,7 +63,7 @@ export default function BranchList({ columns }: BranchListProp) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["branches", page, pageSize],
-    queryFn: () => getBranches(page, pageSize),
+    queryFn: () => getBranches({ page, pageSize }),
   });
 
   if (isLoading) return <p>Loading...</p>;

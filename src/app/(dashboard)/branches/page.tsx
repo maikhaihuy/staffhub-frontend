@@ -5,15 +5,9 @@ import { Button } from "@/components/ui/button";
 import BrancDetail from "@/features/branch/detail";
 import BranchList from "@/features/branch/list";
 import { Branch } from "@/features/branch/types";
+import { ColumnConfig } from "@/lib/interface";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-
-type ColumnConfig<T> = {
-  key: keyof T | string;
-  label: string;
-  className?: string;
-  render?: (item: T) => React.ReactNode;
-};
 
 export default function BranchPage() {
   const columns: ColumnConfig<Branch>[] = useMemo(
@@ -21,11 +15,12 @@ export default function BranchPage() {
       {
         key: "name",
         label: "Name",
-        className: "font-medium",
+        className: "w-2/8 font-medium",
       },
       {
         key: "abbreviation",
         label: "Abbreviation",
+        className: "w-1/8",
         render: (branch) => (
           <Badge variant="outline" className="capitalize">
             {branch.abbreviation}
@@ -35,21 +30,22 @@ export default function BranchPage() {
       {
         key: "email",
         label: "Email",
-        className: "hidden md:table-cell",
+        className: "w-1/8 hidden md:table-cell",
       },
       {
         key: "phone",
         label: "Phone",
-        className: "hidden md:table-cell",
+        className: "w-1/8 hidden md:table-cell",
       },
       {
         key: "address",
         label: "Address",
-        className: "hidden md:table-cell",
+        className: "w-2/8 hidden md:table-cell",
       },
       {
         key: "actions",
         label: "",
+        className: "w-1/8 text-right",
         render: (branch) => (
           <>
             <Button

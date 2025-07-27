@@ -3,6 +3,10 @@ CREATE TABLE "Employee" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
+    "avatar" TEXT,
+    "email" TEXT,
+    "address" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "createdBy" INTEGER NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -62,12 +66,15 @@ CREATE TABLE "Branch" (
 );
 
 -- CreateTable
-CREATE TABLE "EmployeeBranch" (
-    "branchId" INTEGER NOT NULL,
-    "employeeId" INTEGER NOT NULL,
+CREATE TABLE "_BranchToEmployee" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
 
-    CONSTRAINT "EmployeeBranch_pkey" PRIMARY KEY ("branchId","employeeId")
+    CONSTRAINT "_BranchToEmployee_AB_pkey" PRIMARY KEY ("A","B")
 );
+
+-- CreateIndex
+CREATE INDEX "_BranchToEmployee_B_index" ON "_BranchToEmployee"("B");
 
 -- AddForeignKey
 ALTER TABLE "ShiftRequest" ADD CONSTRAINT "ShiftRequest_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -85,7 +92,7 @@ ALTER TABLE "ShiftSchedule" ADD CONSTRAINT "ShiftSchedule_shiftRequestId_fkey" F
 ALTER TABLE "ShiftSchedule" ADD CONSTRAINT "ShiftSchedule_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "EmployeeBranch" ADD CONSTRAINT "EmployeeBranch_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "_BranchToEmployee" ADD CONSTRAINT "_BranchToEmployee_A_fkey" FOREIGN KEY ("A") REFERENCES "Branch"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "EmployeeBranch" ADD CONSTRAINT "EmployeeBranch_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "_BranchToEmployee" ADD CONSTRAINT "_BranchToEmployee_B_fkey" FOREIGN KEY ("B") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;

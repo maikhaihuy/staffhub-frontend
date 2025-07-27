@@ -6,6 +6,15 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+
+    if (searchParams.get("all"))
+      return NextResponse.json({
+        data: await prisma.branch.findMany({
+          orderBy: { name: "asc" },
+        }),
+        total: 0, // No pagination for "all" branches
+      });
+
     // Pagination params
     const page = parseInt(searchParams.get("page") || "1", 10);
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
@@ -14,33 +23,33 @@ export async function GET(request: Request) {
 
     // Build dynamic where filter
     const where: any = {};
-    if (searchParams.has("name")) {
-      where.name = { contains: searchParams.get("name")!, mode: "insensitive" };
-    }
-    if (searchParams.has("abbreviation")) {
-      where.abbreviation = {
-        contains: searchParams.get("abbreviation")!,
-        mode: "insensitive",
-      };
-    }
-    if (searchParams.has("address")) {
-      where.address = {
-        contains: searchParams.get("address")!,
-        mode: "insensitive",
-      };
-    }
-    if (searchParams.has("phone")) {
-      where.phone = {
-        contains: searchParams.get("phone")!,
-        mode: "insensitive",
-      };
-    }
-    if (searchParams.has("email")) {
-      where.email = {
-        contains: searchParams.get("email")!,
-        mode: "insensitive",
-      };
-    }
+    // if (searchParams.has("name")) {
+    //   where.name = { contains: searchParams.get("name")!, mode: "insensitive" };
+    // }
+    // if (searchParams.has("abbreviation")) {
+    //   where.abbreviation = {
+    //     contains: searchParams.get("abbreviation")!,
+    //     mode: "insensitive",
+    //   };
+    // }
+    // if (searchParams.has("address")) {
+    //   where.address = {
+    //     contains: searchParams.get("address")!,
+    //     mode: "insensitive",
+    //   };
+    // }
+    // if (searchParams.has("phone")) {
+    //   where.phone = {
+    //     contains: searchParams.get("phone")!,
+    //     mode: "insensitive",
+    //   };
+    // }
+    // if (searchParams.has("email")) {
+    //   where.email = {
+    //     contains: searchParams.get("email")!,
+    //     mode: "insensitive",
+    //   };
+    // }
 
     const [branches, total] = await Promise.all([
       prisma.branch.findMany({ where, skip, take }),

@@ -17,10 +17,14 @@ model Employee {
   id              Int            @id @default(autoincrement())
   name            String
   phone           String
+  avatar          String?
+  email           String?
+  address         String?
+  isActive        Boolean         @default(true)
   shiftRequests   ShiftRequest[]
   assignedSchedules ShiftSchedule[] @relation("AssignedByEmployee")
   shiftSchedules  ShiftSchedule[] @relation("EmployeeShiftSchedule")
-  employeeBranches EmployeeBranch[]
+  branches        Branch[]
   createdAt         DateTime
   createdBy         Int
   updatedAt         DateTime
@@ -69,18 +73,9 @@ model Branch {
   email          String?
   phone          String?
   shiftSchedules ShiftSchedule[]
-  employeeBranches EmployeeBranch[]
+  employees        Employee[]
   createdAt         DateTime
   createdBy         Int
   updatedAt         DateTime
   updatedBy         Int
-}
-
-model EmployeeBranch {
-  branchId   Int
-  branch     Branch   @relation(fields: [branchId], references: [id])
-  employeeId Int
-  employee   Employee @relation(fields: [employeeId], references: [id])
-
-  @@id([branchId, employeeId])
 }

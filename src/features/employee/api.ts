@@ -1,14 +1,21 @@
-import axios from '@/lib/axios';
-import { Employee } from './types';
+import { Employee, EmployeeWithBranches } from "./types";
+import axios from "@/lib/axios";
 
-const ENDPONT_NAME = '/api/employees';
+const ENDPONT_NAME = "/api/employees";
 
-export const getEmployees = async (): Promise<Employee[]> => {
-  const res = await axios.get(ENDPONT_NAME);
+export const getEmployees = async (
+  page: number,
+  pageSize: number
+): Promise<{ data: EmployeeWithBranches[]; total: number }> => {
+  const res = await axios.get(
+    `${ENDPONT_NAME}?page=${page}&pageSize=${pageSize}`
+  );
   return res.data;
 };
 
-export const getEmployee = async (id: string): Promise<Employee> => {
+export const getEmployee = async (
+  id: number
+): Promise<EmployeeWithBranches> => {
   const res = await axios.get(`${ENDPONT_NAME}/${id}`);
   return res.data;
 };
