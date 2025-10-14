@@ -6,8 +6,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import AppBreadcrumb from '@/components/app-breadcrum';
+import type { ReactNode } from 'react';
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
 //   const session = await getSession();
 
 //   if (!session) redirect('/login');
