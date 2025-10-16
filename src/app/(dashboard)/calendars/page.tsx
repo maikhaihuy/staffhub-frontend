@@ -2,10 +2,12 @@
 
 import { Employee } from "@/features/employee/types";
 import { Shift } from "@/features/shift/types";
-import { ScheduledShift } from "@/features/scheduledShift/types";
+import { ScheduledShift } from "@/features/schedules/types";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Download, FileText, Users } from "lucide-react";
+
+import { sampleShifts } from "@/features/shift/types";
 
 // Sample employees
 const sampleEmployees: Employee[] = [
@@ -16,13 +18,6 @@ const sampleEmployees: Employee[] = [
   { id: 5, name: "Lisa Rodriguez", phone: "444-555-6666", branchIds: [2, 3] },
   { id: 6, name: "David Kim", phone: "123-456-7890", branchIds: [1, 2] },
   { id: 7, name: "Anna Martinez", phone: "987-654-3210", branchIds: [1, 3] },
-]
-
-// Sample shifts with colors
-const sampleShifts: Shift[] = [
-  { id: "morning", name: "Morning Shift", startTime: "06:00", endTime: "14:00", color: "bg-blue-500" },
-  { id: "afternoon", name: "Afternoon Shift", startTime: "14:00", endTime: "22:00", color: "bg-green-500" },
-  { id: "night", name: "Night Shift", startTime: "22:00", endTime: "06:00", color: "bg-purple-500" },
 ]
 
 // Days of the week
