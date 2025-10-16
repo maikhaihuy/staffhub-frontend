@@ -2,23 +2,13 @@
 
 import { Employee } from "@/features/employee/types";
 import { Shift } from "@/features/shift/types";
-import { ScheduledShift } from "@/features/schedules/types";
+import { sampleSchedules, ScheduledShift } from "@/features/schedules/types";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Download, FileText, Users } from "lucide-react";
 
 import { sampleShifts } from "@/features/shift/types";
-
-// Sample employees
-const sampleEmployees: Employee[] = [
-  { id: 1, name: "Sarah Johnson", phone: "123-456-7890", branchIds: [1, 2] },
-  { id: 2, name: "Mike Chen", phone: "987-654-3210", branchIds: [1, 3] },
-  { id: 3, name: "Emily Davis", phone: "555-555-5555", branchIds: [2, 3] },
-  { id: 4, name: "James Wilson", phone: "111-222-3333", branchIds: [1, 2, 3] },
-  { id: 5, name: "Lisa Rodriguez", phone: "444-555-6666", branchIds: [2, 3] },
-  { id: 6, name: "David Kim", phone: "123-456-7890", branchIds: [1, 2] },
-  { id: 7, name: "Anna Martinez", phone: "987-654-3210", branchIds: [1, 3] },
-]
+import { sampleEmployees } from "@/features/employee/types";
 
 // Days of the week
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -26,24 +16,29 @@ const dayAbbr = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 // Sample scheduled shifts
 const sampleScheduledShifts: ScheduledShift[] = [
-  { shiftId: "morning", day: "Monday", assignedEmployees: [1, 2, 4] },
-  { shiftId: "afternoon", day: "Monday", assignedEmployees: [3, 5, 6, 7] },
-  { shiftId: "night", day: "Monday", assignedEmployees: [2, 5] },
-  { shiftId: "morning", day: "Tuesday", assignedEmployees: [1, 3, 4] },
-  { shiftId: "afternoon", day: "Tuesday", assignedEmployees: [2, 5, 6] },
-  { shiftId: "morning", day: "Wednesday", assignedEmployees: [1, 2] },
-  { shiftId: "afternoon", day: "Wednesday", assignedEmployees: [3, 4, 5, 7] },
-  { shiftId: "night", day: "Wednesday", assignedEmployees: [6, 7] },
-  { shiftId: "morning", day: "Thursday", assignedEmployees: [1, 3, 5] },
-  { shiftId: "afternoon", day: "Thursday", assignedEmployees: [2, 4, 6, 7] },
-  { shiftId: "morning", day: "Friday", assignedEmployees: [1, 2, 3, 4] },
-  { shiftId: "afternoon", day: "Friday", assignedEmployees: [5, 6, 7] },
-  { shiftId: "night", day: "Friday", assignedEmployees: [2, 3] },
-  { shiftId: "morning", day: "Saturday", assignedEmployees: [1, 4, 5] },
-  { shiftId: "afternoon", day: "Saturday", assignedEmployees: [2, 3, 6, 7] },
-  { shiftId: "morning", day: "Sunday", assignedEmployees: [1, 3] },
-  { shiftId: "afternoon", day: "Sunday", assignedEmployees: [2, 4, 5] },
+  { shiftId: 1, day: "Monday", assignedEmployees: [1, 2, 4] },
+  { shiftId: 2, day: "Monday", assignedEmployees: [3, 5, 6, 7] },
+  { shiftId: 3, day: "Monday", assignedEmployees: [2, 5] },
+  { shiftId: 1, day: "Tuesday", assignedEmployees: [1, 3, 4] },
+  { shiftId: 2, day: "Tuesday", assignedEmployees: [2, 5, 6] },
+  { shiftId: 1, day: "Wednesday", assignedEmployees: [1, 2] },
+  { shiftId: 2, day: "Wednesday", assignedEmployees: [3, 4, 5, 7] },
+  { shiftId: 3, day: "Wednesday", assignedEmployees: [6, 7] },
+  { shiftId: 1, day: "Thursday", assignedEmployees: [1, 3, 5] },
+  { shiftId: 2, day: "Thursday", assignedEmployees: [2, 4, 6, 7] },
+  { shiftId: 1, day: "Friday", assignedEmployees: [1, 2, 3, 4] },
+  { shiftId: 2, day: "Friday", assignedEmployees: [5, 6, 7] },
+  { shiftId: 3, day: "Friday", assignedEmployees: [2, 3] },
+  { shiftId: 1, day: "Saturday", assignedEmployees: [1, 4, 5] },
+  { shiftId: 2, day: "Saturday", assignedEmployees: [2, 3, 6, 7] },
+  { shiftId: 1, day: "Sunday", assignedEmployees: [1, 3] },
+  { shiftId: 2, day: "Sunday", assignedEmployees: [2, 4, 5] },
 ]
+const scheduledShifts = sampleSchedules.map((schedule) => ({
+  shiftId: schedule.shiftId,
+  day: schedule.startTime.toDateString(),
+  assignedEmployees: [schedule.employeeId],
+}))
 
 export default function CalendarsPage() {
   const [employees] = useState<Employee[]>(sampleEmployees)
