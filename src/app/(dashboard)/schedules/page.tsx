@@ -1,57 +1,70 @@
 'use client';
 
-import { Employee } from "@/features/employee/types";
-import { WeeklySchedule } from "@/features/schedules/types";
-import { Shift } from "@/features/shift/types";
-import { useState } from "react";
+import { Employee, sampleEmployees } from "@/features/employee/types";
+import { sampleSchedules, Schedule, ScheduleSlot, WeeklySchedule } from "@/features/schedule/types";
+import { sampleShifts, Shift } from "@/features/shift/types";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Save, Users, X } from "lucide-react";
+import { Roster, sampleRosters } from "@/features/roster/types";
 
-// Sample employees
-const sampleEmployees: Employee[] = [
-  { id: 1, name: "Sarah Johnson", phone: "123-456-7890", branchIds: [1, 2] },
-  { id: 2, name: "Mike Chen", phone: "987-654-3210", branchIds: [1, 3] },
-  { id: 3, name: "Emily Davis", phone: "555-555-5555", branchIds: [2, 3] },
-  { id: 4, name: "James Wilson", phone: "111-222-3333", branchIds: [1, 2, 3] },
-  { id: 5, name: "Lisa Rodriguez", phone: "444-555-6666", branchIds: [2, 3] },
-  { id: 6, name: "David Kim", phone: "123-456-7890", branchIds: [1, 2] },
-  { id: 7, name: "Anna Martinez", phone: "987-654-3210", branchIds: [1, 3] },
-]
+function getWeekDates(date: Date): {day: string, date: Date }[] {
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-// Sample shifts
-const sampleShifts: Shift[] = [
-  { id: "morning", name: "Morning Shift", startTime: "06:00", endTime: "14:00", color: "bg-blue-500", requiredEmployees: 3 },
-  { id: "afternoon", name: "Afternoon Shift", startTime: "14:00", endTime: "22:00", color: "bg-green-500", requiredEmployees: 4 },
-  { id: "night", name: "Night Shift", startTime: "22:00", endTime: "06:00", color: "bg-purple-500", requiredEmployees: 2 },
-]
+  // get first day (Sunday) of the week
+  const start = new Date(date);
+  const day = start.getDay(); // 0 = Sunday
+  const diff = (day === 0 ? -6 : 1 - day); // if Sunday, go back 6 days; else go back to Monday
+  start.setDate(start.getDate() + diff); // move to Sunday
 
-// Days of the week
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  // build full week
+  const week = daysOfWeek.map((dayName, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return {
+      day: dayName,
+      date: d,
+    };
+  });
 
-// Sample schedule data
-const sampleSchedule: WeeklySchedule = {
-  "morning-Mon": { shiftId: "morning", day: "Mon", assignedEmployees: [1, 2, 4] },
-  "afternoon-Mon": { shiftId: "afternoon", day: "Mon", assignedEmployees: [3, 5, 6, 7] },
-  "night-Mon": { shiftId: "night", day: "Mon", assignedEmployees: [2, 5] },
-  "morning-Tue": { shiftId: "morning", day: "Tue", assignedEmployees: [1, 3, 4] },
-  "afternoon-Tue": { shiftId: "afternoon", day: "Tue", assignedEmployees: [2, 5, 6] },
-  "morning-Wed": { shiftId: "morning", day: "Wed", assignedEmployees: [1, 2] },
-  "afternoon-Wed": { shiftId: "afternoon", day: "Wed", assignedEmployees: [3, 4, 5, 7] },
+  return week;
 }
 
-
 export default function SchedulesPage() {
-  const [employees] = useState<Employee[]>(sampleEmployees)
-  const [shifts] = useState<Shift[]>(sampleShifts)
-  const [schedule, setSchedule] = useState<WeeklySchedule>(sampleSchedule)
+  const branchId = 1;
+  const [employees] = useState<Employee[]>(sampleEmployees.filter((emp) => emp.branchIds.includes(branchId)))
+  const [shifts] = useState<Shift[]>(sampleShifts.filter((shift) => shift.branchId == branchId))
+  const [schedules] = useState<Schedule[]>(sampleSchedules.filter((schedule) => schedule.branchId == branchId));
+  const [rosters] = useState<Roster[]>(sampleRosters);
+  
+  const [scheduleInWeek, setScheduleInWeek] = useState<WeeklySchedule>({});
   const [hasChanges, setHasChanges] = useState(false)
 
-  const getScheduleKey = (shiftId: string, day: string) => `${shiftId}-${day}`
+  const weekDays = getWeekDates(new Date());
 
-  const assignEmployee = (shiftId: string, day: string, employeeId: number) => {
+  useEffect(() => {
+    setScheduleInWeek(
+      Object.fromEntries(schedules.map((schedule) => {
+      const key = schedule.shiftId + "-" + schedule.workDate.toDateString();
+      const employeeIds = rosters.filter((roster) => roster.scheduleId == schedule.id).map((roster) => roster.employeeId);
+      return [
+        key,
+        {
+          shiftId: schedule.shiftId,
+          date: schedule.workDate.toDateString(),
+          assignedEmployees: employeeIds,
+        } as ScheduleSlot
+      ];
+    }))
+  )
+  }, [rosters, schedules]);
+
+  const getScheduleKey = (shiftId: number, day: string) => `${shiftId}-${day}`
+
+  const assignEmployee = (shiftId: number, day: string, employeeId: number) => {
     const key = getScheduleKey(shiftId, day)
-    setSchedule((prev) => {
-      const currentSlot = prev[key] || { shiftId, day, assignedEmployees: [] }
+    setScheduleInWeek((prev) => {
+      const currentSlot = prev[key] || { shiftId, date: day, assignedEmployees: [] }
       const isAssigned = currentSlot.assignedEmployees.includes(employeeId)
 
       return {
@@ -67,9 +80,9 @@ export default function SchedulesPage() {
     setHasChanges(true)
   }
 
-  const removeEmployee = (shiftId: string, day: string, employeeId: number) => {
+  const removeEmployee = (shiftId: number, day: string, employeeId: number) => {
     const key = getScheduleKey(shiftId, day)
-    setSchedule((prev) => ({
+    setScheduleInWeek((prev) => ({
       ...prev,
       [key]: {
         ...prev[key],
@@ -81,17 +94,17 @@ export default function SchedulesPage() {
 
   const saveSchedule = () => {
     // Here you would typically save to a backend
-    console.log("Saving schedule:", schedule)
+    console.log("Saving schedule:", scheduleInWeek)
     setHasChanges(false)
     // Show success message
   }
 
   const getShiftCell = (shift: Shift, day: string) => {
     const key = getScheduleKey(shift.id, day)
-    const slot = schedule[key]
+    const slot = scheduleInWeek[key]
     const assignedEmployees = slot?.assignedEmployees || []
-    const isFullyStaffed = assignedEmployees.length >= shift.requiredEmployees!
-    const availableEmployees = employees.filter((emp) => !assignedEmployees.includes(emp.id!))
+    const isFullyStaffed = assignedEmployees.length >= shift.maxSlots
+    const availableEmployees = employees.filter((emp) => !assignedEmployees.includes(emp.id))
 
     return (
       <td key={key} className="p-2 border-r border-border last:border-r-0 align-top">
@@ -142,7 +155,7 @@ export default function SchedulesPage() {
           {/* Staffing indicator */}
           <div className="text-xs text-center">
             <span className={`font-medium ${isFullyStaffed ? "text-green-600" : "text-orange-600"}`}>
-              {assignedEmployees.length}/{shift.requiredEmployees}
+              {assignedEmployees.length}/{shift.maxSlots}
             </span>
           </div>
         </div>
@@ -180,12 +193,13 @@ export default function SchedulesPage() {
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground min-w-[200px]">Shift</th>
-                {daysOfWeek.map((day) => (
+                {weekDays.map(({day, date}) => (
                   <th
                     key={day}
                     className="px-4 py-4 text-center text-sm font-medium text-muted-foreground min-w-[180px]"
                   >
                     {day}
+                    {date.toDateString()}
                   </th>
                 ))}
               </tr>
@@ -204,11 +218,11 @@ export default function SchedulesPage() {
                       </div>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Users className="h-3 w-3" />
-                        <span>Needs {shift.requiredEmployees} employees</span>
+                        <span>Needs {shift.maxSlots} employees</span>
                       </div>
                     </div>
                   </td>
-                  {daysOfWeek.map((day) => getShiftCell(shift, day))}
+                  {weekDays.map(({date}) => getShiftCell(shift, date.toDateString()))}
                 </tr>
               ))}
             </tbody>
@@ -232,7 +246,7 @@ export default function SchedulesPage() {
             <span className="text-sm font-medium text-foreground">Scheduled Employees</span>
           </div>
           <span className="text-2xl font-bold text-foreground">
-            {Object.values(schedule).reduce((total, slot) => total + slot.assignedEmployees.length, 0)}
+            {Object.values(scheduleInWeek).reduce((total, slot) => total + slot.assignedEmployees.length, 0)}
           </span>
         </div>
 
@@ -243,9 +257,9 @@ export default function SchedulesPage() {
           </div>
           <span className="text-2xl font-bold text-foreground">
             {Math.round(
-              (Object.values(schedule).filter((slot) => {
+              (Object.values(scheduleInWeek).filter((slot) => {
                 const shift = shifts.find((s) => s.id === slot.shiftId)
-                return shift && slot.assignedEmployees.length >= shift.requiredEmployees!
+                return shift && slot.assignedEmployees.length >= shift.maxSlots
               }).length /
                 (shifts.length * 7)) *
                 100,

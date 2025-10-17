@@ -10,6 +10,7 @@ import {
   Users,
   CalendarPlus2,
 } from 'lucide-react';
+import React from 'react';
 
 // routes.ts
 export interface RouteConfig {
@@ -61,7 +62,7 @@ export const MANAGER_ROUTES: RouteConfig[] = [
     icon: CalendarCog,
   },
   {
-    path: '/calendars',
+    path: '/rosters',
     name: 'Lịch làm việc',
     breadcrumb: 'Lịch làm việc',
     icon: CalendarRange,
