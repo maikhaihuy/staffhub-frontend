@@ -3,6 +3,8 @@
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import React from 'react';
+import { LoginForm } from './loginForm';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,10 +24,10 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleLogin} className="max-w-md mx-auto mt-20">
-      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button type="submit">Login</button>
-    </form>
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <LoginForm />
+      </div>
+    </div>
   );
 }
