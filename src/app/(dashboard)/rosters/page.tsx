@@ -10,6 +10,7 @@ import { sampleShifts } from "@/features/shift/types";
 import { sampleEmployees } from "@/features/employee/types";
 import { Roster, sampleRosters } from "@/features/roster/types";
 import { useState } from "react";
+import { getTime } from "@/utils/dateTimeHelpers";
 
 function getWeekDates(date: Date): {day: string, date: Date }[] {
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -111,7 +112,7 @@ export default function CalendarsPage() {
           <div key={shift.id} className="flex items-center gap-2">
             <div className={`w-4 h-4 ${shift.color} rounded`}></div>
             <span className="text-muted-foreground">
-              {shift.name} ({shift.startTime} - {shift.endTime})
+              {shift.name} ({getTime(shift.startTime)} - {getTime(shift.endTime)})
             </span>
           </div>
         ))}
@@ -140,7 +141,7 @@ export default function CalendarsPage() {
                   <div className="text-sm font-medium text-foreground">{shift.name}</div>
                   <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                     <Clock className="h-3 w-3" />
-                    {shift.startTime} - {shift.endTime}
+                    {getTime(shift.startTime)} - {getTime(shift.endTime)}
                   </div>
                 </div>
 

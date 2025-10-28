@@ -1,7 +1,12 @@
-import { Branch } from "./types";
+import { sampleSchedules, Schedule } from "../schedule/types";
+import { Branch, sampleBranches } from "./types";
 import axios from "@/lib/axios";
 
 const ENDPONT_NAME = "/api/branches";
+
+export const getBranchesByCurrentRole = async (): Promise<Branch[]> => sampleBranches;
+
+export const getSchedulesByBranch = async (branchId: number): Promise<Schedule[]> => sampleSchedules;
 
 export const getBranches = async ({
   page,
