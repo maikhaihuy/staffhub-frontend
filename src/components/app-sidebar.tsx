@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { MAIN_ROUTES, SETTING_ROUTES } from "@/constants/routes";
+import { GENERAL_ROUTES, ADMIN_ROUTES, MANAGER_ROUTES } from "@/constants/routes";
 import { AppsSwitcherRoutes } from "@/constants/appSwitcherUrls";
 
 // This is sample data.
@@ -23,20 +23,32 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   apps: AppsSwitcherRoutes,
-  staff: MAIN_ROUTES,
-  admin: SETTING_ROUTES,
+  manager: { title: "Quản lý", items: MANAGER_ROUTES },
+  genenal: { title: "", items: GENERAL_ROUTES },
+  admin: { title: "Quản trị", items: ADMIN_ROUTES },
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  
+  const { role } = props;
+  const routes = [data.genenal];
+  if (role === 'admin') {
+    routes.push(data.admin);
+    routes.push(data.manager);
+  } else if (role === 'manager') {
+    routes.push(data.manager);
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <AppSwitcher apps={data.apps} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain key='staff' items={data.staff} />
-        <NavMain key='admin' title='Quản trị' items={data.admin} />
+        {
+          routes.map(group => (
+            <NavMain key={group.title} title={group.title} items={group.items} />
+          ))
+        }
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

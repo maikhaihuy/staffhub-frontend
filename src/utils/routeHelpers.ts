@@ -1,8 +1,8 @@
-import { MAIN_ROUTES, SETTING_ROUTES, RouteConfig } from "@/constants/routes";
+import { GENERAL_ROUTES, ADMIN_ROUTES, RouteConfig } from "@/constants/routes";
 
 export function findRouteByPath(
   targetPath: string,
-  routes: RouteConfig[] = [...MAIN_ROUTES, ...SETTING_ROUTES]
+  routes: RouteConfig[] = [...GENERAL_ROUTES, ...ADMIN_ROUTES]
 ): RouteConfig | undefined {
   for (const route of routes) {
     if (route.path === targetPath) return route;
