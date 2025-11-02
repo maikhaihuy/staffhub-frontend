@@ -11,6 +11,13 @@ export type WeeklyAvailability = {
   }
 }
 
+export type EmployeeAvailabilitiy = {
+  availabilityId: number
+  employeeId: number
+  startTime: string
+  endTime: string
+}
+
 export const availabilitySchema = z.object({
   employeeId: z.number(),
   startTime: z.date(),

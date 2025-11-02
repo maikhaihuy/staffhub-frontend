@@ -1,9 +1,12 @@
-import { Employee, EmployeeWithBranches, sampleEmployees } from "./types";
+import { Employee, EmployeeWithAvailabilities, EmployeeWithBranches, sampleEmployees } from "./types";
 import axios from "@/lib/axios";
 
 const ENDPONT_NAME = "/api/employees";
 
-export const getEmployeesWithAvailabilities = async (): Promise<Employee[]> => sampleEmployees;
+export const getEmployeesWithAvailabilities = async (): Promise<EmployeeWithAvailabilities[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  return sampleEmployees;
+}
 
 export const getEmployees = async (
   page: number,

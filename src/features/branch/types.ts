@@ -1,6 +1,11 @@
 import { z } from "zod";
+import { sampleShifts, Shift } from "../shift/types";
 
 export type Branch = z.infer<typeof branchSchema>;
+
+export type BranchWithShifts = Branch & {
+  shifts: Shift[]
+}
 
 export const branchSchema = z.object({
   id: z.number(), // for update, not required on create
@@ -20,3 +25,8 @@ export const sampleBranches: Branch[] = [
   { id: 2, name: "Branch 2", abbreviation: "B2", address: "Address 2", phone: "987-654-3210", email: "branch2@example.com" },
   { id: 3, name: "Branch 3", abbreviation: "B3", address: "Address 3", phone: "555-555-5555", email: "branch3@example.com" },
 ];
+
+export const sampleBranchesWithShifts = ():BranchWithShifts[] => sampleBranches.map(branch => ({
+  ...branch,
+  shifts: sampleShifts.filter(s => s.branchId === branch.id)
+}));

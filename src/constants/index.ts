@@ -13,9 +13,14 @@ export const SCHEDULE_STATUS = {
 } as const;
 
 export const ROSTER_STATUS = {
-  ASSIGNED: "assigned",
   PENDING: "pending",
   SCHEDULED: "scheduled",
-  COMPLETED: "completed",
+  REJECTED: "rejected",
+  FINISHED: "finished",
   ABSENT: "absent",
 } as const;
+
+export const ROSTER_MODE = {
+  REQUEST: 'request',
+  ASSIGNED: 'assigned',
+}

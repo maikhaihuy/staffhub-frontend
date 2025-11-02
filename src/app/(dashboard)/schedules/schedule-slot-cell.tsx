@@ -1,137 +1,116 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Employee } from "@/features/employee/types"
-import { ScheduleSlot } from "@/features/schedule/types"
-import { EmployeeTimeDialog } from "./employeeAssignment/employee-time-dialog"
+import { EmployeeWithAvailabilities } from "@/features/employee/types"
+import { Schedule, ScheduleSlot } from "@/features/schedule/types"
 import { SchduleTimeDialog } from "./scheduleSlot/schedule-time-dialog"
 import { ScheduleInfoHeader } from "./scheduleSlot/schedule-info-header"
 import { AssignmentList } from "./employeeAssignment/assignment-list"
-import { TimeRange } from "@/utils/dateTimeHelpers"
+import { combineDateTime, getTime, getTimeFromString } from "@/utils/dateTimeHelpers"
+import { ScheduleStatusButton } from "./scheduleSlot/shedule-status-button"
+import { useMutation } from "@tanstack/react-query"
+import { publish, update } from "@/features/schedule/api"
+import { EmployeeAssignment } from "@/features/roster/types"
 
 interface ScheduleSlotCellProps {
   slot: ScheduleSlot
-  employees: Employee[]
+  employees: EmployeeWithAvailabilities[]
   // eslint-disable-next-line no-unused-vars
   onUpdate: (_updates: Partial<ScheduleSlot>) => void
-  onSave: () => void
 }
 
-export function ScheduleSlotCell({ slot, employees, onUpdate, onSave }: ScheduleSlotCellProps) {
+export function ScheduleSlotCell({ slot, employees, onUpdate }: ScheduleSlotCellProps) {
   const [isEditingTimes, setIsEditingTimes] = useState<boolean>(false)
-  
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null)
-  const [isEditingEmployeeTime, setIsEditingEmployeeTime] = useState<boolean>(false)
-  const [selectedAssignmentTimeRange, setSelectedAssignmentTimeRange] = useState<TimeRange>({startTime: slot.startTime, endTime: slot.endTime});
-  
-  const handleAddAssignment = (employeeId: number) => {
-    const newAssignments = [
-      ...slot.assignments,
-      {
-        employeeId,
-        rosterId: 0,
-        scheduleId: slot.scheduleId,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-      },
-    ]
-    onUpdate({ assignments: newAssignments, isDirty: true })
-  }
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRemoveAssignment = (employeeId: number) => {
-    const newAssignments = slot.assignments.filter((a) => a.employeeId !== employeeId)
-    onUpdate({ assignments: newAssignments, isDirty: true })
-  }
+  const {mutate: publishMutate, isPending: isPublishing } = useMutation({
+    mutationFn: (scheduleId: number) => publish(scheduleId),
+    onSuccess: async (data) => {
+      console.log("I'm first!")
+      const newAssignments = data.rosters.map((roster) => ({
+        rosterId: roster.id,
+        scheduleId: roster.scheduleId,
+        employeeId: roster.employeeId,
+        startTime: getTime(roster.actualStartAt),
+        endTime: getTime(roster.actualEndAt),
+        status: roster.status,
+        mode: roster.mode,
+      } as EmployeeAssignment));
 
-  const handleEditAssignment = (employeeId: number) => {
-    const assignment = slot.assignments.find((a) => a.employeeId === employeeId)
-    setSelectedEmployeeId(employeeId)
-    setSelectedAssignmentTimeRange({startTime: assignment?.startTime || slot.startTime, endTime: assignment?.endTime || slot.endTime} as TimeRange);
-    setIsEditingEmployeeTime(true)
-  }
+      onUpdate({
+        status: data.status,
+        assignments: newAssignments,
+      } as Partial<ScheduleSlot>);
+    },
+  });
 
-  const handleSaveEmployeeTime = (startTime: string, endTime: string) => {
-    if (!selectedEmployeeId) return
+  const {mutate: updateMutate, isPending: isUpdating } = useMutation({
+    mutationFn: (schedule: Schedule) => update(schedule.id, schedule),
+    onSuccess: async (data) => {
+      console.log('dialog update ', data);
+      onUpdate({
+        startTime: getTime(data.startTime),
+        endTime: getTime(data.endTime),
+        maxSlots: data.maxSlots,
+      } as Partial<ScheduleSlot>)
+      setIsEditingTimes(false)
+    },
+  });
 
-    const newAssignments = slot.assignments.map((a) =>
-      a.employeeId === selectedEmployeeId ? { ...a, startTime, endTime } : a,
-    )
-    
-    onUpdate({ assignments: newAssignments, isDirty: true })
-    setIsEditingEmployeeTime(false)
-    setSelectedEmployeeId(null)
-  }
+  useEffect(() => {
+    setIsLoading(isUpdating || isPublishing);
+  }, [isUpdating, isPublishing]);
 
-  const handleSaveSlotTimes = (startTime: string, endTime: string, maxSlots: number) => {
-    if (startTime >= endTime) {
+  const handleSaveSchedule = (startTime: string, endTime: string, maxSlots: number) => {
+    const editStartTime = combineDateTime(slot.date, getTimeFromString(startTime));
+    const editEndTime = combineDateTime(slot.date, getTimeFromString(endTime));
+    if (editStartTime >= editEndTime) {
       toast.error("Start time must be before end time")
       return
     }
 
-    onUpdate({
-      startTime,
-      endTime,
-      maxSlots,
-      isDirty: true,
-    })
-    setIsEditingTimes(false)
+    updateMutate({
+      id: slot.scheduleId,
+      startTime: editStartTime,
+      endTime: editEndTime,
+      maxSlots: maxSlots,
+    } as Schedule)
   }
 
-  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId)
+  const handlePublishSchedule = () => {
+    publishMutate(slot.scheduleId);
+  }
 
   return (
     <>
       <td
         className={`p-3 border-r border-border last:border-r-0 align-top min-w-[250px] ${
-          slot.isDirty ? "bg-yellow-50 border-l-4 border-l-yellow-400" : ""
+          isLoading ? "bg-yellow-50 " : ""
         }`}
       >
         <div className="space-y-3">
           {/* Slot times and max slots - editable */}
-          <ScheduleInfoHeader isSaving={slot.isSaving} startTime={slot.startTime} endTime={slot.endTime} maxSlots={slot.maxSlots} onOpenChange={setIsEditingTimes}/>
+          <ScheduleInfoHeader slot={slot} isSaving={isLoading} onOpenChange={setIsEditingTimes}/>
           
           {/* Assign employee to schedule slot */}
           <AssignmentList
+            isSaving={isLoading}
             slot={slot}
             employees={employees}
-            onClickAddAssignment={handleAddAssignment}
-            onClickEditAssignment={handleEditAssignment}
-            onClickRemoveAssignment={handleRemoveAssignment}
+            onUpdate={onUpdate}
           />
 
-          {/* Save button - enabled only when dirty */}
-          <Button
-            onClick={onSave}
-            disabled={!slot.isDirty || slot.isSaving}
-            size="sm"
-            className="w-full text-xs"
-            variant={slot.isDirty ? "default" : "outline"}
-          >
-            {slot.isSaving ? "Saving..." : "Save"}
-          </Button>
+          {/* Pub/Unpub button */}
+          <ScheduleStatusButton isSaving={isLoading} status={slot.status} onClick={handlePublishSchedule} />
+
         </div>
       </td>
 
       {/* Edit slot times modal */}
-      <SchduleTimeDialog startTime={slot.startTime} endTime={slot.endTime} maxSlots={slot.maxSlots} isOpen={isEditingTimes} onOpenChange={setIsEditingTimes}
-        onSave={({startTime, endTime, maxSlots}) => handleSaveSlotTimes(startTime, endTime, maxSlots)}
+      <SchduleTimeDialog isSaving={isUpdating} startTime={slot.startTime} endTime={slot.endTime} maxSlots={slot.maxSlots} isOpen={isEditingTimes} onOpenChange={setIsEditingTimes}
+        onSave={({startTime, endTime, maxSlots}) => handleSaveSchedule(startTime, endTime, maxSlots)}
         onCancel={() => setIsEditingTimes(false)}
-      />
-
-      {/* Edit employee time ranges modal */}
-      <EmployeeTimeDialog
-        nameEmployee={selectedEmployee?.name || ''}
-        timeRange={selectedAssignmentTimeRange}
-        isOpen={isEditingEmployeeTime}
-        onOpenChange={setIsEditingEmployeeTime}
-        onCancel={() => setIsEditingEmployeeTime(false)}
-        onSave={({startTime, endTime}) => {
-          console.log('startTime-endTime', startTime, endTime);
-          handleSaveEmployeeTime(startTime, endTime)
-          }
-        }
       />
     </>
   )

@@ -1,12 +1,19 @@
-import { sampleSchedules, Schedule } from "../schedule/types";
-import { Branch, sampleBranches } from "./types";
+import { sampleSchedulesWithRosters, ScheduleWithRosters } from "../schedule/types";
+import { Branch, BranchWithShifts, sampleBranchesWithShifts } from "./types";
 import axios from "@/lib/axios";
 
 const ENDPONT_NAME = "/api/branches";
 
-export const getBranchesByCurrentRole = async (): Promise<Branch[]> => sampleBranches;
+export const getBranchesByCurrentRole = async (): Promise<BranchWithShifts[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  return sampleBranchesWithShifts();
+};
 
-export const getSchedulesByBranch = async (branchId: number): Promise<Schedule[]> => sampleSchedules;
+export const getSchedulesByBranch = async (branchId: number): Promise<ScheduleWithRosters[]> => {
+  console.log('ferch scheduels include rosters, ', branchId);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  return sampleSchedulesWithRosters();
+}
 
 export const getBranches = async ({
   page,

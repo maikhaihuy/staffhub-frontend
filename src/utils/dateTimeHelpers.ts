@@ -33,3 +33,19 @@ export const getTime = (date: Date) => {
   const mm = date.getMinutes().toString().padStart(2, '0')
   return `${hh}:${mm}`
 }
+
+export const getTimeFromString = (time: string) => new Date(`1970-01-01T${time}`);
+export const combineDateTime = (dateOnly: Date, timeOnly: Date) => {
+  const date = new Date(dateOnly)
+  const time = new Date(timeOnly)
+
+  // Combine
+  date.setHours(
+    time.getHours(),
+    time.getMinutes(),
+    time.getSeconds(),
+    time.getMilliseconds()
+  )
+
+  return date
+}
