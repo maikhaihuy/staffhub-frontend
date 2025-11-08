@@ -31,3 +31,12 @@ export const remove = async (rosterId: number): Promise<number> => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   return rosterId;
 }
+
+export const getRostersByEmployee = async (employeeId: number): Promise<Roster[]> => {
+  // console.log('fetch rosters by employee, ', employeeId);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  console.log('sampleRosters', typeof sampleRosters[0].employeeId, typeof employeeId, sampleRosters[0].employeeId === employeeId);
+  const rosters = sampleRosters.filter(r => r.employeeId === employeeId);
+  console.log('rosters', rosters);
+  return rosters;
+}

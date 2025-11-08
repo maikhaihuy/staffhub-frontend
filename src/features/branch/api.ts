@@ -1,5 +1,6 @@
+import { sampleEmployees } from "../employee/types";
 import { sampleSchedulesWithRosters, ScheduleWithRosters } from "../schedule/types";
-import { Branch, BranchWithShifts, sampleBranchesWithShifts } from "./types";
+import { Branch, BranchWithSchedules, BranchWithShifts, sampleBranchesWithSchedules, sampleBranchesWithShifts } from "./types";
 import axios from "@/lib/axios";
 
 const ENDPONT_NAME = "/api/branches";
@@ -13,6 +14,16 @@ export const getSchedulesByBranch = async (branchId: number): Promise<ScheduleWi
   console.log('ferch scheduels include rosters, ', branchId);
   await new Promise((resolve) => setTimeout(resolve, 2000));
   return sampleSchedulesWithRosters();
+}
+
+export const getBranchWithSchedulesByEmployee = async (
+  employeeId: number
+): Promise<BranchWithSchedules> => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const branches = sampleBranchesWithSchedules();
+  const employee = sampleEmployees.find(emp => emp.id === employeeId);
+  console.log(employee);
+  return branches.find(branch => employee?.branchIds.includes(branch.id)) || branches[0];
 }
 
 export const getBranches = async ({
@@ -35,17 +46,17 @@ export const getBranch = async (id: number): Promise<Branch> => {
   return res.data;
 };
 
-export const createBranch = async (data: Partial<Branch>) => {
+export const create = async (data: Partial<Branch>) => {
   const res = await axios.post(ENDPONT_NAME, data);
   return res.data;
 };
 
-export const updateBranch = async (data: Partial<Branch>) => {
-  const res = await axios.put(`${ENDPONT_NAME}/${data.id}`, data);
+export const update = async (id: number, data: Partial<Branch>) => {
+  const res = await axios.put(`${ENDPONT_NAME}/${id}`, data);
   return res.data;
 };
 
-export const deleteBranch = async (id: string) => {
+export const remove = async (id: number) => {
   const res = await axios.delete(`${ENDPONT_NAME}/${id}`);
   return res.data;
 };
