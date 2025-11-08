@@ -1,10 +1,15 @@
 import { z } from "zod";
 import { sampleShifts, Shift } from "../shift/types";
+import { sampleSchedules, Schedule } from "../schedule/types";
 
 export type Branch = z.infer<typeof branchSchema>;
 
 export type BranchWithShifts = Branch & {
   shifts: Shift[]
+}
+
+export type BranchWithSchedules = Branch & {
+  schedules: Schedule[]
 }
 
 export const branchSchema = z.object({
@@ -29,4 +34,9 @@ export const sampleBranches: Branch[] = [
 export const sampleBranchesWithShifts = ():BranchWithShifts[] => sampleBranches.map(branch => ({
   ...branch,
   shifts: sampleShifts.filter(s => s.branchId === branch.id)
+}));
+
+export const sampleBranchesWithSchedules = ():BranchWithSchedules[] => sampleBranches.map(branch => ({
+  ...branch,
+  schedules: sampleSchedules.filter(s => s.branchId === branch.id), // always where in date range
 }));

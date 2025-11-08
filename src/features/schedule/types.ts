@@ -18,6 +18,12 @@ export type WeeklySchedule = {
   [key: string]: ScheduleSlot
 }
 
+export type ScheduleGroup = {
+  name: string;
+  timeRange: string;
+  schedules: Schedule[];
+}
+
 export const schedulesSchema = z.object({
   id: z.number(),
   shiftId: z.number(),

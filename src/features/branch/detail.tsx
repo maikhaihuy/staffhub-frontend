@@ -1,4 +1,4 @@
-import { createBranch, getBranch, updateBranch } from "./api";
+import { create, getBranch, update } from "./api";
 import BranchForm from "./form";
 import { Branch, branchSchema } from "./types";
 import DrawerForm from "@/components/organisms/drawer-form";
@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 type BranchDetailProps = {
   id: number;
   open: boolean;
+  // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
 };
 
@@ -49,7 +50,7 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
 
   const mutation = useMutation({
     mutationFn: (data: Branch) =>
-      branch && branch.id ? updateBranch(data) : createBranch(data),
+      branch && branch.id ? update(branch.id, data) : create(data),
     onSuccess: (d) => {
       queryClient.invalidateQueries({ queryKey: ["branches"] });
       form.reset(d); // Reset form to new data here
