@@ -11,7 +11,7 @@ export const queryKeys = {
     list: (filter?: { page?: number, pageSize?: number, all?: boolean }) => ["branches", "list", filter],
     detail: (branchId: number) => ["branches", "detail", branchId],
     withSchedules: (employeeId: number) => ["branches", "withSchedules", employeeId],
-    withShifts: (employeeId: number) => ["branches", "withShifts", employeeId],
+    withShifts: () => ["branches", "withShifts"],
   },
   rosters: {
     byEmployee: (employeeId: number) => ["rosters", "byEmployee", employeeId],

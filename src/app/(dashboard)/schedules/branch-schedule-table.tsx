@@ -4,10 +4,10 @@ import { ScheduleSlotCell } from "./schedule-slot-cell";
 import { SCHEDULE_STATUS } from "@/constants";
 import { BranchWithShifts } from "@/features/branch/types";
 import { Employee } from "@/features/employee/types";
-import { ScheduleSlot, WeeklySchedule } from "@/features/schedule/types";
-import { Shift } from "@/features/shift/types";
-import { getTime, Weekday } from "@/utils/dateTimeHelpers";
-import { getScheduleKey } from "@/utils/scheduleHelpers";
+import { ScheduleSlot, WeeklySchedule } from "@/features/schedule/types/schedule.types";
+import { Shift } from "@/features/shift/types/shift.types";
+import { getTime, Weekday } from "@/lib/utils/dateTimeHelpers";
+import { getScheduleKey } from "@/lib/utils/scheduleHelpers";
 import { Clock, Users } from "lucide-react";
 import { useState } from "react";
 

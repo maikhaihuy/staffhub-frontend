@@ -1,10 +1,10 @@
 "use client";
 
 import { BranchCalendarTable } from "./branch-calendar-table";
-import { useGetBranchesWithShifts } from "@/hooks/useBranches/useBranchQueries";
-import { useGetEmployees } from "@/hooks/useEmployees";
-import { useGetSchedulesByBranch } from "@/hooks/useSchedules/useScheduleQueries";
-import { generateWeekdays } from "@/utils/dateTimeHelpers";
+import { useGetBranchesWithShifts } from "@/features/branch/hooks/useBranchQueries";
+import { useGetEmployees } from "@/features/employee/hooks";
+import { useGetSchedulesByBranch } from "@/features/schedule/hooks/useScheduleQueries";
+import { generateWeekdays } from "@/lib/utils/dateTimeHelpers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Calendar, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ export default function CalendarsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: branches, isLoading: isFetchingBranches } =
-    useGetBranchesWithShifts(selectedBranchId);
+    useGetBranchesWithShifts();
 
   // need to fetch employees by current role to get only employees in the selected branch
   const { data: employeesByCurrentRole, isLoading: isFetchingEmployees } =

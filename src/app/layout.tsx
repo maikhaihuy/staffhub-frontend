@@ -1,4 +1,4 @@
-import Providers from '@/components/providers';
+import Providers from '@/app/providers';
 import '@/app/globals.css';
 import { ReactNode } from 'react';
 

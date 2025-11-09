@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import BrancDetail from "@/features/branch/detail";
-import BranchList from "@/features/branch/list";
+import BrancDetail from "@/features/branch/components/detail";
+import BranchList from "@/features/branch/components/list";
 import { Branch } from "@/features/branch/types";
-import { ColumnConfig } from "@/lib/interface";
+import { ColumnConfig } from "@/types/interface";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 

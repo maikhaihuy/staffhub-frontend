@@ -1,7 +1,7 @@
 import { Employee } from "@/features/employee/types";
-import { ScheduleWithRosters } from "@/features/schedule/types";
-import { Shift } from "@/features/shift/types";
-import { getTime } from "@/utils/dateTimeHelpers";
+import { ScheduleWithRosters } from "@/features/schedule/types/schedule.types";
+import { Shift } from "@/features/shift/types/shift.types";
+import { getTime } from "@/lib/utils/dateTimeHelpers";
 import { Clock, Users } from "lucide-react";
 
 interface CalendarSlotCellProps {

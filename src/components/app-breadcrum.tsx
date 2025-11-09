@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import { findRouteByPath } from '@/utils/routeHelpers';
+import { findRouteByPath } from '@/lib/utils/routeHelpers';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from './ui/breadcrumb';
 
 export default function AppBreadcrumb() {

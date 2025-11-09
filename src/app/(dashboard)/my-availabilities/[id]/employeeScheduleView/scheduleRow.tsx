@@ -1,6 +1,6 @@
 import { ROSTER_MODE } from "@/constants";
-import { Roster } from "@/features/roster/types";
-import { ScheduleGroup } from "@/features/schedule/types";
+import { Roster } from "@/features/roster/types/roster.types";
+import { ScheduleGroup } from "@/features/schedule/types/schedule.types";
 import AssignmentItem from "./assignment-item";
 
 export function ScheduleRow({

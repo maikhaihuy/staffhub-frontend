@@ -10,14 +10,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROSTER_MODE, ROSTER_STATUS, SCHEDULE_STATUS } from "@/constants";
 import { Employee } from "@/features/employee/types";
-import { create, remove, schedule, update } from "@/features/roster/api";
-import { EmployeeAssignment, Roster } from "@/features/roster/types";
-import { ScheduleSlot } from "@/features/schedule/types";
+import { create, remove, schedule, update } from "@/features/roster/services/roster.service";
+import { EmployeeAssignment, Roster } from "@/features/roster/types/roster.types";
+import { ScheduleSlot } from "@/features/schedule/types/schedule.types";
 import {
   combineDateTime,
   getTime,
   getTimeFromString,
-} from "@/utils/dateTimeHelpers";
+} from "@/lib/utils/dateTimeHelpers";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

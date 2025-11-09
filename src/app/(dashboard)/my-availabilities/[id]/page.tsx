@@ -1,10 +1,10 @@
 "use client";
 
 import ScheduleTable from "./employeeScheduleView/scheduleTable";
-import { Schedule } from "@/features/schedule/types";
-import { useGetBranchesWithSchedules } from "@/hooks/useBranches";
-import { useGetRostersByEmployee } from "@/hooks/useRosters";
-import { generateWeekdays, getTime } from "@/utils/dateTimeHelpers";
+import { Schedule } from "@/features/schedule/types/schedule.types";
+import { useGetBranchesWithSchedules } from "@/features/branch/hooks";
+import { useGetRostersByEmployee } from "@/features/roster/hooks";
+import { generateWeekdays, getTime } from "@/lib/utils/dateTimeHelpers";
 import React, { use, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 

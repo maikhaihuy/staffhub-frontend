@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import EmployeeDetail from "@/features/employee/detail";
-import EmployeeList from "@/features/employee/list";
+import EmployeeDetail from "@/features/employee/components/detail";
+import EmployeeList from "@/features/employee/components/list";
 import { EmployeeWithBranches } from "@/features/employee/types";
-import { ColumnConfig } from "@/lib/interface";
+import { ColumnConfig } from "@/types/interface";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 

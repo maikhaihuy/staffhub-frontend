@@ -7,22 +7,22 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { BranchWithShifts } from "@/features/branch/types";
-import { Employee } from "@/features/employee/types";
-import { EmployeeAssignment } from "@/features/roster/types";
+import { BranchWithShifts } from "@/features/branch/types/branch.types";
+import { Employee } from "@/features/employee/types/employee.types";
+import { EmployeeAssignment } from "@/features/roster/types/roster.dto.types";
 import {
   ScheduleSlot,
-  ScheduleWithRosters,
   WeeklySchedule,
-} from "@/features/schedule/types";
-import { sampleShifts } from "@/features/shift/types";
-import { useGetBranchesWithShifts } from "@/hooks/useBranches/useBranchQueries";
-import { useGetEmployees } from "@/hooks/useEmployees";
-import { useGetSchedulesByBranch } from "@/hooks/useSchedules/useScheduleQueries";
-import { generateWeekdays, getTime } from "@/utils/dateTimeHelpers";
-import { getScheduleKey } from "@/utils/scheduleHelpers";
+} from "@/features/schedule/types/schedule.dto.types";
+import {ScheduleWithRosters} from "@/features/schedule/types/schedule.types";
+import { useGetBranchesWithShifts } from "@/features/branch/hooks/useBranchQueries";
+import { useGetEmployees } from "@/features/employee/hooks";
+import { useGetSchedulesByBranch } from "@/features/schedule/hooks/useScheduleQueries";
+import { generateWeekdays, getTime } from "@/lib/utils/dateTimeHelpers";
+import { getScheduleKey } from "@/lib/utils/scheduleHelpers";
 import { Calendar, Clock, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { sampleShifts } from "@/mocks/data/shifts";
 
 export default function SchedulesPage() {
   const [loadedSchedules, setLoadedSchedules] = useState<{
@@ -34,7 +34,7 @@ export default function SchedulesPage() {
   const weekDays = generateWeekdays(new Date("2025-10-13"));
 
   const { data: branches, isLoading: isFetchingBranches } =
-    useGetBranchesWithShifts(selectedBranchId);
+    useGetBranchesWithShifts();
 
   const { data: employeesByCurrentRole, isLoading: isFetchingEmployees } =
     useGetEmployees();
