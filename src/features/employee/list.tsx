@@ -1,4 +1,4 @@
-import { getEmployees } from "./api";
+import { getEmployeesWithPaging } from "./api";
 import { EmployeeWithBranches } from "./types";
 import {
   GenericTable,
@@ -63,7 +63,7 @@ export default function EmployeeList({ columns }: EmployeeListProp) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["employees", page, pageSize],
-    queryFn: () => getEmployees(page, pageSize),
+    queryFn: () => getEmployeesWithPaging(page, pageSize),
   });
 
   if (isLoading) return <p>Loading...</p>;

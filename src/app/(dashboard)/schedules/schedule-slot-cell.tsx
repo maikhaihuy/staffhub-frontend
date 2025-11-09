@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { EmployeeWithAvailabilities } from "@/features/employee/types"
+import { Employee } from "@/features/employee/types"
 import { Schedule, ScheduleSlot } from "@/features/schedule/types"
 import { SchduleTimeDialog } from "./scheduleSlot/schedule-time-dialog"
 import { ScheduleInfoHeader } from "./scheduleSlot/schedule-info-header"
@@ -15,7 +15,7 @@ import { EmployeeAssignment } from "@/features/roster/types"
 
 interface ScheduleSlotCellProps {
   slot: ScheduleSlot
-  employees: EmployeeWithAvailabilities[]
+  employees: Employee[]
   // eslint-disable-next-line no-unused-vars
   onUpdate: (_updates: Partial<ScheduleSlot>) => void
 }

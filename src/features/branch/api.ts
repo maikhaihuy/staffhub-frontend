@@ -1,23 +1,17 @@
 import { sampleEmployees } from "../employee/types";
-import { sampleSchedulesWithRosters, ScheduleWithRosters } from "../schedule/types";
 import { Branch, BranchWithSchedules, BranchWithShifts, sampleBranchesWithSchedules, sampleBranchesWithShifts } from "./types";
 import axios from "@/lib/axios";
 
 const ENDPONT_NAME = "/api/branches";
 
-export const getBranchesByCurrentRole = async (): Promise<BranchWithShifts[]> => {
+export const getBranchesWithShifts = async (employeeId?: number): Promise<BranchWithShifts[]> => {
+  console.log(employeeId)
   await new Promise((resolve) => setTimeout(resolve, 2000));
   return sampleBranchesWithShifts();
 };
 
-export const getSchedulesByBranch = async (branchId: number): Promise<ScheduleWithRosters[]> => {
-  console.log('ferch scheduels include rosters, ', branchId);
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  return sampleSchedulesWithRosters();
-}
-
-export const getBranchWithSchedulesByEmployee = async (
-  employeeId: number
+export const getBranchWithSchedules = async (
+  employeeId?: number
 ): Promise<BranchWithSchedules> => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   const branches = sampleBranchesWithSchedules();
@@ -26,7 +20,7 @@ export const getBranchWithSchedulesByEmployee = async (
   return branches.find(branch => employee?.branchIds.includes(branch.id)) || branches[0];
 }
 
-export const getBranches = async ({
+export const getBranchesWithPaging = async ({
   page,
   pageSize,
   all,
@@ -38,6 +32,11 @@ export const getBranches = async ({
   const res = await axios.get(
     `${ENDPONT_NAME}?all=${all}page=${page}&pageSize=${pageSize}`
   );
+  return res.data;
+};
+
+export const getBranches = async (): Promise<Branch[]> => {
+  const res = await axios.get(ENDPONT_NAME);
   return res.data;
 };
 

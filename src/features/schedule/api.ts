@@ -2,7 +2,8 @@ import { ROSTER_STATUS, SCHEDULE_STATUS } from "@/constants";
 import { Schedule, ScheduleWithRosters, sampleSchedulesWithRosters } from "./types";
 import { Roster } from "../roster/types";
 
-export const getSchedulesByCurrentWeek = async (branchId: number): Promise<ScheduleWithRosters[]> => {
+// TODO: note is that this api need to be the date range
+export const getSchedulesByBranch = async (branchId: number): Promise<ScheduleWithRosters[]> => {
   console.log('ferch scheduels include rosters, ', branchId);
   await new Promise((resolve) => setTimeout(resolve, 2000));
   return sampleSchedulesWithRosters();

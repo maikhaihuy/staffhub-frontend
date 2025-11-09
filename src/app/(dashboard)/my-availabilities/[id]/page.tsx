@@ -2,11 +2,10 @@
 
 import ScheduleTable from "./employeeScheduleView/scheduleTable";
 import { Schedule } from "@/features/schedule/types";
-import { useGetBranchesWithSchedulesByEmployee } from "@/hooks/useBranches";
+import { useGetBranchesWithSchedules } from "@/hooks/useBranches";
 import { useGetRostersByEmployee } from "@/hooks/useRosters";
 import { generateWeekdays, getTime } from "@/utils/dateTimeHelpers";
-import React, { useMemo } from "react";
-import { use } from "react";
+import React, { use, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 
 interface MyAvailabilityPageProps {
@@ -24,28 +23,28 @@ export default function MyAvailabilityPage({
     useGetRostersByEmployee(+employeeId);
 
   const { data: branch, isLoading: isFetchingBranch } =
-    useGetBranchesWithSchedulesByEmployee(+employeeId);
+    useGetBranchesWithSchedules(+employeeId);
 
-    // Group schedules by name and time range
-    const scheduleGroups = useMemo(() => {
-      if (!branch) return {}
-      return branch.schedules.reduce((acc, schedule) => {
-      const key = `${schedule.name}_${getTime(schedule.startTime)}-${getTime(
-        schedule.endTime
-      )}`;
-      if (!acc[key]) {
-        acc[key] = {
-          name: schedule.name,
-          timeRange: `${getTime(schedule.startTime)}-${getTime(
-            schedule.endTime
-          )}`,
-          schedules: [],
-        };
-      }
-      acc[key].schedules.push(schedule);
-      return acc;
-    }, {} as Record<string, { name: string; timeRange: string; schedules: Schedule[] }>);
-    }, [branch]);
+  // Group schedules by name and time range
+  const scheduleGroups = useMemo(() => {
+    if (!branch) return {}
+    return branch.schedules.reduce((acc, schedule) => {
+    const key = `${schedule.name}_${getTime(schedule.startTime)}-${getTime(
+      schedule.endTime
+    )}`;
+    if (!acc[key]) {
+      acc[key] = {
+        name: schedule.name,
+        timeRange: `${getTime(schedule.startTime)}-${getTime(
+          schedule.endTime
+        )}`,
+        schedules: [],
+      };
+    }
+    acc[key].schedules.push(schedule);
+    return acc;
+  }, {} as Record<string, { name: string; timeRange: string; schedules: Schedule[] }>);
+  }, [branch]);
 
   return (isFetchingRoster || isFetchingBranch) ? (
     <div className="flex items-center justify-center h-1/2">

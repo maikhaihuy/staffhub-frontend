@@ -1,2 +1,2 @@
-export * from "./useBrancheQueries";
+export * from "./useBranchQueries";
 export * from "./useBranchMutations";

@@ -1,14 +1,14 @@
 import { CalendarSlotCell } from "./calendar-slot-cell";
 import { Button } from "@/components/ui/button";
 import { BranchWithShifts } from "@/features/branch/types";
-import { EmployeeWithAvailabilities } from "@/features/employee/types";
 import { ScheduleWithRosters } from "@/features/schedule/types";
 import { getTime, Weekday } from "@/utils/dateTimeHelpers";
+import { Employee } from "@/features/employee/types";
 import { Calendar, Clock, Download, FileText, Users } from "lucide-react";
 
 interface BranchCalendarTableProps {
   branch: BranchWithShifts;
-  employees: EmployeeWithAvailabilities[];
+  employees: Employee[];
   schedules: ScheduleWithRosters[];
   weekDays: Weekday[];
 }
