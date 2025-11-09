@@ -7,16 +7,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import {
-  getBranchesByCurrentRole,
-  getSchedulesByBranch,
-} from "@/features/branch/api";
 import { BranchWithShifts } from "@/features/branch/types";
-import { getEmployeesWithAvailabilities } from "@/features/employee/api";
-import {
-  EmployeeWithAvailabilities,
-  sampleEmployees,
-} from "@/features/employee/types";
+import { Employee } from "@/features/employee/types";
 import { EmployeeAssignment } from "@/features/roster/types";
 import {
   ScheduleSlot,
@@ -24,9 +16,11 @@ import {
   WeeklySchedule,
 } from "@/features/schedule/types";
 import { sampleShifts } from "@/features/shift/types";
+import { useGetBranchesWithShifts } from "@/hooks/useBranches/useBranchQueries";
+import { useGetEmployees } from "@/hooks/useEmployees";
+import { useGetSchedulesByBranch } from "@/hooks/useSchedules/useScheduleQueries";
 import { generateWeekdays, getTime } from "@/utils/dateTimeHelpers";
 import { getScheduleKey } from "@/utils/scheduleHelpers";
-import { useQuery } from "@tanstack/react-query";
 import { Calendar, Clock, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -34,29 +28,19 @@ export default function SchedulesPage() {
   const [loadedSchedules, setLoadedSchedules] = useState<{
     [branchId: string]: WeeklySchedule;
   }>({});
-  const [employeesByBranch, setEmployeesByBranch] = useState<
-    EmployeeWithAvailabilities[]
-  >([]);
+  const [employeesByBranch, setEmployeesByBranch] = useState<Employee[]>([]);
 
   const [selectedBranchId, setSelectedBranchId] = useState(0);
   const weekDays = generateWeekdays(new Date("2025-10-13"));
 
-  const { data: branches, isLoading: isFetchingBranches } = useQuery({
-    queryKey: ["getBranchesByCurrentRole"],
-    queryFn: () => getBranchesByCurrentRole(),
-  });
+  const { data: branches, isLoading: isFetchingBranches } =
+    useGetBranchesWithShifts(selectedBranchId);
 
   const { data: employeesByCurrentRole, isLoading: isFetchingEmployees } =
-    useQuery({
-      queryKey: ["getEmployeesWithAvailabilities"],
-      queryFn: () => getEmployeesWithAvailabilities(),
-    });
+    useGetEmployees();
 
-  const { data: schedulesByBranch, isLoading: isFetchingSchedules } = useQuery({
-    queryKey: ["getSchedulesByBranch", selectedBranchId],
-    queryFn: () => getSchedulesByBranch(selectedBranchId),
-    enabled: !!selectedBranchId,
-  });
+  const { data: schedulesByBranch, isLoading: isFetchingSchedules } =
+    useGetSchedulesByBranch(selectedBranchId);
 
   useEffect(() => {
     if (!selectedBranchId || isFetchingSchedules || isFetchingEmployees) return;
@@ -83,7 +67,7 @@ export default function SchedulesPage() {
   const loadBranchSchedule = async (
     currentBranch: BranchWithShifts,
     schedules: ScheduleWithRosters[],
-    employees: EmployeeWithAvailabilities[]
+    employees: Employee[]
   ) => {
     if (loadedSchedules[selectedBranchId]) {
       return; // Already loaded
@@ -122,14 +106,16 @@ export default function SchedulesPage() {
         const currentShift = shiftsInCurrentBranch.find(
           (s) => s.id === schedule.shiftId
         );
-        
+
         const assignments = schedule.rosters.map(
           (roster) =>
             ({
               rosterId: roster.id,
               scheduleId: roster.scheduleId,
               employeeId: roster.employeeId,
-              employeeName: empoyeeInBranch.find(e => e.id === roster.employeeId)?.name || '',
+              employeeName:
+                empoyeeInBranch.find((e) => e.id === roster.employeeId)?.name ||
+                "",
               startTime: getTime(roster.actualStartAt),
               endTime: getTime(roster.actualEndAt),
               status: roster.status,
@@ -213,10 +199,7 @@ export default function SchedulesPage() {
       {/* Schedule Grid */}
       <Accordion type="single" collapsible className="space-y-4">
         {branches!.map((branch) => (
-          <AccordionItem
-            key={branch.id}
-            value={branch.id.toString()}
-          >
+          <AccordionItem key={branch.id} value={branch.id.toString()}>
             <AccordionTrigger
               onClick={() => {
                 setSelectedBranchId(branch.id);
@@ -234,7 +217,7 @@ export default function SchedulesPage() {
                 </div>
               </div>
             </AccordionTrigger>
-            <AccordionContent >
+            <AccordionContent>
               {loadedSchedules[branch.id] && !isFetchingSchedules ? (
                 <BranchScheduleTable
                   branch={branch}
@@ -274,7 +257,7 @@ export default function SchedulesPage() {
             </span>
           </div>
           <span className="text-2xl font-bold text-foreground">
-            {sampleEmployees.length}
+            {employeesByBranch.length}
           </span>
         </div>
 

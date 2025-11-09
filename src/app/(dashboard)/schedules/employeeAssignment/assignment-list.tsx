@@ -1,4 +1,5 @@
 import { AssignmentDialog } from "./assignment-dialog";
+import { AssignmentItem } from "./assignment-item";
 import {
   Select,
   SelectContent,
@@ -8,22 +9,22 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROSTER_MODE, ROSTER_STATUS, SCHEDULE_STATUS } from "@/constants";
-import {
-  Employee,
-  EmployeeWithAvailabilities,
-} from "@/features/employee/types";
+import { Employee } from "@/features/employee/types";
 import { create, remove, schedule, update } from "@/features/roster/api";
 import { EmployeeAssignment, Roster } from "@/features/roster/types";
 import { ScheduleSlot } from "@/features/schedule/types";
-import { combineDateTime, getTime, getTimeFromString } from "@/utils/dateTimeHelpers";
+import {
+  combineDateTime,
+  getTime,
+  getTimeFromString,
+} from "@/utils/dateTimeHelpers";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AssignmentItem } from "./assignment-item";
 
 interface AssignmentListProp {
   slot: ScheduleSlot;
-  employees: EmployeeWithAvailabilities[];
+  employees: Employee[];
   isSaving: boolean;
   // eslint-disable-next-line no-unused-vars
   onUpdate: (updatedSlot: ScheduleSlot) => void;
@@ -70,27 +71,28 @@ export function AssignmentList({
   onUpdate,
 }: AssignmentListProp) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<EmployeeAssignment | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<EmployeeAssignment | null>(null);
   const [savingAssignmentId, setSavingAssignment] = useState<number>(0);
   const [isEditingEmployeeTime, setIsEditingEmployeeTime] = useState(false);
 
-  const {mutate: createMutate, isPending: isCreating} = useMutation({
+  const { mutate: createMutate, isPending: isCreating } = useMutation({
     mutationFn: (roster: Roster) => create(roster),
     onSuccess: async (newRoster) => {
-      const employee = employees.find(e => e.id === newRoster.employeeId);
+      const employee = employees.find((e) => e.id === newRoster.employeeId);
       const newAssignments = [
-      ...slot.assignments,
-      {
-        rosterId: newRoster.id,
-        employeeId:newRoster.employeeId,
-        employeeName: employee ? employee.name : '',
-        scheduleId: newRoster.scheduleId,
-        startTime: getTime(newRoster.actualStartAt),
-        endTime: getTime(newRoster.actualEndAt),
-        status: newRoster.status,
-        mode: newRoster.mode,
-      },
-    ] as EmployeeAssignment[];
+        ...slot.assignments,
+        {
+          rosterId: newRoster.id,
+          employeeId: newRoster.employeeId,
+          employeeName: employee ? employee.name : "",
+          scheduleId: newRoster.scheduleId,
+          startTime: getTime(newRoster.actualStartAt),
+          endTime: getTime(newRoster.actualEndAt),
+          status: newRoster.status,
+          mode: newRoster.mode,
+        },
+      ] as EmployeeAssignment[];
       onUpdate({
         ...slot,
         assignments: newAssignments,
@@ -98,16 +100,16 @@ export function AssignmentList({
     },
   });
 
-  const {mutate: updateMutate, isPending: isUpdating} = useMutation({
+  const { mutate: updateMutate, isPending: isUpdating } = useMutation({
     mutationFn: (roster: Roster) => update(roster.id, roster),
     onSuccess: async (newRoster) => {
-      const employee = employees.find(e => e.id === newRoster.employeeId);
-      const newAssignments = slot.assignments.map(a => {
+      const employee = employees.find((e) => e.id === newRoster.employeeId);
+      const newAssignments = slot.assignments.map((a) => {
         if (a.rosterId === newRoster.id) {
           return {
             rosterId: newRoster.id,
-            employeeId:newRoster.employeeId,
-            employeeName: employee ? employee.name : '',
+            employeeId: newRoster.employeeId,
+            employeeName: employee ? employee.name : "",
             scheduleId: slot.scheduleId,
             startTime: getTime(newRoster.actualStartAt),
             endTime: getTime(newRoster.actualEndAt),
@@ -127,16 +129,16 @@ export function AssignmentList({
     },
   });
 
-  const {mutate: scheduleMutate, isPending: isScheduling} = useMutation({
+  const { mutate: scheduleMutate, isPending: isScheduling } = useMutation({
     mutationFn: (rosterId: number) => schedule(rosterId),
     onSuccess: async (newRoster) => {
-      const employee = employees.find(e => e.id === newRoster.employeeId);
-      const newAssignments = slot.assignments.map(a => {
+      const employee = employees.find((e) => e.id === newRoster.employeeId);
+      const newAssignments = slot.assignments.map((a) => {
         if (a.rosterId === newRoster.id) {
           return {
             rosterId: newRoster.id,
-            employeeId:newRoster.employeeId,
-            employeeName: employee ? employee.name : '',
+            employeeId: newRoster.employeeId,
+            employeeName: employee ? employee.name : "",
             scheduleId: slot.scheduleId,
             startTime: getTime(newRoster.actualStartAt),
             endTime: getTime(newRoster.actualEndAt),
@@ -155,7 +157,7 @@ export function AssignmentList({
     },
   });
 
-  const {mutate: deleteMutate, isPending: isDeleting} = useMutation({
+  const { mutate: deleteMutate, isPending: isDeleting } = useMutation({
     mutationFn: (rosterId: number) => remove(rosterId),
     onSuccess: async (data) => {
       const newAssignments = slot.assignments.reduce((acc, assignment) => {
@@ -181,8 +183,14 @@ export function AssignmentList({
   );
 
   const handleAddAssignment = (scheduleId: number, employeeId: number) => {
-    const addtartTime = combineDateTime(slot.date, getTimeFromString(slot.startTime));
-    const addEndTime = combineDateTime(slot.date, getTimeFromString(slot.endTime));
+    const addtartTime = combineDateTime(
+      slot.date,
+      getTimeFromString(slot.startTime)
+    );
+    const addEndTime = combineDateTime(
+      slot.date,
+      getTimeFromString(slot.endTime)
+    );
 
     const newRoster: Roster = {
       id: 0, // will be set by backend
@@ -193,10 +201,10 @@ export function AssignmentList({
       actualEndAt: addEndTime,
       status: ROSTER_STATUS.PENDING,
       mode: ROSTER_MODE.ASSIGNED,
-      note: '',
+      note: "",
     };
     createMutate(newRoster);
-  }
+  };
 
   const handleToggleStatus = (rosterId: number) => {
     setSavingAssignment(rosterId);
@@ -217,12 +225,15 @@ export function AssignmentList({
 
   const handleSaveEmployeeTime = (startTime: string, endTime: string) => {
     if (!selectedAssignment) return;
-    
-    const editStartTime = combineDateTime(slot.date, getTimeFromString(startTime));
+
+    const editStartTime = combineDateTime(
+      slot.date,
+      getTimeFromString(startTime)
+    );
     const editEndTime = combineDateTime(slot.date, getTimeFromString(endTime));
     if (editStartTime >= editEndTime) {
-      toast.error("Start time must be before end time")
-      return
+      toast.error("Start time must be before end time");
+      return;
     }
 
     const updatedRoster: Roster = {
@@ -234,11 +245,11 @@ export function AssignmentList({
       actualEndAt: editEndTime,
       status: selectedAssignment.status,
       mode: selectedAssignment.mode,
-      note: '',
+      note: "",
     };
-    
+
     updateMutate(updatedRoster);
-  }
+  };
 
   return isSaving || isLoading ? (
     <SkeletonCard />
@@ -257,7 +268,10 @@ export function AssignmentList({
             return (
               <AssignmentItem
                 key={assignment.rosterId}
-                isSaving={assignment.rosterId === savingAssignmentId && (isUpdating || isScheduling)}
+                isSaving={
+                  assignment.rosterId === savingAssignmentId &&
+                  (isUpdating || isScheduling)
+                }
                 assignment={assignment}
                 statusSchedule={slot.status}
                 onToggleStatus={handleToggleStatus}
@@ -284,7 +298,7 @@ export function AssignmentList({
       {/* Edit employee time ranges modal */}
       {selectedAssignment && (
         <AssignmentDialog
-        isSaving={isUpdating}
+          isSaving={isUpdating}
           assignment={selectedAssignment}
           isOpen={isEditingEmployeeTime}
           onOpenChange={setIsEditingEmployeeTime}

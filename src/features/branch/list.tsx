@@ -1,4 +1,4 @@
-import { getBranches } from "./api";
+import { getBranchesWithPaging } from "./api";
 import { Branch } from "./types";
 import {
   GenericTable,
@@ -63,7 +63,7 @@ export default function BranchList({ columns }: BranchListProp) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["branches", page, pageSize],
-    queryFn: () => getBranches({ page, pageSize }),
+    queryFn: () => getBranchesWithPaging({ page, pageSize }),
   });
 
   if (isLoading) return <p>Loading...</p>;

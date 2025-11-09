@@ -3,7 +3,7 @@
 import { ScheduleSlotCell } from "./schedule-slot-cell";
 import { SCHEDULE_STATUS } from "@/constants";
 import { BranchWithShifts } from "@/features/branch/types";
-import { EmployeeWithAvailabilities } from "@/features/employee/types";
+import { Employee } from "@/features/employee/types";
 import { ScheduleSlot, WeeklySchedule } from "@/features/schedule/types";
 import { Shift } from "@/features/shift/types";
 import { getTime, Weekday } from "@/utils/dateTimeHelpers";
@@ -13,7 +13,7 @@ import { useState } from "react";
 
 interface BranchScheduleTableProps {
   branch: BranchWithShifts;
-  employees: EmployeeWithAvailabilities[];
+  employees: Employee[];
   initialSchedule: WeeklySchedule;
   weekDays: Weekday[];
 }

@@ -1,5 +1,5 @@
-import { getBranches } from "../branch/api";
-import { createEmployee, getEmployee, updateEmployee } from "./api";
+import { getBranchesWithPaging } from "../branch/api";
+import { create, getEmployee, update } from "./api";
 import EmployeeForm from "./form";
 import { Employee, employeeSchema } from "./types";
 import DrawerForm from "@/components/organisms/drawer-form";
@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 type EmployeeDetailProps = {
   id: number;
   open: boolean;
+  // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
 };
 
@@ -31,7 +32,7 @@ export default function BrancDetail({
 
   const { data: branches = [], isLoading: isBranchesLoading } = useQuery({
     queryKey: ["branches"],
-    queryFn: () => getBranches({ all: true }),
+    queryFn: () => getBranchesWithPaging({ all: true }),
   });
 
   const form = useForm<Employee>({
@@ -57,7 +58,7 @@ export default function BrancDetail({
 
   const mutation = useMutation({
     mutationFn: (data: Employee) =>
-      employee && employee.id ? updateEmployee(data) : createEmployee(data),
+      employee && employee.id ? update(employee.id, data) : create(data),
     onSuccess: (d) => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       form.reset(d); // Reset form to new data here
