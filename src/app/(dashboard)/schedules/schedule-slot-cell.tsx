@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Employee } from "@/features/employee/types"
-import { Schedule, ScheduleSlot } from "@/features/schedule/types"
+import { Employee } from "@/features/employee/types/employee.types"
+import { ScheduleSlot } from "@/features/schedule/types/schedule.dto.types"
 import { SchduleTimeDialog } from "./scheduleSlot/schedule-time-dialog"
 import { ScheduleInfoHeader } from "./scheduleSlot/schedule-info-header"
 import { AssignmentList } from "./employeeAssignment/assignment-list"
-import { combineDateTime, getTime, getTimeFromString } from "@/utils/dateTimeHelpers"
+import { combineDateTime, getTime, getTimeFromString } from "@/lib/utils/dateTimeHelpers"
 import { ScheduleStatusButton } from "./scheduleSlot/shedule-status-button"
 import { useMutation } from "@tanstack/react-query"
-import { publish, update } from "@/features/schedule/api"
-import { EmployeeAssignment } from "@/features/roster/types"
+import { publish, update } from "@/features/schedule/services/schedule.service"
+import { EmployeeAssignment } from "@/features/roster/types/roster.dto.types"
+import { Schedule } from "@/features/schedule/types/schedule.types"
 
 interface ScheduleSlotCellProps {
   slot: ScheduleSlot

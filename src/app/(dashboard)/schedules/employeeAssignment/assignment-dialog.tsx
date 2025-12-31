@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmployeeAssignment } from "@/features/roster/types";
-import { TimeRange } from "@/utils/dateTimeHelpers";
+import { EmployeeAssignment } from "@/features/roster/types/roster.types";
+import { TimeRange } from "@/lib/utils/dateTimeHelpers";
 import { useState } from "react";
 
 interface EmployeeTimeDialogProps {

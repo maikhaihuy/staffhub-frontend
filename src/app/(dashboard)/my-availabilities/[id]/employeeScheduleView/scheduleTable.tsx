@@ -1,5 +1,5 @@
-import { Roster } from "@/features/roster/types";
-import { ScheduleGroup } from "@/features/schedule/types";
+import { Roster } from "@/features/roster/types/roster.types";
+import { ScheduleGroup } from "@/features/schedule/types/schedule.types";
 import { ScheduleRow } from "./scheduleRow";
 
 interface ScheduleTableProps {

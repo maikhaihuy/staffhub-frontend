@@ -2,13 +2,13 @@ import AssignmentDialog from "./assignment-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ROSTER_STATUS } from "@/constants";
-import { Roster } from "@/features/roster/types";
-import { useCreateRoster, useDeleteRoster, useUpdateRoster } from "@/hooks/useRosters";
+import { Roster } from "@/features/roster/types/roster.types";
+import { useCreateRoster, useDeleteRoster, useUpdateRoster } from "@/features/roster/hooks";
 import {
   combineDateTime,
   getTime,
   getTimeFromString,
-} from "@/utils/dateTimeHelpers";
+} from "@/lib/utils/dateTimeHelpers";
 import { ClockAlert, ClockCheck, ClockPlus, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

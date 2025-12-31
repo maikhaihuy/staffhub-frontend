@@ -1,5 +1,5 @@
-import { Roster } from "@/features/roster/types";
-import { getTime } from "@/utils/dateTimeHelpers";
+import { Roster } from "@/features/roster/types/roster.types";
+import { getTime } from "@/lib/utils/dateTimeHelpers";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

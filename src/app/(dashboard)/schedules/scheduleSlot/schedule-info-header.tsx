@@ -1,5 +1,5 @@
 import { SCHEDULE_STATUS } from "@/constants";
-import { ScheduleSlot } from "@/features/schedule/types";
+import { ScheduleSlot } from "@/features/schedule/types/schedule.types";
 import { Clock, Edit2, Users, Lock, Globe, CalendarPlus2 } from "lucide-react";
 
 interface ScheduleInfoHeaderProps {

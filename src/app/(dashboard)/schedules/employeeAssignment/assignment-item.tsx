@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { ROSTER_MODE, ROSTER_STATUS, SCHEDULE_STATUS } from "@/constants";
-import { EmployeeAssignment } from "@/features/roster/types";
+import { EmployeeAssignment } from "@/features/roster/types/roster.types";
 import { Edit2, Trash2 } from "lucide-react";
 
 const getBackgroundStyle = (status: string, canEdit: boolean) => {
