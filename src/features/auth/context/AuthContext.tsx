@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authService } from '../services/auth.service';
 import {
   AuthContextType,
-  LoginCredentials,
+  LoginData,
   RegisterData,
 } from '../types/auth.type';
 import { toast } from 'sonner';
@@ -48,17 +48,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginData) => {
     try {
       const response = await authService.login(credentials.username, credentials.password);
       
       setUser(response.user);
-      setAccessToken(response.tokens.accessToken);
-      setRefreshToken(response.tokens.refreshToken);
+      setAccessToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
 
       toast.success('Login successful!');
       router.push('/');
     } catch (error: any) {
+      console.error('Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed');
       throw error;
     }
@@ -114,7 +115,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        user,
         accessToken,
         refreshToken,
         isAuthenticated: !!user,

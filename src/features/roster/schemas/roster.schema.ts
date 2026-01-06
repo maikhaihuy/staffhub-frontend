@@ -16,4 +16,4 @@ export const rosterSchema = z.object({
 
 export const createRosterSchema = rosterSchema.omit({ id: true });
 
-export const updateRosterSchema = rosterSchema.omit({ id: true });
+export const updateRosterSchema = rosterSchema.partial().required({ id: true });

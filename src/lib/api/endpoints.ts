@@ -9,5 +9,6 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: "/auth/forgot-password",
     RESET_PASSWORD: "/auth/reset-password",
   },
-  BRANCHES: "/api/branches",
+  BRANCHES: "/branches",
+  SHIFFTS: "/shifts",
 };

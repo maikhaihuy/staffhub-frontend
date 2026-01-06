@@ -13,4 +13,4 @@ export const shiftSchema = z.object({
 });
 
 export const createShiftSchema = shiftSchema.omit({ id: true });
-export const updateShiftSchema = shiftSchema.omit({ id: true });
+export const updateShiftSchema = shiftSchema.partial().required({ id: true });
