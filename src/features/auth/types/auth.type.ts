@@ -8,9 +8,9 @@ import {
 } from '../schemas/auth.schema';
 
 /**
- * Login Credentials
+ * Login Data
  */
-export type LoginCredentials = z.infer<typeof loginSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
 
 /**
  * Register Data
@@ -62,7 +62,7 @@ export interface AuthState {
  * Auth Context Type
  */
 export interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string>;

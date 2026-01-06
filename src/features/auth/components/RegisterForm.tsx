@@ -1,13 +1,13 @@
 // ============================================
-// features/auth/components/LoginForm.tsx
+// features/auth/components/RegisterForm.tsx
 // ============================================
 'use client';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useLogin } from '../hooks/useLogin';
-import { LoginData } from '../types/auth.type';
-import { loginSchema } from '../schemas/auth.schema';
+import { useRegister } from '../hooks/useRegister';
+import { RegisterData } from '../types/auth.type';
+import { registerSchema } from '../schemas/auth.schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,25 +21,25 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 
-export function LoginForm() {
-  const { mutate: login, isPending } = useLogin();
+export function RegisterForm() {
+  const { mutate: register, isPending } = useRegister();
 
-  const form = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
-      username: 'settings',
-      password: 'ChangeMe!123',
+      username: '',
+      password: '',
     },
   });
 
-  const onSubmit = (data: LoginData) => {
-    login(data);
+  const onSubmit = (data: RegisterData) => {
+    register(data);
   };
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardTitle className="text-2xl text-center">Register</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -81,7 +81,7 @@ export function LoginForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Logging in...' : 'Login'}
+              {isPending ? 'Logging in...' : 'Register'}
             </Button>
 
             <div className="text-center text-sm">
@@ -94,9 +94,9 @@ export function LoginForm() {
             </div>
 
             <div className="text-center text-sm">
-              Dont have an account?{' '}
-              <Link href="/register" className="text-primary hover:underline">
-                Register
+              Already have an account?{' '}
+              <Link href="/login" className="text-primary hover:underline">
+                Login
               </Link>
             </div>
           </form>
