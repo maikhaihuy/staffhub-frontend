@@ -6,6 +6,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
 } from '../schemas/auth.schema';
+import { User } from '@/features/users/types/user.types';
 
 /**
  * Login Data
@@ -52,8 +53,7 @@ export interface LoginResponse {
  * Auth State
  */
 export interface AuthState {
-  accessToken: string | null;
-  refreshToken: string | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -65,5 +65,4 @@ export interface AuthContextType extends AuthState {
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAccessToken: () => Promise<string>;
 }
