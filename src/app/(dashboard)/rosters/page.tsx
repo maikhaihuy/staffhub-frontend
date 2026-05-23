@@ -5,7 +5,7 @@ import { useGetBranchesWithShifts } from "@/features/branch/hooks/useBranchQueri
 import { useGetEmployees } from "@/features/employee/hooks";
 import { useGetSchedulesByBranch } from "@/features/schedule/hooks/useScheduleQueries";
 import { generateWeekdays } from "@/lib/utils/dateTimeHelpers";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 

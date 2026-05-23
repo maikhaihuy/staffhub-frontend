@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { branchSchema } from "../../branch/schemas/branch.schema";
+import { branchFormSchema } from "../../branch/schemas";
 
 /**
  * Base Employee Schema - Used for validation
@@ -46,5 +46,5 @@ export const employeeQuerySchema = z.object({
  * Employee with Branches Schema
  */
 export const employeeWithBranchesSchema = employeeSchema.extend({
-  branches: z.array(branchSchema),
+  branches: z.array(branchFormSchema),
 });

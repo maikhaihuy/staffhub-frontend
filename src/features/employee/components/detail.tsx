@@ -1,8 +1,9 @@
-import { getBranchesWithPaging } from "../../branch/services/branch.service";
-import { create, getEmployee, update } from "../api";
+import { useGetBranchesWithPaging } from "../../branch/hooks/useBranchQueries";
+import { create, getEmployee, update } from "../services/employee.service";
 import EmployeeForm from "./form";
-import { Employee, employeeSchema } from "../types";
-import DrawerForm from "@/components/organisms/drawer-form";
+import { Employee } from "../types/employee.types";
+import { employeeSchema } from "../schemas/employee.schema";
+import DrawerForm from "@/components/shared/drawer-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,10 +31,8 @@ export default function BrancDetail({
     enabled: !!id,
   });
 
-  const { data: branches = [], isLoading: isBranchesLoading } = useQuery({
-    queryKey: ["branches"],
-    queryFn: () => getBranchesWithPaging({ all: true }),
-  });
+  const { data: branchesData, isLoading: isBranchesLoading } = useGetBranchesWithPaging({ all: true });
+  const branches = Array.isArray(branchesData) ? branchesData : (branchesData as { data: Branch[] })?.data || [];
 
   const form = useForm<Employee>({
     resolver: zodResolver(employeeSchema),
