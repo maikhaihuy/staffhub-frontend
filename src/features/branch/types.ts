@@ -6,7 +6,7 @@ import {
   branchQuerySchema,
   branchWithShiftsSchema,
   branchWithSchedulesSchema,
-} from '../schemas/branch.schema';
+} from './schemas';
 
 /**
  * Base Branch Type

@@ -1,10 +1,11 @@
-import { branchService } from "../services/branch.service";
+import { useGetBranch } from "../hooks/useBranchQueries";
+import { useCreateBranch, useUpdateBranch } from "../hooks/useBranchMutations";
 import BranchForm from "./form";
-import { Branch, branchSchema } from "../types";
-import DrawerForm from "@/components/organisms/drawer-form";
+import { Branch } from "../types";
+import { branchFormSchema } from "../schemas";
+import DrawerForm from "@/components/shared/drawer-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -16,17 +17,12 @@ type BranchDetailProps = {
 };
 
 export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
-  const queryClient = useQueryClient();
   const formId = "branch-form";
 
-  const { data: branch, isLoading } = useQuery({
-    queryKey: ["branch", id],
-    queryFn: () => branchService.getBranch(id),
-    enabled: !!id,
-  });
+  const { data: branch, isLoading } = useGetBranch(id);
 
   const form = useForm<Branch>({
-    resolver: zodResolver(branchSchema),
+    resolver: zodResolver(branchFormSchema),
     defaultValues: branch || {},
   });
   const {
@@ -48,15 +44,8 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
     }
   }, [branch, form]);
 
-  const mutation = useMutation({
-    mutationFn: (data: Branch) =>
-      branch && branch.id ? branchService.update(branch.id, data) : branchService.create(data),
-    onSuccess: (d) => {
-      queryClient.invalidateQueries({ queryKey: ["branches"] });
-      form.reset(d as Branch); // Reset form to new data here
-      console.log("data submit: ", d);
-    },
-  });
+  const createMutation = useCreateBranch();
+  const updateMutation = useUpdateBranch();
 
   const handleSubmit = (data: Branch) => {
     console.log(data);
@@ -69,8 +58,14 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
       phone: data.phone?.replace(/[^0-9+()-\s]/g, "").trim(),
       email: data.email?.trim().toLowerCase(),
     };
-    mutation.mutate(sanitizedData);
+    
+    if (branch && branch.id) {
+      updateMutation.mutate(sanitizedData);
+    } else {
+      createMutation.mutate(sanitizedData);
+    }
   };
+
   const handleDiscard = () => {
     form.reset();
     setOpen(false);

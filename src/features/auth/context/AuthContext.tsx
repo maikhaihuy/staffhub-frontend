@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '../services/auth.service';
 import {
   AuthContextType,
@@ -48,6 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, []);
 
+  // Trong AuthProvider
+  const searchParams = useSearchParams(); // thêm vào
+
   const login = async (credentials: LoginData) => {
     try {
       const response = await authService.login(credentials.username, credentials.password);
@@ -57,7 +60,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRefreshToken(response.refreshToken);
 
       toast.success('Login successful!');
-      router.push('/');
+      // Redirect về trang trước đó nếu có
+      const returnUrl = searchParams.get('returnUrl') || '/';
+      router.push(returnUrl);
+
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed');

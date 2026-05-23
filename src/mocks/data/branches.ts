@@ -1,5 +1,5 @@
 
-import { Branch, BranchWithShifts, BranchWithSchedules } from "../../features/branch/types/branch.types";
+import { Branch, BranchWithShifts, BranchWithSchedules } from "../../features/branch/types";
 import { sampleSchedules } from "./schedules";
 import { sampleShifts } from "./shifts";
 

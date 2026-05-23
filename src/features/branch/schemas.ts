@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { shiftSchema } from "../../shift/schemas/shift.schema";
-import { scheduleSchema } from "../../schedule/schemas/schedule.schema";
+import { shiftSchema } from "../shift/schemas/shift.schema";
+import { scheduleSchema } from "../schedule/schemas/schedule.schema";
 
 export const branchSchema = z.object({
   id: z.number(), // for update, not required on create

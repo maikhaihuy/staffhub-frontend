@@ -3,8 +3,8 @@ import { EmployeeWithBranches } from "../types";
 import {
   GenericTable,
   ColumnConfig,
-} from "@/components/organisms/generic-table";
-import PageNavigator from "@/components/organisms/page-navigator";
+} from "@/components/shared/generic-table";
+import PageNavigator from "@/components/shared/page-navigator";
 import { Input } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { PAGINATION } from "@/constants";

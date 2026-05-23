@@ -1,14 +1,13 @@
-import { getBranchesWithPaging } from "../services/branch.service";
+import { useGetBranchesWithPaging } from "../hooks/useBranchQueries";
 import { Branch } from "../types";
 import {
   GenericTable,
   ColumnConfig,
-} from "@/components/organisms/generic-table";
-import PageNavigator from "@/components/organisms/page-navigator";
+} from "@/components/shared/generic-table";
+import PageNavigator from "@/components/shared/page-navigator";
 import { Input } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { PAGINATION } from "@/constants";
-import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -61,10 +60,7 @@ export default function BranchList({ columns }: BranchListProp) {
     setPage(1); // reset to first page
   };
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["branches", page, pageSize],
-    queryFn: () => getBranchesWithPaging({ page, pageSize }),
-  });
+  const { data, isLoading } = useGetBranchesWithPaging({ page, pageSize });
 
   if (isLoading) return <p>Loading...</p>;
 
