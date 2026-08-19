@@ -4,10 +4,12 @@ import {
   CalendarCog,
   CalendarCheck,
   CalendarRange,
+  Clock,
   MapPinned,
   SquareTerminal,
   Store,
   Users,
+  UserCog,
   CalendarPlus2,
 } from 'lucide-react';
 import React from 'react';
@@ -87,5 +89,17 @@ export const ADMIN_ROUTES: RouteConfig[] = [
     name: 'Chi nhánh',
     breadcrumb: 'Chi nhánh',
     icon: Store,
+  },
+  {
+    path: '/users',
+    name: 'Người dùng',
+    breadcrumb: 'Người dùng',
+    icon: UserCog,
+  },
+  {
+    path: '/shifts',
+    name: 'Loại ca làm việc',
+    breadcrumb: 'Loại ca làm việc',
+    icon: Clock,
   },
 ];

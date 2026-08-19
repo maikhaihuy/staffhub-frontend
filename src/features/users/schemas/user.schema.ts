@@ -1,31 +1,38 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-  id: z.number(), // for update, not required on create
-  username: z.string().min(1, { message: "Username is required" }),
-  password: z.string().min(1, { message: "Password is required" }),
-  status: z.enum(["ACTIVE", "INACTIVE", "PENDING"]), // UserStatus enum values
+export const USER_STATUS = ["ACTIVE", "INACTIVE"] as const;
+
+/**
+ * Fields editable via the create/update form - matches the real backend's
+ * CreateUserDto/UpdateUserDto (see staffhub-backend/.../create-user.dto.ts).
+ */
+export const userFormSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  avatarUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+  status: z.enum(USER_STATUS),
+  roleId: z.number({ message: "Role is required" }),
 });
 
-/**
- * Create User Schema - ID is not allowed
- */
-export const createUserSchema = userSchema.omit({ id: true });
+export const createUserSchema = userFormSchema;
+
+export const updateUserSchema = userFormSchema.partial();
 
 /**
- * Update User Schema - All fields optional except ID
+ * Full entity as returned by the backend (UserResponseDto).
  */
-export const updateUserSchema = userSchema
-  .partial()
-  .required({ id: true });
-
-/**
- * User Query Params Schema
- */
-export const userQuerySchema = z.object({
-  page: z.number().min(1).optional(),
-  pageSize: z.number().min(1).max(100).optional(),
-  search: z.string().optional(),
-  sortBy: z.enum(['username', 'status', 'createdAt']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
+export const userSchema = userFormSchema.extend({
+  id: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  roleName: z.string().optional(),
+  branches: z
+    .array(
+      z.object({
+        branchId: z.number(),
+        branchName: z.string(),
+        isPrimary: z.boolean(),
+      })
+    )
+    .optional(),
 });

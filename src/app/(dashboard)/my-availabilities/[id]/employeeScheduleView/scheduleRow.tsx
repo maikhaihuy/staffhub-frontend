@@ -1,30 +1,42 @@
-import { ROSTER_MODE } from "@/constants";
-import { Roster } from "@/features/roster/types/roster.types";
-import { ScheduleGroup } from "@/features/schedule/types/schedule.types";
+import { MasterShiftTemplate } from "@/features/masterShiftTemplate/types";
+import { MasterShift } from "@/features/masterShift/types";
+import { Assignment } from "@/features/assignment/types";
+import { Weekday, getTime, toDateOnlyString } from "@/lib/utils/dateTimeHelpers";
 import AssignmentItem from "./assignment-item";
 
 export function ScheduleRow({
-  group,
-  rosterByEmployee,
+  employeeId,
+  template,
+  masterShifts,
+  myAssignments,
   weekDays,
 }: {
-  group: ScheduleGroup;
-  rosterByEmployee: Roster[];
-  weekDays: { dayName: string; date: Date }[];
+  employeeId: number;
+  template: MasterShiftTemplate;
+  masterShifts: MasterShift[];
+  myAssignments: Assignment[];
+  weekDays: Weekday[];
 }) {
   return (
-    <tr key={group.timeRange} className="border-b border-border last:border-0">
+    <tr className="border-b border-border last:border-0">
       <td className="px-4 py-3 border-r border-border text-sm font-medium text-foreground">
-        {group.name} <br />
-        <span className="text-xs text-muted-foreground">{group.timeRange}</span>
+        {template.name} <br />
+        <span className="text-xs text-muted-foreground">
+          {getTime(new Date(template.startTime))} -{" "}
+          {getTime(new Date(template.endTime))}
+        </span>
       </td>
       {weekDays.map(({ date }) => {
-        // Find schedule for this day
-        const schedule = group.schedules.find(
-          (s) => s.workDate.toDateString() === date.toDateString()
+        // Find the master shift generated from this template for this day
+        const masterShift = masterShifts.find(
+          (ms) =>
+            ms.masterShiftTemplateId === template.id &&
+            toDateOnlyString(new Date(ms.workDate)) === toDateOnlyString(date)
         );
+        // Exactly one auto-created sub-shift per master shift today
+        const subShift = masterShift?.subShifts?.[0];
 
-        if (!schedule) {
+        if (!masterShift || !subShift) {
           return (
             <td
               key={date.toDateString()}
@@ -35,8 +47,8 @@ export function ScheduleRow({
           );
         }
 
-        const roster = rosterByEmployee?.find(
-          (r) => r.scheduleId === schedule.id
+        const existingAssignment = myAssignments.find(
+          (a) => a.subShiftId === subShift.id
         );
 
         return (
@@ -44,24 +56,11 @@ export function ScheduleRow({
             key={date.toDateString()}
             className="px-2 py-2 border-r border-border last:border-r-0"
           >
-            {roster ? (
-              <AssignmentItem roster={roster} />
-            ) : (
-              <AssignmentItem
-                roster={{
-                  actualDate: date,
-                  actualStartAt: schedule.startTime,
-                  actualEndAt: schedule.endTime,
-                  status: "", // Initial state
-                  mode: ROSTER_MODE.REQUEST,
-                  note: "",
-                  employeeId: 0, // get from current userId
-                  scheduleId: schedule.id,
-                  id: 0,
-                  assignedAt: new Date(),
-                }}
-              />
-            )}
+            <AssignmentItem
+              employeeId={employeeId}
+              subShift={subShift}
+              assignment={existingAssignment}
+            />
           </td>
         );
       })}

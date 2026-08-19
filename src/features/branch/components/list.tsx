@@ -1,4 +1,4 @@
-import { useGetBranchesWithPaging } from "../hooks/useBranchQueries";
+import { useGetBranches } from "../hooks/useBranchQueries";
 import { Branch } from "../types";
 import {
   GenericTable,
@@ -17,7 +17,6 @@ type BranchListProp = {
 };
 
 function BranchListHeader() {
-  console.log("BranchListHeader rendered");
   return (
     <div className="flex flex-row justify-between">
       <div className="flex flex-row gap-2">
@@ -60,7 +59,11 @@ export default function BranchList({ columns }: BranchListProp) {
     setPage(1); // reset to first page
   };
 
-  const { data, isLoading } = useGetBranchesWithPaging({ page, pageSize });
+  // The backend's GET /branches has no pagination (always returns the full
+  // list) - paginate client-side over the full result instead.
+  const { data: branches, isLoading } = useGetBranches();
+  const total = branches?.length ?? 0;
+  const pageData = (branches ?? []).slice((page - 1) * pageSize, page * pageSize);
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -70,14 +73,14 @@ export default function BranchList({ columns }: BranchListProp) {
       <div className="overflow-hidden rounded-lg border">
         <GenericTable
           columns={columns}
-          data={data?.data || []}
+          data={pageData}
           rowKey={(branch) => branch.id!}
         />
       </div>
       <PageNavigator
         page={page}
         pageSize={pageSize}
-        total={data?.total || 0}
+        total={total}
         setPage={handleSetPage}
         setPageSize={handleSetPageSize}
       />

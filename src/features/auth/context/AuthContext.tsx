@@ -3,49 +3,36 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '../services/auth.service';
+import { tokenManager } from '@/lib/api/axios';
 import {
   AuthContextType,
+  AuthUser,
   LoginData,
   RegisterData,
 } from '../types/auth.type';
 import { toast } from 'sonner';
-import { User } from '@/features/users/types/user.types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Initialize auth state on mount
+  // Initialize auth state on mount from whatever was persisted at login/refresh time
+  // (there's no /auth/me endpoint to re-fetch the user from).
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const isAuthenticated = authService.isAuthenticated();
-        
-        if (isAuthenticated) {
-          // Try to get current user from API
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
-          const storedUser = authService.getStoredUser();
-          setAccessToken(storedUser?.accessToken ?? null);
-          setRefreshToken(storedUser?.refreshToken ?? null);
-        }
-      } catch (_error) {
-        // If token is invalid, clear auth state
-        await authService.logout();
-        setUser(null);
-        setAccessToken(null);
-        setRefreshToken(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const token = tokenManager.getAccessToken();
 
-    initializeAuth();
+    if (token) {
+      setUser(authService.getStoredUser());
+      setAccessToken(token);
+      setRefreshToken(tokenManager.getRefreshToken());
+    }
+
+    setIsLoading(false);
   }, []);
 
   // Trong AuthProvider
@@ -53,11 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: LoginData) => {
     try {
-      const response = await authService.login(credentials.username, credentials.password);
-      
-      setUser(response.user);
-      setAccessToken(response.accessToken);
-      setRefreshToken(response.refreshToken);
+      const { tokens, user } = await authService.login(credentials.username, credentials.password);
+
+      setUser(user);
+      setAccessToken(tokens.accessToken);
+      setRefreshToken(tokens.refreshToken);
 
       toast.success('Login successful!');
       // Redirect về trang trước đó nếu có
@@ -74,8 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
-      
-      setUser(response.user);
+
       setAccessToken(response.tokens.accessToken);
       setRefreshToken(response.tokens.refreshToken);
 
@@ -90,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await authService.logout();
-      
+
       setUser(null);
       setAccessToken(null);
       setRefreshToken(null);
@@ -105,12 +91,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshAccessToken = async (): Promise<string> => {
     try {
-      const response = await authService.refreshToken();
-      
-      setAccessToken(response.accessToken);
-      setRefreshToken(response.refreshToken);
+      const { tokens, user } = await authService.refreshToken();
 
-      return response.accessToken;
+      setUser(user);
+      setAccessToken(tokens.accessToken);
+      setRefreshToken(tokens.refreshToken);
+
+      return tokens.accessToken;
     } catch (error) {
       // If refresh fails, logout user
       await logout();
@@ -121,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        user,
         accessToken,
         refreshToken,
         isAuthenticated: !!user,

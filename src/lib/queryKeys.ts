@@ -1,14 +1,14 @@
 export const queryKeys = {
   employees: {
     all: () => ["employees"],
-    list: (filter?: { page?: number, pageSize?: number }) => ["employees", "list", filter],
-    byBranch: (branchId: number) => ["employees", "byBranch", branchId],
-    withAccount: (branchId?: number) => ["employees", "withAccount", branchId ? { branchId } : {}],
     detail: (employeeId: number) => ["employees", "detail", employeeId],
+  },
+  users: {
+    all: () => ["users"],
+    detail: (userId: number) => ["users", "detail", userId],
   },
   branches: {
     all: () => ["branches"],
-    list: (filter?: { page?: number, pageSize?: number, all?: boolean }) => ["branches", "list", filter],
     detail: (branchId: number) => ["branches", "detail", branchId],
     withSchedules: (employeeId: number) => ["branches", "withSchedules", employeeId],
     withShifts: () => ["branches", "withShifts"],
@@ -22,5 +22,23 @@ export const queryKeys = {
   shifts: {
     byBranch: (branchId: number) => ["shifts", "byBranch", branchId],
     detail: (shiftId: number) => ["shifts", "detail", shiftId],
-  }
+  },
+  masterShiftTemplates: {
+    byBranch: (branchId: number) => ["masterShiftTemplates", "byBranch", branchId],
+    detail: (id: number) => ["masterShiftTemplates", "detail", id],
+  },
+  masterShifts: {
+    list: (filter: { branchId?: number; from?: string; to?: string }) => ["masterShifts", "list", filter],
+    detail: (id: number) => ["masterShifts", "detail", id],
+  },
+  subShifts: {
+    byMasterShift: (masterShiftId: number) => ["subShifts", "byMasterShift", masterShiftId],
+    detail: (id: number) => ["subShifts", "detail", id],
+  },
+  assignments: {
+    all: () => ["assignments"],
+    bySubShift: (subShiftId: number) => ["assignments", "bySubShift", subShiftId],
+    byEmployee: (employeeId: number) => ["assignments", "byEmployee", employeeId],
+    detail: (id: number) => ["assignments", "detail", id],
+  },
 }

@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 export function useAppQuery<TData, TError = AxiosError>(
   key: unknown[],
   queryFn: () => Promise<TData>,
-  options?: UseQueryOptions<TData, TError>
+  options?: Omit<UseQueryOptions<TData, TError>, "queryKey" | "queryFn">
 ) {
   return useQuery<TData, TError>({
     queryKey: key,

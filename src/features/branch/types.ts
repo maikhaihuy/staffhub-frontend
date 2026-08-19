@@ -1,17 +1,22 @@
 import { z } from 'zod';
 import {
   branchSchema,
+  branchFormSchema,
   createBranchSchema,
   updateBranchSchema,
-  branchQuerySchema,
   branchWithShiftsSchema,
   branchWithSchedulesSchema,
 } from './schemas';
 
 /**
- * Base Branch Type
+ * Full Branch entity (BranchResponseDto)
  */
 export type Branch = z.infer<typeof branchSchema>;
+
+/**
+ * Editable form fields (create + update forms share this shape)
+ */
+export type BranchFormValues = z.infer<typeof branchFormSchema>;
 
 /**
  * Create Branch DTO (Data Transfer Object)
@@ -24,9 +29,9 @@ export type CreateBranchDTO = z.infer<typeof createBranchSchema>;
 export type UpdateBranchDTO = z.infer<typeof updateBranchSchema>;
 
 /**
- * Branch Query Params
+ * Update mutation input - the DTO plus which branch it targets
  */
-export type BranchQueryParams = z.infer<typeof branchQuerySchema>;
+export type UpdateBranchInput = UpdateBranchDTO & { id: number };
 
 export type BranchWithShifts = z.infer<typeof branchWithShiftsSchema>;
 

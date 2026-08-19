@@ -1,9 +1,7 @@
 "use client";
 
 import { BranchCalendarTable } from "./branch-calendar-table";
-import { useGetBranchesWithShifts } from "@/features/branch/hooks/useBranchQueries";
-import { useGetEmployees } from "@/features/employee/hooks";
-import { useGetSchedulesByBranch } from "@/features/schedule/hooks/useScheduleQueries";
+import { useGetBranches } from "@/features/branch/hooks/useBranchQueries";
 import { generateWeekdays } from "@/lib/utils/dateTimeHelpers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Loader2 } from "lucide-react";
@@ -11,18 +9,9 @@ import { useEffect, useState } from "react";
 
 export default function CalendarsPage() {
   const [selectedBranchId, setSelectedBranchId] = useState(0);
-  const weekDays = generateWeekdays(new Date("2025-10-13"));
-  const [isLoading, setIsLoading] = useState(true);
+  const weekDays = generateWeekdays(new Date());
 
-  const { data: branches, isLoading: isFetchingBranches } =
-    useGetBranchesWithShifts();
-
-  // need to fetch employees by current role to get only employees in the selected branch
-  const { data: employeesByCurrentRole, isLoading: isFetchingEmployees } =
-    useGetEmployees();
-
-  const { data: schedulesByBranch, isLoading: isFetchingSchedules } =
-    useGetSchedulesByBranch(selectedBranchId);
+  const { data: branches, isLoading: isFetchingBranches } = useGetBranches();
 
   useEffect(() => {
     if (!branches || branches.length === 0) return;
@@ -30,12 +19,8 @@ export default function CalendarsPage() {
     setSelectedBranchId((prev) => (prev ? prev : branches[0].id));
   }, [branches]);
 
-  useEffect(() => {
-    setIsLoading(isFetchingBranches || isFetchingEmployees);
-  }, [isFetchingBranches, isFetchingEmployees]);
-
   // no branches available
-  if (!branches || branches.length === 0) {
+  if (!isFetchingBranches && (!branches || branches.length === 0)) {
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center">
         <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -49,8 +34,10 @@ export default function CalendarsPage() {
     );
   }
 
-  return isLoading ? (
-    <div>Loading...</div>
+  return isFetchingBranches || !branches ? (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
   ) : (
     <div className="space-y-6">
       {/* Page header */}
@@ -88,19 +75,8 @@ export default function CalendarsPage() {
             value={branch.id.toString()}
             className="space-y-6"
           >
-            {!isFetchingSchedules &&
-            schedulesByBranch &&
-            employeesByCurrentRole ? (
-              <BranchCalendarTable
-                branch={branch}
-                schedules={schedulesByBranch}
-                employees={employeesByCurrentRole}
-                weekDays={weekDays}
-              />
-            ) : (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
+            {selectedBranchId === branch.id && (
+              <BranchCalendarTable branchId={branch.id} weekDays={weekDays} />
             )}
           </TabsContent>
         ))}

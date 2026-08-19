@@ -1,4 +1,4 @@
-import { Branch } from "./types";
+import { BranchFormValues } from "../types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Form,
@@ -14,8 +14,8 @@ import { UseFormReturn } from "react-hook-form";
 
 type BranchFormProps = {
   formId: string;
-  form: UseFormReturn<Branch>;
-  onSubmit(data: Branch): void;
+  form: UseFormReturn<BranchFormValues>;
+  onSubmit(data: BranchFormValues): void;
   error?: string;
 };
 
