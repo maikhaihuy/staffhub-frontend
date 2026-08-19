@@ -1,45 +1,47 @@
 import { z } from "zod";
-import { shiftSchema } from "../shift/schemas/shift.schema";
 import { scheduleSchema } from "../schedule/schemas/schedule.schema";
 
-export const branchSchema = z.object({
-  id: z.number(), // for update, not required on create
+/**
+ * Fields editable via the create/update form - matches the real backend's
+ * CreateBranchDto/UpdateBranchDto (see staffhub-backend/.../create-branch.dto.ts).
+ */
+export const branchFormSchema = z.object({
   name: z.string().min(1, { message: "Branch name is required" }),
-  abbreviation: z.string().min(1, { message: "Abbreviation name is required" }),
-  address: z.string().min(1, { message: "Abbreviation name is required" }),
+  abbreviation: z.string().min(1, { message: "Abbreviation is required" }),
+  address: z.string().min(1, { message: "Address is required" }),
   phone: z.string().optional(),
   email: z
     .string()
     .refine((val) => val === "" || z.string().email().safeParse(val).success, {
       message: "Invalid email format",
-    }),
+    })
+    .optional(),
+});
+
+export const createBranchSchema = branchFormSchema;
+
+export const updateBranchSchema = branchFormSchema.partial();
+
+/**
+ * Full entity as returned by the backend (BranchResponseDto) - includes
+ * server-assigned fields the form never touches.
+ */
+export const branchSchema = branchFormSchema.extend({
+  id: z.number(),
+  createdAt: z.string(),
+  createdBy: z.number(),
+  updatedAt: z.string(),
+  updatedBy: z.number(),
+  employees: z.array(z.object({ id: z.number(), fullName: z.string() })).optional(),
 });
 
 /**
- * Create Branch Schema - ID is not allowed
+ * @deprecated mocked-only, pending removal once the rosters/schedules pages
+ * are rewired onto real masterShiftTemplate data (staffhub master-shift/
+ * assignments remap).
  */
-export const createBranchSchema = branchSchema.omit({ id: true });
-
-/**
- * Update Branch Schema - All fields optional except ID
- */
-export const updateBranchSchema = branchSchema
-  .partial()
-  .required({ id: true });
-
-/**
- * Branch Query Params Schema
- */
-export const branchQuerySchema = z.object({
-  page: z.number().min(1).optional(),
-  pageSize: z.number().min(1).max(100).optional(),
-  search: z.string().optional(),
-  sortBy: z.enum(['name', 'abbreviation', 'createdAt']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-});
-
 export const branchWithShiftsSchema = branchSchema.extend({
-  shifts: z.array(shiftSchema),
+  shifts: z.array(z.unknown()),
 });
 
 export const branchWithSchedulesSchema = branchSchema.extend({

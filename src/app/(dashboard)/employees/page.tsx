@@ -4,31 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EmployeeDetail from "@/features/employee/components/detail";
 import EmployeeList from "@/features/employee/components/list";
-import { EmployeeWithBranches } from "@/features/employee/types";
-import { ColumnConfig } from "@/types/interface";
+import { Employee } from "@/features/employee/types";
+import { useDeleteEmployee } from "@/features/employee/hooks/useEmployeeMutations";
+import { ColumnConfig } from "@/components/shared/generic-table";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function EmployeePage() {
-  const columns: ColumnConfig<EmployeeWithBranches>[] = useMemo(
+  const deleteMutation = useDeleteEmployee();
+
+  const columns: ColumnConfig<Employee>[] = useMemo(
     () => [
       {
-        key: "name",
+        key: "fullName",
         label: "Name",
         className: "w-2/8 font-medium",
       },
       {
-        key: "abbreviation",
-        label: "Abbreviation",
-        className: "w-1/8",
-        render: (employee) => (
-          <Badge variant="outline" className="capitalize">
-            {employee.name}
-          </Badge>
-        ),
-      },
-      {
-        key: "phone",
+        key: "phoneNumber",
         label: "Phone",
         className: "w-1/8 hidden md:table-cell",
       },
@@ -38,7 +31,7 @@ export default function EmployeePage() {
         className: "w-2/8 hidden md:table-cell",
         render: (employee) => (
           <div className="flex flex-col gap-1">
-            {employee.branches.map((branch) => (
+            {(employee.branches ?? []).map((branch) => (
               <Badge key={branch.id} variant="outline" className="capitalize">
                 Branch {branch.name}
               </Badge>
@@ -62,14 +55,21 @@ export default function EmployeePage() {
             >
               <Pen />
             </Button>
-            <Button variant="ghost">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (window.confirm(`Delete employee "${employee.fullName}"?`)) {
+                  deleteMutation.mutate(employee.id);
+                }
+              }}
+            >
               <Trash2 />
             </Button>
           </>
         ),
       },
     ],
-    []
+    [deleteMutation]
   );
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number>(0);

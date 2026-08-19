@@ -1,56 +1,69 @@
 "use client";
 
 import ScheduleTable from "./employeeScheduleView/scheduleTable";
-import { Schedule } from "@/features/schedule/types/schedule.types";
-import { useGetBranchesWithSchedules } from "@/features/branch/hooks";
-import { useGetRostersByEmployee } from "@/features/roster/hooks";
-import { generateWeekdays, getTime } from "@/lib/utils/dateTimeHelpers";
-import React, { use, useMemo } from "react";
-import { Loader2 } from "lucide-react";
+import { useGetEmployee } from "@/features/employee/hooks/useEmployeeQueries";
+import { useGetMasterShiftTemplatesByBranch } from "@/features/masterShiftTemplate/hooks/useMasterShiftTemplateQueries";
+import { useGetMasterShiftsByBranch } from "@/features/masterShift/hooks/useMasterShiftQueries";
+import { useGetAssignmentsByEmployee } from "@/features/assignment/hooks/useAssignmentQueries";
+import { generateWeekdays, toDateOnlyString } from "@/lib/utils/dateTimeHelpers";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { use, useEffect, useState } from "react";
+import { Calendar, Loader2 } from "lucide-react";
 
 interface MyAvailabilityPageProps {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: string }>;
 }
 
 export default function MyAvailabilityPage({
   params,
 }: MyAvailabilityPageProps) {
   const { id } = use(params);
-  const employeeId = id;
-  const weekDays = generateWeekdays(new Date("2025-10-13"));
+  const employeeId = +id;
+  const weekDays = generateWeekdays(new Date());
+  const [selectedBranchId, setSelectedBranchId] = useState(0);
 
-  const { data: rosterByEmployee, isLoading: isFetchingRoster } =
-    useGetRostersByEmployee(+employeeId);
+  const { data: employee, isLoading: isFetchingEmployee } =
+    useGetEmployee(employeeId);
+  const branches = employee?.branches ?? [];
 
-  const { data: branch, isLoading: isFetchingBranch } =
-    useGetBranchesWithSchedules(+employeeId);
+  useEffect(() => {
+    if (branches.length === 0) return;
+    // only set default if no branch selected yet
+    setSelectedBranchId((prev) => (prev ? prev : branches[0].id));
+  }, [branches]);
 
-  // Group schedules by name and time range
-  const scheduleGroups = useMemo(() => {
-    if (!branch) return {}
-    return branch.schedules.reduce((acc, schedule) => {
-    const key = `${schedule.name}_${getTime(schedule.startTime)}-${getTime(
-      schedule.endTime
-    )}`;
-    if (!acc[key]) {
-      acc[key] = {
-        name: schedule.name,
-        timeRange: `${getTime(schedule.startTime)}-${getTime(
-          schedule.endTime
-        )}`,
-        schedules: [],
-      };
-    }
-    acc[key].schedules.push(schedule);
-    return acc;
-  }, {} as Record<string, { name: string; timeRange: string; schedules: Schedule[] }>);
-  }, [branch]);
+  const { data: templates = [], isLoading: isFetchingTemplates } =
+    useGetMasterShiftTemplatesByBranch(selectedBranchId);
 
-  return (isFetchingRoster || isFetchingBranch) ? (
-    <div className="flex items-center justify-center h-1/2">
-      <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  ) : (
+  const from = toDateOnlyString(weekDays[0].date);
+  const to = toDateOnlyString(weekDays[weekDays.length - 1].date);
+  const { data: masterShifts = [], isLoading: isFetchingShifts } =
+    useGetMasterShiftsByBranch(selectedBranchId, from, to);
+
+  const { data: myAssignments = [], isLoading: isFetchingAssignments } =
+    useGetAssignmentsByEmployee(employeeId);
+
+  const isLoading =
+    isFetchingEmployee ||
+    isFetchingTemplates ||
+    isFetchingShifts ||
+    isFetchingAssignments;
+
+  if (!isFetchingEmployee && branches.length === 0) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-8 text-center">
+        <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">
+          No Branches Available
+        </h3>
+        <p className="text-muted-foreground">
+          This employee isn&apos;t assigned to any branch yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">My Availability</h2>
@@ -58,51 +71,49 @@ export default function MyAvailabilityPage({
 
       <div className="rounded-lg border border-border bg-muted/50 p-4">
         <p className="text-sm text-muted-foreground">
-          Register for available shifts below. You can only register, edit, or
-          cancel registrations for Draft shifts. Once a shift is Published or
-          Locked, no changes are allowed.
+          Register for available shifts below. You can unregister anytime
+          before the shift takes place.
         </p>
       </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <ScheduleTable
-            scheduleInWeek={scheduleGroups}
-            rosterByEmployee={rosterByEmployee || []}
-            weekDays={weekDays}
-          />
-        </div>
-      </div>
+      {branches.length > 1 && (
+        <Tabs
+          value={selectedBranchId.toString()}
+          onValueChange={(value) => setSelectedBranchId(+value)}
+          className="w-full"
+        >
+          <TabsList
+            className="grid w-full gap-2"
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(branches.length, 3)}, 1fr)`,
+            }}
+          >
+            {branches.map((branch) => (
+              <TabsTrigger key={branch.id} value={branch.id.toString()}>
+                {branch.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
 
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="h-4 w-4 text-orange-600" />
-            <span className="text-sm font-medium text-foreground">Pending</span>
-          </div>
-          <span className="text-2xl font-bold text-foreground">
-            {slots.filter((s) => s.assignments[0].status === ROSTER_STATUS.PENDING).length}
-          </span>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-1/2">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-foreground">Approved</span>
+      ) : (
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <ScheduleTable
+              employeeId={employeeId}
+              templates={templates}
+              masterShifts={masterShifts}
+              myAssignments={myAssignments}
+              weekDays={weekDays}
+            />
           </div>
-          <span className="text-2xl font-bold text-foreground">
-            {slots.filter((s) => s.assignments[0].status === ROSTER_STATUS.SCHEDULED).length}
-          </span>
         </div>
-
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-foreground">Total Registered</span>
-          </div>
-          <span className="text-2xl font-bold text-foreground">{slots.filter((s) => s.assignments[0]).length}</span>
-        </div>
-      </div> */}
+      )}
     </div>
   );
 }

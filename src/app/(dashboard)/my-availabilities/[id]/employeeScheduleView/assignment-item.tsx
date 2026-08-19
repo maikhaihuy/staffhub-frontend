@@ -1,192 +1,110 @@
-import AssignmentDialog from "./assignment-dialog";
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ROSTER_STATUS } from "@/constants";
-import { Roster } from "@/features/roster/types/roster.types";
-import { useCreateRoster, useDeleteRoster, useUpdateRoster } from "@/features/roster/hooks";
+import { Assignment } from "@/features/assignment/types";
+import { SubShiftLite } from "@/features/subShift/types";
 import {
-  combineDateTime,
-  getTime,
-  getTimeFromString,
-} from "@/lib/utils/dateTimeHelpers";
-import { ClockAlert, ClockCheck, ClockPlus, XCircle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+  useCreateAssignment,
+  useDeleteAssignment,
+} from "@/features/assignment/hooks/useAssignmentMutations";
+import { getTime } from "@/lib/utils/dateTimeHelpers";
+import { ClockCheck, ClockPlus, XCircle } from "lucide-react";
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status?: string) => {
   switch (status) {
-    case ROSTER_STATUS.PENDING:
+    case "SCHEDULED":
       return "bg-orange-100 text-orange-800 border-orange-200";
-    case ROSTER_STATUS.SCHEDULED:
-      return "bg-green-100 text-green-800 border-green-200";
-    case ROSTER_STATUS.FINISHED:
+    case "IN_PROGRESS":
       return "bg-blue-100 text-blue-800 border-blue-200";
+    case "COMPLETED":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "ABSENT":
+      return "bg-red-100 text-red-800 border-red-200";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
   }
 };
 
-const getStatusIcon = (status: string) => {
+const getStatusIcon = (status?: string) => {
   switch (status) {
-    case ROSTER_STATUS.PENDING:
-      return <ClockAlert className="h-3 w-3" />;
-    case ROSTER_STATUS.SCHEDULED:
+    case "COMPLETED":
       return <ClockCheck className="h-3 w-3" />;
-    case ROSTER_STATUS.FINISHED:
+    case "ABSENT":
       return <XCircle className="h-3 w-3" />;
     default:
       return <ClockPlus className="h-3 w-3" />;
   }
 };
 
-export default function AssignmentItem({ roster }: { roster: Roster }) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+export default function AssignmentItem({
+  employeeId,
+  subShift,
+  assignment,
+}: {
+  employeeId: number;
+  subShift: SubShiftLite;
+  assignment?: Assignment;
+}) {
+  const { mutate: createAssignment, isPending: isRegistering } =
+    useCreateAssignment();
+  const { mutate: deleteAssignment, isPending: isUnregistering } =
+    useDeleteAssignment();
 
-  const canEdit =
-    roster.status === ROSTER_STATUS.PENDING || roster.status === "";
-  const isNew = roster.id === 0;
+  // Once a shift has actually started/finished (or the employee no-showed),
+  // the registration is locked - only a SCHEDULED (not-yet-started) one can
+  // still be unregistered.
+  const canUnregister = assignment?.status === "SCHEDULED";
 
-  //#region mutation
-  const { mutate: mutateRoster } = useCreateRoster();
-  const { mutate: updateRoster } = useUpdateRoster();
-  const { mutate: removeRoster } = useDeleteRoster();
-  //#endregion
-
-  //#region handlers
-  const handleRegister = (roster: Roster) => {
-    // if (slot.status !== "Draft") {
-    //   toast.error("Can only register for Draft slots")
-    //   return
-    // }
-    // setEditingSlot(slot)
-    // setCustomTimes({ startTime: slot.startTime, endTime: slot.endTime })
-    // setIsDialogOpen(true)
-    console.log(roster);
-    mutateRoster(roster, {
-      onSuccess: async (data) => {
-      console.log(data);
-    },
-    onError: (error: Error) => {
-      console.error(error);
-      toast.error("Failed to register roster");
-    },
-    });
+  const handleRegister = () => {
+    createAssignment({ employeeId, subShiftId: subShift.id });
   };
 
-  const handleUnregister = (roster: Roster) => {
-    console.log(roster);
-    removeRoster(roster.id, {
-      onSuccess: async (data) => {
-      console.log(data);
-    },
-    onError: (error: Error) => {
-      console.error(error);
-      toast.error("Failed to unregister roster");
-    },
-    });
+  const handleUnregister = () => {
+    if (!assignment) return;
+    deleteAssignment(assignment.id);
   };
-
-  const handleUpdateAssignmentTime = (
-    roster: Roster,
-    updates: { startTime: string; endTime: string }
-  ) => {
-    // if (slot.status !== "Draft" || !slot.assignment) {
-    //   toast.error("Can only edit Pending registrations in Draft slots")
-    //   return
-    // }
-    // setEditingSlot(slot)
-    // setCustomTimes({
-    //   startTime: slot.assignment.customStartTime || slot.startTime,
-    //   endTime: slot.assignment.customEndTime || slot.endTime,
-    // })
-    // setIsDialogOpen(true)
-
-    console.log(roster);
-    const editStartTime = combineDateTime(
-      roster.actualStartAt,
-      getTimeFromString(updates.startTime)
-    );
-    const editEndTime = combineDateTime(
-      roster.actualEndAt,
-      getTimeFromString(updates.endTime)
-    );
-    updateRoster({
-      ...roster,
-      actualStartAt: editStartTime,
-      actualEndAt: editEndTime,
-    }, {
-      onSuccess: async (data: Roster) => {
-      console.log(data);
-    },
-    onError: (error: Error) => {
-      console.error(error);
-      toast.error("Failed to update roster");
-    },
-    });
-  };
-  //#endregion
 
   return (
     <div className="space-y-2 flex flex-col justify-center">
       <Badge
         className={`w-full flex-row justify-center gap-1 p-2 ${getStatusColor(
-          roster.status
+          assignment?.status
         )}`}
       >
-        {getStatusIcon(roster.status)}
-        <span className="">
-          {getTime(roster.actualStartAt)} - {getTime(roster.actualEndAt)}
+        {getStatusIcon(assignment?.status)}
+        <span>
+          {getTime(new Date(subShift.startTime))} -{" "}
+          {getTime(new Date(subShift.endTime))}
         </span>
       </Badge>
       <div className="w-full flex flex-row justify-center gap-2">
-        {canEdit ? (
-          isNew ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleRegister(roster)}
-              className="w-full"
-            >
-              Register
-            </Button>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsDialogOpen(true)}
-                className="flex-1"
-              >
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleUnregister(roster)}
-                className="flex-1"
-              >
-                Unregister
-              </Button>
-            </>
-          )
+        {!assignment ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRegister}
+            disabled={isRegistering}
+            className="w-full"
+          >
+            Register
+          </Button>
+        ) : canUnregister ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleUnregister}
+            disabled={isUnregistering}
+            className="w-full"
+          >
+            Unregister
+          </Button>
         ) : (
-          <div className="text-md text-muted-foreground text-center py-1 px-2">
-            {roster.status} - View only
+          <div className="text-xs text-muted-foreground text-center py-1 px-2">
+            {assignment.status} - View only
           </div>
         )}
       </div>
-      {isDialogOpen && (
-        <AssignmentDialog
-          roster={roster}
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={(updates) => {
-            console.log(updates);
-            handleUpdateAssignmentTime(roster, updates);
-          }}
-          onOpenChange={(open: boolean) => setIsDialogOpen(open)}
-        />
-      )}
     </div>
   );
 }

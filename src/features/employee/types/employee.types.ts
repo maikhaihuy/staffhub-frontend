@@ -1,16 +1,20 @@
 import z from "zod";
 import {
   employeeSchema,
+  employeeFormSchema,
   createEmployeeSchema,
   updateEmployeeSchema,
-  employeeQuerySchema,
-  employeeWithBranchesSchema,
 } from "../schemas/employee.schema";
 
 /**
- * Base Employee
+ * Full Employee entity (EmployeeResponseDto) - already includes `branches`.
  */
 export type Employee = z.infer<typeof employeeSchema>;
+
+/**
+ * Editable form fields (create + update forms share this shape)
+ */
+export type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
 
 /**
  * Create Employee DTO (Data Transfer Object)
@@ -23,11 +27,12 @@ export type CreateEmployeeDTO = z.infer<typeof createEmployeeSchema>;
 export type UpdateEmployeeDTO = z.infer<typeof updateEmployeeSchema>;
 
 /**
- * Employee Query Params
+ * Update mutation input - the DTO plus which employee it targets
  */
-export type EmployeeQueryParams = z.infer<typeof employeeQuerySchema>;
+export type UpdateEmployeeInput = UpdateEmployeeDTO & { id: number };
 
 /**
- * Employee with Branches
+ * @deprecated The backend already embeds `branches` on every Employee
+ * response - use `Employee` directly.
  */
-export type EmployeeWithBranches = z.infer<typeof employeeWithBranchesSchema>;
+export type EmployeeWithBranches = Employee;

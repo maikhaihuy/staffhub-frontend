@@ -1,15 +1,20 @@
-import { z } from 'zod';
+import { z } from "zod";
 import {
   userSchema,
+  userFormSchema,
   createUserSchema,
   updateUserSchema,
-  userQuerySchema,
-} from '../schemas/user.schema';
+} from "../schemas/user.schema";
 
 /**
- * Base User Type
+ * Full User entity (UserResponseDto)
  */
 export type User = z.infer<typeof userSchema>;
+
+/**
+ * Editable form fields (create + update forms share this shape)
+ */
+export type UserFormValues = z.infer<typeof userFormSchema>;
 
 /**
  * Create User DTO (Data Transfer Object)
@@ -22,6 +27,6 @@ export type CreateUserDTO = z.infer<typeof createUserSchema>;
 export type UpdateUserDTO = z.infer<typeof updateUserSchema>;
 
 /**
- * User Query Params
+ * Update mutation input - the DTO plus which user it targets
  */
-export type UserQueryParams = z.infer<typeof userQuerySchema>;
+export type UpdateUserInput = UpdateUserDTO & { id: number };

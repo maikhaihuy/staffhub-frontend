@@ -1,5 +1,5 @@
 import { Branch } from "../../branch/types";
-import { Employee } from "../types";
+import { EmployeeFormValues } from "../types";
 import { Input } from "@/components/ui";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,8 @@ import { UseFormReturn } from "react-hook-form";
 
 type EmployeeFormProps = {
   formId: string;
-  form: UseFormReturn<Employee>;
-  onSubmit(data: Employee): void;
+  form: UseFormReturn<EmployeeFormValues>;
+  onSubmit(data: EmployeeFormValues): void;
   error?: string;
   branches: Branch[];
 };
@@ -56,7 +56,7 @@ export default function EmployeeForm({
         )}
         <FormField
           control={form.control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Danh xưng</FormLabel>
@@ -69,7 +69,7 @@ export default function EmployeeForm({
         />
         <FormField
           control={form.control}
-          name="phone"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Số điện thoại</FormLabel>

@@ -1,16 +1,22 @@
-import { Roster } from "@/features/roster/types/roster.types";
-import { ScheduleGroup } from "@/features/schedule/types/schedule.types";
+import { MasterShiftTemplate } from "@/features/masterShiftTemplate/types";
+import { MasterShift } from "@/features/masterShift/types";
+import { Assignment } from "@/features/assignment/types";
+import { Weekday } from "@/lib/utils/dateTimeHelpers";
 import { ScheduleRow } from "./scheduleRow";
 
 interface ScheduleTableProps {
-  scheduleInWeek: Record<string, ScheduleGroup>;
-  rosterByEmployee: Roster[];
-  weekDays: { dayName: string; date: Date }[];
+  employeeId: number;
+  templates: MasterShiftTemplate[];
+  masterShifts: MasterShift[];
+  myAssignments: Assignment[];
+  weekDays: Weekday[];
 }
 
 export default function ScheduleTable({
-  scheduleInWeek,
-  rosterByEmployee,
+  employeeId,
+  templates,
+  masterShifts,
+  myAssignments,
   weekDays,
 }: ScheduleTableProps) {
   return (
@@ -31,11 +37,13 @@ export default function ScheduleTable({
         </tr>
       </thead>
       <tbody>
-        {Object.values(scheduleInWeek).map((group, index) => (
+        {templates.map((template) => (
           <ScheduleRow
-            key={index}
-            group={group}
-            rosterByEmployee={rosterByEmployee}
+            key={template.id}
+            employeeId={employeeId}
+            template={template}
+            masterShifts={masterShifts}
+            myAssignments={myAssignments}
             weekDays={weekDays}
           />
         ))}

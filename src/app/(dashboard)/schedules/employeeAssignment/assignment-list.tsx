@@ -48,7 +48,7 @@ function EmployeeSelect({
       <SelectContent>
         {employees.map((emp) => (
           <SelectItem key={emp.id} value={emp.id.toString()}>
-            {emp.name}
+            {emp.fullName}
           </SelectItem>
         ))}
       </SelectContent>
@@ -85,7 +85,7 @@ export function AssignmentList({
         {
           rosterId: newRoster.id,
           employeeId: newRoster.employeeId,
-          employeeName: employee ? employee.name : "",
+          employeeName: employee ? employee.fullName : "",
           scheduleId: newRoster.scheduleId,
           startTime: getTime(newRoster.actualStartAt),
           endTime: getTime(newRoster.actualEndAt),
@@ -109,7 +109,7 @@ export function AssignmentList({
           return {
             rosterId: newRoster.id,
             employeeId: newRoster.employeeId,
-            employeeName: employee ? employee.name : "",
+            employeeName: employee ? employee.fullName : "",
             scheduleId: slot.scheduleId,
             startTime: getTime(newRoster.actualStartAt),
             endTime: getTime(newRoster.actualEndAt),
@@ -138,7 +138,7 @@ export function AssignmentList({
           return {
             rosterId: newRoster.id,
             employeeId: newRoster.employeeId,
-            employeeName: employee ? employee.name : "",
+            employeeName: employee ? employee.fullName : "",
             scheduleId: slot.scheduleId,
             startTime: getTime(newRoster.actualStartAt),
             endTime: getTime(newRoster.actualEndAt),

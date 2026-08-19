@@ -1,7 +1,7 @@
 import { useGetBranch } from "../hooks/useBranchQueries";
 import { useCreateBranch, useUpdateBranch } from "../hooks/useBranchMutations";
 import BranchForm from "./form";
-import { Branch } from "../types";
+import { BranchFormValues } from "../types";
 import { branchFormSchema } from "../schemas";
 import DrawerForm from "@/components/shared/drawer-form";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
 
   const { data: branch, isLoading } = useGetBranch(id);
 
-  const form = useForm<Branch>({
+  const form = useForm<BranchFormValues>({
     resolver: zodResolver(branchFormSchema),
     defaultValues: branch || {},
   });
@@ -47,8 +47,7 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
   const createMutation = useCreateBranch();
   const updateMutation = useUpdateBranch();
 
-  const handleSubmit = (data: Branch) => {
-    console.log(data);
+  const handleSubmit = (data: BranchFormValues) => {
     // Sanitize and trim input values before mutation
     const sanitizedData = {
       ...data,
@@ -58,9 +57,9 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
       phone: data.phone?.replace(/[^0-9+()-\s]/g, "").trim(),
       email: data.email?.trim().toLowerCase(),
     };
-    
+
     if (branch && branch.id) {
-      updateMutation.mutate(sanitizedData);
+      updateMutation.mutate({ id: branch.id, ...sanitizedData });
     } else {
       createMutation.mutate(sanitizedData);
     }

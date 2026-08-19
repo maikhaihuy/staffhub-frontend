@@ -3,7 +3,7 @@ import { AxiosError } from "axios"
 import { toast } from "sonner"
 
 export function useAppMutation<TData, TVariables>(
-  mutationFn: () => Promise<TData>,
+  mutationFn: (variables: TVariables) => Promise<TData>,
   options?: UseMutationOptions<TData, AxiosError, TVariables> & {
     invalidateKey?: unknown[]
     successMessage?: string
@@ -13,8 +13,9 @@ export function useAppMutation<TData, TVariables>(
   const queryClient = useQueryClient()
 
   return useMutation<TData, AxiosError, TVariables>({
+    ...options,
     mutationFn,
-    onSuccess: async (data, _variables, _context, _mutation) => {
+    onSuccess: async (data, variables, context, mutation) => {
       // ✅ invalidate cache nếu có
       if (options?.invalidateKey) {
         await queryClient.invalidateQueries({ queryKey: options.invalidateKey })
@@ -27,18 +28,17 @@ export function useAppMutation<TData, TVariables>(
 
       // ✅ gọi callback người dùng (nếu có)
       if (options?.onSuccess) {
-        await options.onSuccess(data, _variables, _context, _mutation)
+        await options.onSuccess(data, variables, context, mutation)
       }
     },
-    onError: (error, _variables, _context, _mutation) => {
+    onError: (error, variables, context, mutation) => {
       // ✅ hiển thị lỗi mặc định hoặc custom
       toast.error(options?.errorMessage || error.message)
 
       // ✅ callback người dùng
       if (options?.onError) {
-        options.onError(error, _variables, _context, _mutation)
+        options.onError(error, variables, context, mutation)
       }
     },
-    ...options,
   })
 }

@@ -33,7 +33,8 @@ export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
 /**
- * Auth Tokens Response from Backend
+ * Auth Tokens Response from Backend (TokenDto - POST /auth/login, /auth/refresh)
+ * NOTE: the backend does not return a user object alongside the tokens.
  */
 export interface AuthTokens {
   accessToken: string;
@@ -41,17 +42,37 @@ export interface AuthTokens {
 }
 
 /**
- * Login Response
+ * Claims present in the decoded access token JWT payload.
+ * `role`/`branches`/`empId` are only present once the user has an employee
+ * record linked - don't assume they're always set.
  */
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
+export interface AccessTokenClaims {
+  sub: number;
+  phone: string;
+  role?: string;
+  branches?: number[];
+  empId?: number;
+  iat: number;
+  exp: number;
+}
+
+/**
+ * Current-user identity derived from the access token (there is no
+ * `/auth/me` endpoint on the backend).
+ */
+export interface AuthUser {
+  id: number;
+  phone: string;
+  role?: string;
+  branches?: number[];
+  employeeId?: number;
 }
 
 /**
  * Auth State
  */
 export interface AuthState {
+  user: AuthUser | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;

@@ -1,50 +1,48 @@
 import { z } from "zod";
-import { branchFormSchema } from "../../branch/schemas";
 
 /**
- * Base Employee Schema - Used for validation
+ * Fields editable via the create/update form - matches the real backend's
+ * CreateEmployeeDto/UpdateEmployeeDto (see
+ * staffhub-backend/.../create-employee.dto.ts). The form only surfaces
+ * fullName/phoneNumber/branchIds today; the rest of the DTO
+ * (email/address/avatar/dates/primaryBranchId) has no UI yet.
  */
-export const employeeSchema = z.object({
-  id: z.number(), // for update, not required on create
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().min(1, "Phone is required"),
-  branchIds: z.array(z.number().min(1, "Branch is required")),
-  // avatar: z.string().optional(),
-  // status: z.enum(['active', 'inactive']).optional(),
-  // level: z.number().min(0, 'Level must be a positive number').optional(),
-  // branch: z.string().optional(),
-  // // availableAt: z.string().optional(),
-
-  // email: z.string().email('Invalid email'),
-  // role: z.enum(['employee', 'admin'])
+export const employeeFormSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  phoneNumber: z.string().min(1, "Phone is required"),
+  branchIds: z.array(z.number()).min(1, "At least one branch is required"),
 });
 
-/**
- * Create Employee Schema - ID is not allowed
- */
-export const createEmployeeSchema = employeeSchema.omit({ id: true });
+export const createEmployeeSchema = employeeFormSchema;
+
+export const updateEmployeeSchema = employeeFormSchema.partial();
 
 /**
- * Update Employee Schema - All fields optional except ID
+ * Full entity as returned by the backend (EmployeeResponseDto).
  */
-export const updateEmployeeSchema = employeeSchema
-  .partial()
-  .required({ id: true });
-
-/**
- * Employee Query Params Schema
- */
-export const employeeQuerySchema = z.object({
-  page: z.number().min(1).optional(),
-  pageSize: z.number().min(1).max(100).optional(),
-  search: z.string().optional(),
-  sortBy: z.enum(['name', 'phone', 'createdAt']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-});
-
-/**
- * Employee with Branches Schema
- */
-export const employeeWithBranchesSchema = employeeSchema.extend({
-  branches: z.array(branchFormSchema),
+export const employeeSchema = employeeFormSchema.extend({
+  id: z.number(),
+  email: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  avatar: z.string().nullable().optional(),
+  dateOfBirth: z.string().nullable().optional(),
+  probationStartDate: z.string().nullable().optional(),
+  officialStartDate: z.string().nullable().optional(),
+  createdAt: z.string(),
+  createdBy: z.number(),
+  updatedAt: z.string(),
+  updatedBy: z.number(),
+  user: z
+    .object({ id: z.number(), fullName: z.string() })
+    .nullable()
+    .optional(),
+  branches: z
+    .array(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        abbreviation: z.string(),
+      })
+    )
+    .optional(),
 });

@@ -1,19 +1,38 @@
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import axios, { tokenManager } from "@/lib/api/axios";
-import { AuthTokens, ChangePasswordData, ForgotPasswordData, RegisterData, ResetPasswordData } from "../types/auth.type";
+import { AccessTokenClaims, AuthTokens, AuthUser, ChangePasswordData, ForgotPasswordData, RegisterData, ResetPasswordData } from "../types/auth.type";
 import { User } from "@/features/users/types/user.types";
 import { registerSchema } from "../schemas/auth.schema";
+import { decodeJwt } from "@/lib/utils/jwt";
+
+function userFromAccessToken(accessToken: string): AuthUser | null {
+  const claims = decodeJwt<AccessTokenClaims>(accessToken);
+  if (!claims) return null;
+
+  return {
+    id: claims.sub,
+    phone: claims.phone,
+    role: claims.role,
+    branches: claims.branches,
+    employeeId: claims.empId,
+  };
+}
 
 class AuthService {
-  async login(username: string, password: string) {
-    const data = { username, password };
-    const res = await axios.post(`${API_ENDPOINTS.AUTH.LOGIN}`, data);
-    // Store tokens and user
-    const tokens = res.data as AuthTokens;
-    const user = res.data.user;
+  /**
+   * POST /auth/login returns only { accessToken, refreshToken } - no user
+   * object and no /auth/me endpoint exists, so the current user is derived
+   * from the decoded access token instead.
+   */
+  async login(username: string, password: string): Promise<{ tokens: AuthTokens; user: AuthUser | null }> {
+    const res = await axios.post<AuthTokens>(API_ENDPOINTS.AUTH.LOGIN, { username, password });
+    const tokens = res.data;
+    const user = userFromAccessToken(tokens.accessToken);
+
     tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
     tokenManager.setUser(user);
-    return res.data;
+
+    return { tokens, user };
   }
   
   /**
@@ -40,9 +59,15 @@ class AuthService {
   async logout() {
     try {
       const refreshToken = tokenManager.getRefreshToken();
-      
+
       if (refreshToken) {
-        await axios.post(`${API_ENDPOINTS.AUTH.LOGOUT}`);
+        // Backend's refresh-token passport strategy reads `refresh_token`
+        // (snake_case) from the body while the validated DTO expects
+        // `refreshToken` (camelCase) - send both until that's reconciled.
+        await axios.post(API_ENDPOINTS.AUTH.LOGOUT, {
+          refreshToken,
+          refresh_token: refreshToken,
+        });
       }
     } finally {
       // Always clear tokens, even if request fails
@@ -50,36 +75,25 @@ class AuthService {
     }
   }
 
-  /**
-   * Get current user
-   */
-  async getCurrentUser(): Promise<User> {
-    const response = await axios.get<User>(API_ENDPOINTS.AUTH.ME);
-    
-    // Update stored user
-    tokenManager.setUser(response.data);
-    
-    return response.data;
-  }
-
-  async refreshToken(): Promise<AuthTokens> {
+  async refreshToken(): Promise<{ tokens: AuthTokens; user: AuthUser | null }> {
     const storedRefreshToken = tokenManager.getRefreshToken();
 
     if (!storedRefreshToken) {
       throw new Error('No refresh token available');
     }
 
-    const response = await axios.post<{
-      accessToken: string;
-      refreshToken: string;
-    }>(API_ENDPOINTS.AUTH.REFRESH, { refreshToken: storedRefreshToken });
+    const response = await axios.post<AuthTokens>(API_ENDPOINTS.AUTH.REFRESH, {
+      refreshToken: storedRefreshToken,
+      refresh_token: storedRefreshToken,
+    });
 
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    const tokens = response.data;
+    const user = userFromAccessToken(tokens.accessToken);
 
-    // Store new tokens
-    tokenManager.setTokens(accessToken, newRefreshToken);
+    tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
+    tokenManager.setUser(user);
 
-    return response.data;
+    return { tokens, user };
   }
 
   /**
@@ -113,7 +127,7 @@ class AuthService {
   /**
    * Get stored user
    */
-  getStoredUser(): AuthTokens | null {
+  getStoredUser(): AuthUser | null {
     return tokenManager.getUser();
   }
 }

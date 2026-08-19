@@ -1,5 +1,5 @@
-import { getEmployeesWithPaging } from "../api";
-import { EmployeeWithBranches } from "../types";
+import { useGetEmployees } from "../hooks/useEmployeeQueries";
+import { Employee } from "../types";
 import {
   GenericTable,
   ColumnConfig,
@@ -8,17 +8,15 @@ import PageNavigator from "@/components/shared/page-navigator";
 import { Input } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { PAGINATION } from "@/constants";
-import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type EmployeeListProp = {
-  columns: ColumnConfig<EmployeeWithBranches>[];
+  columns: ColumnConfig<Employee>[];
 };
 
 function EmployeeListHeader() {
-  console.log("EmployeeListHeader rendered");
   return (
     <div className="flex flex-row justify-between">
       <div className="flex flex-row gap-2">
@@ -61,10 +59,11 @@ export default function EmployeeList({ columns }: EmployeeListProp) {
     setPage(1); // reset to first page
   };
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["employees", page, pageSize],
-    queryFn: () => getEmployeesWithPaging(page, pageSize),
-  });
+  // The backend's GET /employees has no pagination (always returns the full
+  // list) - paginate client-side over the full result instead.
+  const { data: employees, isLoading } = useGetEmployees();
+  const total = employees?.length ?? 0;
+  const pageData = (employees ?? []).slice((page - 1) * pageSize, page * pageSize);
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -74,14 +73,14 @@ export default function EmployeeList({ columns }: EmployeeListProp) {
       <div className="overflow-hidden rounded-lg border">
         <GenericTable
           columns={columns}
-          data={data?.data || []}
+          data={pageData}
           rowKey={(employee) => employee.id!}
         />
       </div>
       <PageNavigator
         page={page}
         pageSize={pageSize}
-        total={data?.total || 0}
+        total={total}
         setPage={handleSetPage}
         setPageSize={handleSetPageSize}
       />

@@ -1,33 +1,22 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Employee } from "@/features/employee/types/employee.types";
-import { create, remove, update } from "@/features/employee/services/employee.service";
+import { useAppMutation } from "@/lib/hooks/common/useAppMutation";
+import { queryKeys } from "@/lib/queryKeys";
+import { Employee, CreateEmployeeDTO, UpdateEmployeeInput } from "@/features/employee/types";
+import { employeeService } from "@/features/employee/services/employee.service";
 
-export const useCreateEmployee = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (employee: Employee) => create(employee),
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] })
-    }
-  })
-}
+export const useCreateEmployee = () =>
+  useAppMutation<Employee, CreateEmployeeDTO>((data) => employeeService.create(data), {
+    invalidateKey: queryKeys.employees.all(),
+    successMessage: "Employee created",
+  });
 
-export const useUpdateEmployee = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({employeeId, employee}: {employeeId: number, employee: Employee}) => update(+employeeId, employee),
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] })
-    }
-  })
-}
+export const useUpdateEmployee = () =>
+  useAppMutation<Employee, UpdateEmployeeInput>(({ id, ...data }) => employeeService.update(id, data), {
+    invalidateKey: queryKeys.employees.all(),
+    successMessage: "Employee updated",
+  });
 
-export const useDeleteEmployee = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (employeeId: number) => remove(+employeeId),
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] })
-    }
-  })
-}
+export const useDeleteEmployee = () =>
+  useAppMutation<void, number>((id) => employeeService.remove(id), {
+    invalidateKey: queryKeys.employees.all(),
+    successMessage: "Employee deleted",
+  });
