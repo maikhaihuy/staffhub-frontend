@@ -2,14 +2,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { authService } from '../services/auth.service';
+import { authService } from '@/features/auth/services/auth.service';
 import { tokenManager } from '@/lib/api/axios';
 import {
   AuthContextType,
   AuthUser,
   LoginData,
   RegisterData,
-} from '../types/auth.type';
+} from '@/features/auth/types/auth.type';
 import { toast } from 'sonner';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,6 +34,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setIsLoading(false);
   }, []);
+
+  // Forced logout signaled by the axios interceptor when a 401 can't be
+  // recovered from (no refresh token, or the refresh call itself fails).
+  // Tokens are already cleared by the interceptor by the time this fires.
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setUser(null);
+      setAccessToken(null);
+      setRefreshToken(null);
+      router.push('/login');
+    };
+
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
+  }, [router]);
 
   // Trong AuthProvider
   const searchParams = useSearchParams(); // thêm vào

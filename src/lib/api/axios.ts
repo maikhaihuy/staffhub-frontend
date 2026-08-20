@@ -1,6 +1,6 @@
 // lib/axios.ts
 import Cookies from 'js-cookie';
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 
 const instance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "",
@@ -113,19 +113,24 @@ instance.interceptors.response.use(
       const refreshToken = tokenManager.getRefreshToken();
 
       if (!refreshToken) {
-        // No refresh token, redirect to login
+        // No refresh token - clear tokens and let AuthContext own the logout/redirect
         tokenManager.clearTokens();
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.dispatchEvent(new Event('auth:session-expired'));
         }
         return Promise.reject(error);
       }
 
       try {
-        // Call refresh token endpoint
+        // Call refresh token endpoint. Mark this request as already-retried
+        // so that if it 401s (expired/invalid refresh token), the response
+        // interceptor rejects it immediately instead of queueing it behind
+        // isRefreshing - which would deadlock, since nothing resolves that
+        // queue until this very call settles.
         const response = await instance.post(
           `/auth/refresh`,
-          { refreshToken }
+          { refreshToken },
+          { _retry: true } as AxiosRequestConfig & { _retry: boolean }
         );
 
         const { accessToken, refreshToken: newRefreshToken } = response.data;
@@ -144,14 +149,14 @@ instance.interceptors.response.use(
         // Retry original request
         return instance(originalRequest);
       } catch (refreshError) {
-        // Refresh token failed, logout user
+        // Refresh token failed - clear tokens and let AuthContext own the logout/redirect
         processQueue(refreshError as Error, null);
         tokenManager.clearTokens();
-        
+
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.dispatchEvent(new Event('auth:session-expired'));
         }
-        
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
