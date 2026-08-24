@@ -127,9 +127,14 @@ instance.interceptors.response.use(
         // interceptor rejects it immediately instead of queueing it behind
         // isRefreshing - which would deadlock, since nothing resolves that
         // queue until this very call settles.
+        //
+        // Backend's refresh-token passport strategy reads `refresh_token`
+        // (snake_case) from the body while its validated DTO expects
+        // `refreshToken` (camelCase) - send both until that's reconciled
+        // (matches auth.service.ts's manual refresh/logout calls).
         const response = await instance.post(
           `/auth/refresh`,
-          { refreshToken },
+          { refreshToken, refresh_token: refreshToken },
           { _retry: true } as AxiosRequestConfig & { _retry: boolean }
         );
 
