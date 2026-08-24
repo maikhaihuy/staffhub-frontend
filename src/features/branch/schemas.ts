@@ -35,15 +35,6 @@ export const branchSchema = branchFormSchema.extend({
   employees: z.array(z.object({ id: z.number(), fullName: z.string() })).optional(),
 });
 
-/**
- * @deprecated mocked-only, pending removal once the rosters/schedules pages
- * are rewired onto real masterShiftTemplate data (staffhub master-shift/
- * assignments remap).
- */
-export const branchWithShiftsSchema = branchSchema.extend({
-  shifts: z.array(z.unknown()),
-});
-
 export const branchWithSchedulesSchema = branchSchema.extend({
   schedules: z.array(scheduleSchema),
 });

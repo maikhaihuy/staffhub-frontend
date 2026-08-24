@@ -1,23 +1,50 @@
 "use client";
 
-import { BranchCalendarTable } from "./branch-calendar-table";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { WeeklyScheduleView } from "./weekly-schedule-view";
+import { WeekNavigator } from "./week-navigator";
 import { useGetBranches } from "@/features/branch/hooks/useBranchQueries";
 import { generateWeekdays } from "@/lib/utils/dateTimeHelpers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Loader2, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function CalendarsPage() {
+  const searchParams = useSearchParams();
   const [selectedBranchId, setSelectedBranchId] = useState(0);
-  const weekDays = generateWeekdays(new Date());
+  const [weekAnchor, setWeekAnchor] = useState(new Date());
+  const weekDays = generateWeekdays(weekAnchor);
 
   const { data: branches, isLoading: isFetchingBranches } = useGetBranches();
+
+  useEffect(() => {
+    const branchIdParam = Number(searchParams.get("branchId"));
+    if (branchIdParam) setSelectedBranchId(branchIdParam);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!branches || branches.length === 0) return;
     // only set default if no branch selected yet (selectedBranchId is falsy)
     setSelectedBranchId((prev) => (prev ? prev : branches[0].id));
   }, [branches]);
+
+  const goToPreviousWeek = () =>
+    setWeekAnchor((prev) => {
+      const next = new Date(prev);
+      next.setDate(next.getDate() - 7);
+      return next;
+    });
+
+  const goToNextWeek = () =>
+    setWeekAnchor((prev) => {
+      const next = new Date(prev);
+      next.setDate(next.getDate() + 7);
+      return next;
+    });
+
+  const goToThisWeek = () => setWeekAnchor(new Date());
 
   // no branches available
   if (!isFetchingBranches && (!branches || branches.length === 0)) {
@@ -41,8 +68,24 @@ export default function CalendarsPage() {
   ) : (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Shift Calendar</h2>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-2xl font-bold text-foreground">Weekly Schedule</h2>
+        <div className="flex items-center gap-2 flex-wrap">
+          <WeekNavigator
+            weekDays={weekDays}
+            onPrevious={goToPreviousWeek}
+            onNext={goToNextWeek}
+            onThisWeek={goToThisWeek}
+          />
+          <Button variant="outline" className="gap-1" asChild>
+            <Link
+              href={selectedBranchId ? `/shifts?branchId=${selectedBranchId}` : "/shifts"}
+            >
+              <Settings className="h-4 w-4" />
+              Manage Shift Templates
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Branch Selector */}
@@ -76,7 +119,7 @@ export default function CalendarsPage() {
             className="space-y-6"
           >
             {selectedBranchId === branch.id && (
-              <BranchCalendarTable branchId={branch.id} weekDays={weekDays} />
+              <WeeklyScheduleView branchId={branch.id} weekDays={weekDays} />
             )}
           </TabsContent>
         ))}

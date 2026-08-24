@@ -11,7 +11,6 @@ export const queryKeys = {
     all: () => ["branches"],
     detail: (branchId: number) => ["branches", "detail", branchId],
     withSchedules: (employeeId: number) => ["branches", "withSchedules", employeeId],
-    withShifts: () => ["branches", "withShifts"],
   },
   rosters: {
     byEmployee: (employeeId: number) => ["rosters", "byEmployee", employeeId],
@@ -34,6 +33,13 @@ export const queryKeys = {
   subShifts: {
     byMasterShift: (masterShiftId: number) => ["subShifts", "byMasterShift", masterShiftId],
     detail: (id: number) => ["subShifts", "detail", id],
+  },
+  subShiftTemplates: {
+    byMasterShiftTemplate: (branchId: number, masterShiftTemplateId: number) =>
+      ["subShiftTemplates", "byMasterShiftTemplate", branchId, masterShiftTemplateId],
+  },
+  taskTemplates: {
+    byBranch: (branchId: number) => ["taskTemplates", "byBranch", branchId],
   },
   assignments: {
     all: () => ["assignments"],

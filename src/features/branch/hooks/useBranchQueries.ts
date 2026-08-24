@@ -1,6 +1,6 @@
 import { sampleEmployees } from "@/mocks/data/employees";
-import { Branch, BranchWithSchedules, BranchWithShifts } from "@/features/branch/types";
-import { sampleBranchesWithShifts, sampleBranchesWithSchedules } from "@/mocks/data/branches";
+import { Branch, BranchWithSchedules } from "@/features/branch/types";
+import { sampleBranchesWithSchedules } from "@/mocks/data/branches";
 import { queryKeys } from "@/lib/queryKeys";
 import { useAppQuery } from "@/lib/hooks/common/useAppQuery";
 import { branchService } from "../services/branch.service";
@@ -37,11 +37,3 @@ export const useGetBranchesWithSchedules = (employeeId: number) =>
     () => getBranchWithSchedules(employeeId),
     { enabled: !!employeeId }
   );
-
-const getBranchesWithShifts = async (): Promise<BranchWithShifts[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  return sampleBranchesWithShifts();
-};
-
-export const useGetBranchesWithShifts = () =>
-  useAppQuery(queryKeys.branches.withShifts(), getBranchesWithShifts);

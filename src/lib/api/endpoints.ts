@@ -61,6 +61,19 @@ export const API_ENDPOINTS = {
     BY_ID: (id: number) => `/sub-shifts/${id}`,
   },
 
+  // Sub Shift Templates (a MAIN/SUPPORT staffing slot inside a MasterShiftTemplate)
+  SUB_SHIFT_TEMPLATES: {
+    BASE: '/sub-shift-templates',
+    BY_ID: (id: number) => `/sub-shift-templates/${id}`,
+  },
+
+  // Task Templates (an operational checklist item, e.g. "Open register",
+  // optionally tied to a MasterShiftTemplate/SubShiftTemplate)
+  TASK_TEMPLATES: {
+    BASE: '/task-templates',
+    BY_ID: (id: number) => `/task-templates/${id}`,
+  },
+
   // Assignments (an employee assigned to a SubShift)
   ASSIGNMENTS: {
     BASE: '/assignments',
