@@ -1,21 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { buildReturnUrl } from '@/lib/utils/returnUrl';
 
 const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   // Bỏ qua các route public
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
-  
+
   // Kiểm tra token (middleware chỉ đọc được cookie, không đọc localStorage)
   // -> Cần chuyển token sang cookie (xem bước 2)
   const token = request.cookies.get('access_token')?.value;
 
   if (!isPublicPath && !token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('returnUrl', pathname); // lưu trang muốn vào
+    loginUrl.searchParams.set('returnUrl', buildReturnUrl(pathname, search)); // lưu trang muốn vào
     return NextResponse.redirect(loginUrl);
   }
 

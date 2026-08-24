@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Pen, PlusCircle, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+import { MoreHorizontal, Pen, PlusCircle, Trash2 } from "lucide-react";
 import { getTime, getTimeFromString } from "@/lib/utils/dateTimeHelpers";
+import TaskTemplateSection from "@/features/taskTemplate/components/task-template-section";
+import { useGetTaskTemplatesBySubShiftTemplate } from "@/features/taskTemplate/hooks/useTaskTemplateQueries";
 import {
   useGetSubShiftTemplatesByMasterShiftTemplate,
 } from "../hooks/useSubShiftTemplateQueries";
@@ -24,7 +34,7 @@ import { subShiftTemplateFormSchema } from "../schemas";
 import { SubShiftTemplate, SubShiftTemplateFormValues } from "../types";
 import { findMainOverlapConflict } from "../utils/checkMainOverlap";
 import { findOutOfBoundsConflict } from "../utils/checkBounds";
-import { TimeRange } from "../utils/timeRange";
+import { toMinutes, TimeRange } from "../utils/timeRange";
 import SubShiftTemplateForm from "./sub-shift-template-form";
 import SubShiftTemplateTimeline from "./timeline";
 
@@ -64,10 +74,6 @@ export default function SubShiftTemplateSection({
   const { data: subShiftTemplates = [], isLoading } =
     useGetSubShiftTemplatesByMasterShiftTemplate(branchId, masterShiftTemplateId);
 
-  const createMutation = useCreateSubShiftTemplate(branchId, masterShiftTemplateId);
-  const updateMutation = useUpdateSubShiftTemplate(branchId, masterShiftTemplateId);
-  const deleteMutation = useDeleteSubShiftTemplate(branchId, masterShiftTemplateId);
-
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<SubShiftTemplate | null>(null);
 
@@ -75,6 +81,10 @@ export default function SubShiftTemplateSection({
     resolver: zodResolver(subShiftTemplateFormSchema),
     defaultValues: emptyFormValues(branchId, masterShiftTemplateId),
   });
+
+  const createMutation = useCreateSubShiftTemplate(branchId, masterShiftTemplateId, form);
+  const updateMutation = useUpdateSubShiftTemplate(branchId, masterShiftTemplateId, form);
+  const deleteMutation = useDeleteSubShiftTemplate(branchId, masterShiftTemplateId);
 
   useEffect(() => {
     if (!open) return;
@@ -167,56 +177,38 @@ export default function SubShiftTemplateSection({
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading...</p>
       ) : subShiftTemplates.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No sub-shift templates yet. Add at least one before this template can be generated.
-        </p>
+        <Card>
+          <CardContent className="flex flex-col items-center gap-2 py-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              No sub-shift templates yet. Add at least one before this template can be generated.
+            </p>
+            <Button type="button" variant="outline" size="sm" className="gap-1" onClick={openCreate}>
+              <PlusCircle className="h-3.5 w-3.5" />
+              Add Sub Shift
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="flex flex-col gap-2">
-          {subShiftTemplates.map((subShiftTemplate) => (
-            <div
-              key={subShiftTemplate.id}
-              className="flex flex-row items-center justify-between rounded-md border p-2 text-sm"
-            >
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{subShiftTemplate.name}</span>
-                  <Badge variant={subShiftTemplate.type === "MAIN" ? "default" : "secondary"}>
-                    {TYPE_LABEL[subShiftTemplate.type]}
-                  </Badge>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {getTime(new Date(subShiftTemplate.startTime))} -{" "}
-                  {getTime(new Date(subShiftTemplate.endTime))}
-                  {subShiftTemplate.maxAssignments
-                    ? ` Â· max ${subShiftTemplate.maxAssignments}`
-                    : ""}
-                </span>
-              </div>
-              <div className="flex flex-row gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => openEdit(subShiftTemplate)}
-                >
-                  <Pen className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(subShiftTemplate)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[...subShiftTemplates]
+            .sort((a, b) => {
+              if (a.type !== b.type) return a.type === "MAIN" ? -1 : 1;
+              return toMinutes(a.startTime) - toMinutes(b.startTime);
+            })
+            .map((subShiftTemplate) => (
+              <SubShiftTemplateCard
+                key={subShiftTemplate.id}
+                branchId={branchId}
+                subShiftTemplate={subShiftTemplate}
+                onEdit={() => openEdit(subShiftTemplate)}
+                onDelete={() => handleDelete(subShiftTemplate)}
+              />
+            ))}
         </div>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit sub-shift" : "Add sub-shift"}</DialogTitle>
           </DialogHeader>
@@ -226,6 +218,16 @@ export default function SubShiftTemplateSection({
             masterRange={masterRange}
             onSubmit={handleSubmit}
           />
+          {editing?.id ? (
+            <>
+              <Separator />
+              <TaskTemplateSection branchId={branchId} subShiftTemplateId={editing.id} />
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Save this sub-shift first to add tasks - you&apos;ll see the task checklist here.
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
@@ -237,5 +239,66 @@ export default function SubShiftTemplateSection({
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+type SubShiftTemplateCardProps = {
+  branchId: number;
+  subShiftTemplate: SubShiftTemplate;
+  onEdit: () => void;
+  onDelete: () => void;
+};
+
+function SubShiftTemplateCard({
+  branchId,
+  subShiftTemplate,
+  onEdit,
+  onDelete,
+}: SubShiftTemplateCardProps) {
+  const { data: taskTemplates = [] } = useGetTaskTemplatesBySubShiftTemplate(
+    branchId,
+    subShiftTemplate.id
+  );
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{subShiftTemplate.name}</span>
+              <Badge variant={subShiftTemplate.type === "MAIN" ? "default" : "secondary"}>
+                {TYPE_LABEL[subShiftTemplate.type]}
+              </Badge>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {getTime(new Date(subShiftTemplate.startTime))} -{" "}
+              {getTime(new Date(subShiftTemplate.endTime))}
+            </span>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onEdit}>
+                <Pen className="h-3.5 w-3.5" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <span className="text-sm text-muted-foreground">
+          {taskTemplates.length} {taskTemplates.length === 1 ? "task" : "tasks"}
+          {subShiftTemplate.maxAssignments ? ` · max ${subShiftTemplate.maxAssignments}` : ""}
+        </span>
+      </CardContent>
+    </Card>
   );
 }

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/features/auth/services/auth.service';
 import { tokenManager } from '@/lib/api/axios';
+import { buildReturnUrl, resolveReturnUrl } from '@/lib/utils/returnUrl';
 import {
   AuthContextType,
   AuthUser,
@@ -43,7 +44,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       setAccessToken(null);
       setRefreshToken(null);
-      router.push('/login');
+
+      // Already on /login - don't wrap it in its own returnUrl.
+      if (window.location.pathname.startsWith('/login')) {
+        router.push('/login');
+        return;
+      }
+
+      const returnUrl = buildReturnUrl(
+        window.location.pathname,
+        window.location.search,
+        window.location.hash
+      );
+      router.push(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
     };
 
     window.addEventListener('auth:session-expired', handleSessionExpired);
@@ -62,8 +75,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRefreshToken(tokens.refreshToken);
 
       toast.success('Login successful!');
-      // Redirect về trang trước đó nếu có
-      const returnUrl = searchParams.get('returnUrl') || '/';
+      // Redirect về trang trước đó nếu có (chỉ khi an toàn, cùng origin)
+      const returnUrl = resolveReturnUrl(searchParams.get('returnUrl'), '/');
       router.push(returnUrl);
 
     } catch (error: any) {

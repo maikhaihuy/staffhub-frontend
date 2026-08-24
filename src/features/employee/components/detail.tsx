@@ -44,8 +44,8 @@ export default function EmployeeDetail({ id, open, setOpen }: EmployeeDetailProp
     }
   }, [employee, form]);
 
-  const createMutation = useCreateEmployee();
-  const updateMutation = useUpdateEmployee();
+  const createMutation = useCreateEmployee(form);
+  const updateMutation = useUpdateEmployee(form);
 
   const handleSubmit = (data: EmployeeFormValues) => {
     const sanitizedData = {

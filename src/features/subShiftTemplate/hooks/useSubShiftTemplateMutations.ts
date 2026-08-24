@@ -1,4 +1,4 @@
-import { useAppMutation } from "@/lib/hooks/common/useAppMutation";
+import { FormErrorSetter, useAppMutation } from "@/lib/hooks/common/useAppMutation";
 import { queryKeys } from "@/lib/queryKeys";
 import {
   SubShiftTemplate,
@@ -7,7 +7,11 @@ import {
 } from "../types";
 import { subShiftTemplateService } from "../services/subShiftTemplate.service";
 
-export const useCreateSubShiftTemplate = (branchId: number, masterShiftTemplateId: number) =>
+export const useCreateSubShiftTemplate = (
+  branchId: number,
+  masterShiftTemplateId: number,
+  form?: FormErrorSetter
+) =>
   useAppMutation<SubShiftTemplate, CreateSubShiftTemplateDTO>(
     (data) => subShiftTemplateService.create(data),
     {
@@ -16,10 +20,15 @@ export const useCreateSubShiftTemplate = (branchId: number, masterShiftTemplateI
         masterShiftTemplateId
       ),
       successMessage: "Sub-shift added",
+      form,
     }
   );
 
-export const useUpdateSubShiftTemplate = (branchId: number, masterShiftTemplateId: number) =>
+export const useUpdateSubShiftTemplate = (
+  branchId: number,
+  masterShiftTemplateId: number,
+  form?: FormErrorSetter
+) =>
   useAppMutation<SubShiftTemplate, UpdateSubShiftTemplateInput>(
     ({ id, ...data }) => subShiftTemplateService.update(id, data),
     {
@@ -28,6 +37,7 @@ export const useUpdateSubShiftTemplate = (branchId: number, masterShiftTemplateI
         masterShiftTemplateId
       ),
       successMessage: "Sub-shift updated",
+      form,
     }
   );
 
