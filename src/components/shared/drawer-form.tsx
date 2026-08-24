@@ -18,6 +18,7 @@ type DrawerFormProps = {
   description?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  contentClassName?: string;
 };
 
 export default function DrawerForm({
@@ -29,6 +30,7 @@ export default function DrawerForm({
   description,
   children,
   footer,
+  contentClassName,
 }: DrawerFormProps) {
   const isMobile = useIsMobile();
   if (!open) return null;
@@ -40,6 +42,7 @@ export default function DrawerForm({
       onOpenChange={onOpenChange}
     >
       <DrawerContent
+        className={contentClassName}
         onInteractOutside={
           !isPreventInteractOutside ? () => setOpen(false) : undefined
         }

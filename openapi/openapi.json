@@ -1,0 +1,6699 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/login/zalo": {
+      "post": {
+        "description": "Authenticate user using a Zalo access token verified by the backend. Phone token is required only for first-time account linking.",
+        "operationId": "AuthController_loginWithZalo",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZaloLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Login with Zalo Mini App authentication",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/dev/login": {
+      "post": {
+        "description": "Login as an existing employee for local/frontend development. Disabled unless AUTH_DEV_MODE=true outside production.",
+        "operationId": "AuthController_loginWithDev",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Development-only employee login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Login user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt-refresh": []
+          }
+        ],
+        "summary": "Refresh access token using a refresh token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Logout and invalidate refresh token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout-device": {
+      "post": {
+        "operationId": "AuthController_logoutDevice",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt-refresh": []
+          }
+        ],
+        "summary": "Logout from current device only",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout-all": {
+      "post": {
+        "operationId": "AuthController_logoutAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Logout from all devices",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/active-sessions": {
+      "get": {
+        "operationId": "AuthController_getActiveSessions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get active sessions for current user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The user has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ]
+      },
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of all users",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Retrieve a user by ID",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Update a user by ID",
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The user has been successfully deleted."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Delete a user by ID",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/roles": {
+      "post": {
+        "operationId": "RolesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The role has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new role",
+        "tags": [
+          "Roles"
+        ]
+      },
+      "get": {
+        "operationId": "RolesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of roles."
+          }
+        },
+        "summary": "Retrieve a list of all roles with pagination",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/roles/{id}": {
+      "get": {
+        "operationId": "RolesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The role found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found."
+          }
+        },
+        "summary": "Retrieve a role by ID",
+        "tags": [
+          "Roles"
+        ]
+      },
+      "patch": {
+        "operationId": "RolesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The role has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found."
+          }
+        },
+        "summary": "Update a role by ID",
+        "tags": [
+          "Roles"
+        ]
+      },
+      "delete": {
+        "operationId": "RolesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The role has been successfully deleted."
+          },
+          "404": {
+            "description": "Role not found."
+          }
+        },
+        "summary": "Delete a role by ID",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/permissions": {
+      "post": {
+        "operationId": "PermissionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePermissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The permission has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new permission",
+        "tags": [
+          "permissions"
+        ]
+      },
+      "get": {
+        "operationId": "PermissionsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of all permissions",
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/permissions/{id}": {
+      "get": {
+        "operationId": "PermissionsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The permission found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found."
+          }
+        },
+        "summary": "Retrieve a permission by ID",
+        "tags": [
+          "permissions"
+        ]
+      },
+      "patch": {
+        "operationId": "PermissionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePermissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The permission has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found."
+          }
+        },
+        "summary": "Update a permission by ID",
+        "tags": [
+          "permissions"
+        ]
+      },
+      "delete": {
+        "operationId": "PermissionsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The permission has been successfully deleted."
+          },
+          "404": {
+            "description": "Permission not found."
+          }
+        },
+        "summary": "Delete a permission by ID",
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/role-permissions": {
+      "post": {
+        "operationId": "RolePermissionsController_assignPermissions",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignPermissionsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permissions assigned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RolePermissionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Assign permissions to a role",
+        "tags": [
+          "Role Permissions"
+        ]
+      }
+    },
+    "/role-permissions/role/{roleId}": {
+      "get": {
+        "operationId": "RolePermissionsController_getRolePermissions",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role permissions retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RolePermissionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get all permissions for a role",
+        "tags": [
+          "Role Permissions"
+        ]
+      },
+      "delete": {
+        "operationId": "RolePermissionsController_removeAllRolePermissions",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "All permissions removed successfully"
+          }
+        },
+        "summary": "Remove all permissions from a role",
+        "tags": [
+          "Role Permissions"
+        ]
+      }
+    },
+    "/role-permissions/role/{roleId}/permission/{permissionId}": {
+      "delete": {
+        "operationId": "RolePermissionsController_removePermission",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "permissionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Permission removed successfully"
+          }
+        },
+        "summary": "Remove a permission from a role",
+        "tags": [
+          "Role Permissions"
+        ]
+      }
+    },
+    "/employees": {
+      "post": {
+        "operationId": "EmployeesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The employee has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new employee with hourly rate and branches with hourly rate and branches",
+        "tags": [
+          "employees"
+        ]
+      },
+      "get": {
+        "operationId": "EmployeesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of employees.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmployeeResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of all employees",
+        "tags": [
+          "employees"
+        ]
+      }
+    },
+    "/employees/{id}": {
+      "get": {
+        "operationId": "EmployeesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The employee found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Employee not found."
+          }
+        },
+        "summary": "Retrieve an employee by ID",
+        "tags": [
+          "employees"
+        ]
+      },
+      "patch": {
+        "operationId": "EmployeesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmployeeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The employee has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Employee not found."
+          }
+        },
+        "summary": "Update an employee by ID",
+        "tags": [
+          "employees"
+        ]
+      },
+      "delete": {
+        "operationId": "EmployeesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The employee has been successfully deleted."
+          },
+          "404": {
+            "description": "Employee not found."
+          }
+        },
+        "summary": "Delete an employee by ID",
+        "tags": [
+          "employees"
+        ]
+      }
+    },
+    "/employees/{id}/hourly-rates": {
+      "post": {
+        "operationId": "EmployeesController_syncHourlyRates",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UpsertEmployeeHourlyRateDto"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hourly rates synchronized successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmployeeHourlyRateResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Bulk upsert employee hourly rates",
+        "tags": [
+          "employees"
+        ]
+      }
+    },
+    "/employee-hourly-rates": {
+      "post": {
+        "operationId": "EmployeeHourlyRatesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeeHourlyRateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The hourly rate has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeHourlyRateResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new employee hourly rate",
+        "tags": [
+          "employee-hourly-rates"
+        ]
+      },
+      "get": {
+        "operationId": "EmployeeHourlyRatesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of hourly rates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmployeeHourlyRateResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of all employee hourly rates",
+        "tags": [
+          "employee-hourly-rates"
+        ]
+      }
+    },
+    "/employee-hourly-rates/{id}": {
+      "get": {
+        "operationId": "EmployeeHourlyRatesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The hourly rate found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeHourlyRateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hourly rate not found."
+          }
+        },
+        "summary": "Retrieve an employee hourly rate by ID",
+        "tags": [
+          "employee-hourly-rates"
+        ]
+      },
+      "put": {
+        "operationId": "EmployeeHourlyRatesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmployeeHourlyRateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The hourly rate has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeHourlyRateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hourly rate not found."
+          }
+        },
+        "summary": "Update an employee hourly rate by ID",
+        "tags": [
+          "employee-hourly-rates"
+        ]
+      },
+      "delete": {
+        "operationId": "EmployeeHourlyRatesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The hourly rate has been successfully deleted."
+          },
+          "404": {
+            "description": "Hourly rate not found."
+          }
+        },
+        "summary": "Delete an employee hourly rate by ID",
+        "tags": [
+          "employee-hourly-rates"
+        ]
+      }
+    },
+    "/branches": {
+      "post": {
+        "operationId": "BranchesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBranchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The branch has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new branch",
+        "tags": [
+          "branches"
+        ]
+      },
+      "get": {
+        "operationId": "BranchesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of branches.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BranchResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of all branches",
+        "tags": [
+          "branches"
+        ]
+      }
+    },
+    "/branches/{id}": {
+      "get": {
+        "operationId": "BranchesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The branch found by ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Branch not found."
+          }
+        },
+        "summary": "Retrieve a branch by ID",
+        "tags": [
+          "branches"
+        ]
+      },
+      "put": {
+        "operationId": "BranchesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBranchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The branch has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Branch not found."
+          }
+        },
+        "summary": "Update a branch by ID",
+        "tags": [
+          "branches"
+        ]
+      },
+      "delete": {
+        "operationId": "BranchesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The branch has been successfully deleted."
+          },
+          "404": {
+            "description": "Branch not found."
+          }
+        },
+        "summary": "Delete a branch by ID",
+        "tags": [
+          "branches"
+        ]
+      }
+    },
+    "/branch-schedule-configs": {
+      "post": {
+        "operationId": "BranchScheduleConfigsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBranchScheduleConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchScheduleConfigResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Branch already has a config"
+          }
+        },
+        "summary": "Create a branch schedule config",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      },
+      "get": {
+        "operationId": "BranchScheduleConfigsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BranchScheduleConfigResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all branch schedule configs",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      }
+    },
+    "/branch-schedule-configs/branch/{branchId}": {
+      "get": {
+        "operationId": "BranchScheduleConfigsController_findByBranch",
+        "parameters": [
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchScheduleConfigResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Branch has no config"
+          }
+        },
+        "summary": "Get the schedule config for a branch",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      }
+    },
+    "/branch-schedule-configs/{id}": {
+      "get": {
+        "operationId": "BranchScheduleConfigsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchScheduleConfigResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found"
+          }
+        },
+        "summary": "Get a branch schedule config by ID",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      },
+      "patch": {
+        "operationId": "BranchScheduleConfigsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBranchScheduleConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchScheduleConfigResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found"
+          }
+        },
+        "summary": "Update a branch schedule config",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      },
+      "delete": {
+        "operationId": "BranchScheduleConfigsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "Config not found"
+          }
+        },
+        "summary": "Delete a branch schedule config",
+        "tags": [
+          "branch-schedule-configs"
+        ]
+      }
+    },
+    "/master-shift-templates": {
+      "post": {
+        "operationId": "MasterShiftTemplatesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMasterShiftTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create master shift template",
+        "tags": [
+          "master-shift-templates"
+        ]
+      },
+      "get": {
+        "operationId": "MasterShiftTemplatesController_findAll",
+        "parameters": [
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List master shift templates",
+        "tags": [
+          "master-shift-templates"
+        ]
+      }
+    },
+    "/master-shift-templates/{id}": {
+      "get": {
+        "operationId": "MasterShiftTemplatesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shift-templates"
+        ]
+      },
+      "patch": {
+        "operationId": "MasterShiftTemplatesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMasterShiftTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shift-templates"
+        ]
+      },
+      "delete": {
+        "operationId": "MasterShiftTemplatesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shift-templates"
+        ]
+      }
+    },
+    "/sub-shift-templates": {
+      "post": {
+        "operationId": "SubShiftTemplatesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubShiftTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create sub shift template",
+        "tags": [
+          "sub-shift-templates"
+        ]
+      },
+      "get": {
+        "operationId": "SubShiftTemplatesController_findAll",
+        "parameters": [
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "masterShiftTemplateId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shift-templates"
+        ]
+      }
+    },
+    "/sub-shift-templates/{id}": {
+      "get": {
+        "operationId": "SubShiftTemplatesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shift-templates"
+        ]
+      },
+      "patch": {
+        "operationId": "SubShiftTemplatesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubShiftTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shift-templates"
+        ]
+      },
+      "delete": {
+        "operationId": "SubShiftTemplatesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shift-templates"
+        ]
+      }
+    },
+    "/task-templates": {
+      "post": {
+        "operationId": "TaskTemplatesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "task-templates"
+        ]
+      },
+      "get": {
+        "operationId": "TaskTemplatesController_findAll",
+        "parameters": [
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "task-templates"
+        ]
+      }
+    },
+    "/task-templates/{id}": {
+      "get": {
+        "operationId": "TaskTemplatesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "task-templates"
+        ]
+      },
+      "patch": {
+        "operationId": "TaskTemplatesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "task-templates"
+        ]
+      },
+      "delete": {
+        "operationId": "TaskTemplatesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "task-templates"
+        ]
+      }
+    },
+    "/master-shifts": {
+      "post": {
+        "operationId": "MasterShiftsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMasterShiftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shifts"
+        ]
+      },
+      "get": {
+        "operationId": "MasterShiftsController_findAll",
+        "parameters": [
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shifts"
+        ]
+      }
+    },
+    "/master-shifts/generate": {
+      "post": {
+        "operationId": "MasterShiftsController_generate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate master shift, sub shifts, and tasks from a template",
+        "tags": [
+          "master-shifts"
+        ]
+      }
+    },
+    "/master-shifts/{id}": {
+      "get": {
+        "operationId": "MasterShiftsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shifts"
+        ]
+      },
+      "patch": {
+        "operationId": "MasterShiftsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMasterShiftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shifts"
+        ]
+      },
+      "delete": {
+        "operationId": "MasterShiftsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "master-shifts"
+        ]
+      }
+    },
+    "/sub-shifts": {
+      "post": {
+        "operationId": "SubShiftsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubShiftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shifts"
+        ]
+      },
+      "get": {
+        "operationId": "SubShiftsController_findAll",
+        "parameters": [
+          {
+            "name": "masterShiftId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shifts"
+        ]
+      }
+    },
+    "/sub-shifts/{id}": {
+      "get": {
+        "operationId": "SubShiftsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shifts"
+        ]
+      },
+      "patch": {
+        "operationId": "SubShiftsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubShiftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shifts"
+        ]
+      },
+      "delete": {
+        "operationId": "SubShiftsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sub-shifts"
+        ]
+      }
+    },
+    "/assignments": {
+      "post": {
+        "operationId": "AssignmentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "assignments"
+        ]
+      },
+      "get": {
+        "operationId": "AssignmentsController_findAll",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subShiftId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{id}": {
+      "get": {
+        "operationId": "AssignmentsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "assignments"
+        ]
+      },
+      "patch": {
+        "operationId": "AssignmentsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "assignments"
+        ]
+      },
+      "delete": {
+        "operationId": "AssignmentsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{id}/check-in": {
+      "post": {
+        "operationId": "AssignmentsController_checkIn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentCheckInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check in to an assignment",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{id}/check-out": {
+      "post": {
+        "operationId": "AssignmentsController_checkOut",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentCheckOutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check out from an assignment",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/tasks": {
+      "post": {
+        "operationId": "TasksController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      },
+      "get": {
+        "operationId": "TasksController_findAll",
+        "parameters": [
+          {
+            "name": "masterShiftId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subShiftId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/{id}": {
+      "get": {
+        "operationId": "TasksController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      },
+      "patch": {
+        "operationId": "TasksController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      },
+      "delete": {
+        "operationId": "TasksController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/{id}/complete": {
+      "post": {
+        "operationId": "TasksController_complete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Complete task and store audit evidence",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/availability": {
+      "post": {
+        "operationId": "AvailabilityController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAvailabilityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Availability created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create availability",
+        "tags": [
+          "availability"
+        ]
+      },
+      "get": {
+        "operationId": "AvailabilityController_findAll",
+        "parameters": [
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of availability records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailabilityResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all availability records",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/availability/{id}": {
+      "get": {
+        "operationId": "AvailabilityController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get availability by ID",
+        "tags": [
+          "availability"
+        ]
+      },
+      "patch": {
+        "operationId": "AvailabilityController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAvailabilityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Availability updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update availability",
+        "tags": [
+          "availability"
+        ]
+      },
+      "delete": {
+        "operationId": "AvailabilityController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete availability",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/attendance-history": {
+      "post": {
+        "operationId": "AttendanceHistoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAttendanceHistoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Attendance history record created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceHistoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create attendance history record",
+        "tags": [
+          "attendance-history"
+        ]
+      },
+      "get": {
+        "operationId": "AttendanceHistoryController_findAll",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by assignment ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "employeeId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by employee ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "action",
+            "required": false,
+            "in": "query",
+            "description": "Filter by action",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CHECK_IN",
+                "CHECK_OUT",
+                "REPLACEMENT_REQUEST",
+                "MANAGER_ADJUST"
+              ]
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter from date (ISO 8601)",
+            "schema": {
+              "example": "2026-05-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter to date (ISO 8601)",
+            "schema": {
+              "example": "2026-05-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (for pagination)",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page (for pagination)",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of attendance history records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceHistoryResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all attendance history records with filters",
+        "tags": [
+          "attendance-history"
+        ]
+      }
+    },
+    "/attendance-history/assignment/{assignmentId}": {
+      "get": {
+        "operationId": "AttendanceHistoryController_findByAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of attendance history records for assignment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceHistoryResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all attendance history for an assignment",
+        "tags": [
+          "attendance-history"
+        ]
+      }
+    },
+    "/attendance-history/{id}": {
+      "get": {
+        "operationId": "AttendanceHistoryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance history record found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceHistoryResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attendance history not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get attendance history record by ID",
+        "tags": [
+          "attendance-history"
+        ]
+      }
+    },
+    "/leave-requests": {
+      "post": {
+        "operationId": "LeaveRequestsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeaveRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Leave request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new leave request",
+        "tags": [
+          "leave-requests"
+        ]
+      },
+      "get": {
+        "operationId": "LeaveRequestsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of leave requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all leave requests",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/leave-requests/{id}": {
+      "get": {
+        "operationId": "LeaveRequestsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave request found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Leave request not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get leave request by ID",
+        "tags": [
+          "leave-requests"
+        ]
+      },
+      "put": {
+        "operationId": "LeaveRequestsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLeaveRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Leave request updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Leave request not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a leave request",
+        "tags": [
+          "leave-requests"
+        ]
+      },
+      "delete": {
+        "operationId": "LeaveRequestsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Leave request deleted successfully"
+          },
+          "404": {
+            "description": "Leave request not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a leave request",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/leave-requests/status/{status}": {
+      "get": {
+        "operationId": "LeaveRequestsController_findByStatus",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leave requests with specified status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get leave requests by status",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/leave-requests/employee/{employeeId}": {
+      "get": {
+        "operationId": "LeaveRequestsController_findByEmployee",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leave requests for the employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get leave requests for an employee",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/leave-requests/{id}/approve": {
+      "put": {
+        "operationId": "LeaveRequestsController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveLeaveRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Leave request approved/rejected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Leave request not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve or reject a leave request",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/leave-requests/{id}/cancel": {
+      "put": {
+        "operationId": "LeaveRequestsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leave request cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveRequestResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Leave request not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a leave request",
+        "tags": [
+          "leave-requests"
+        ]
+      }
+    },
+    "/time-tracking": {
+      "post": {
+        "operationId": "TimeTrackingController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTimeLogDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Time log created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeLogResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new time log",
+        "tags": [
+          "time-tracking"
+        ]
+      },
+      "get": {
+        "operationId": "TimeTrackingController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of time logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeLogResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get all time logs",
+        "tags": [
+          "time-tracking"
+        ]
+      }
+    },
+    "/time-tracking/employee/{employeeId}": {
+      "get": {
+        "operationId": "TimeTrackingController_findByEmployee",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of time logs for the employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeLogResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get time logs for an employee",
+        "tags": [
+          "time-tracking"
+        ]
+      }
+    },
+    "/time-tracking/assignment/{assignmentId}": {
+      "get": {
+        "operationId": "TimeTrackingController_findByAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of time logs for the assignment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeLogResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get time logs for an assignment",
+        "tags": [
+          "time-tracking"
+        ]
+      }
+    },
+    "/time-tracking/{id}": {
+      "get": {
+        "operationId": "TimeTrackingController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time log found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeLogResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Time log not found"
+          }
+        },
+        "summary": "Get time log by ID",
+        "tags": [
+          "time-tracking"
+        ]
+      },
+      "put": {
+        "operationId": "TimeTrackingController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTimeLogDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Time log updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeLogResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Time log not found"
+          }
+        },
+        "summary": "Update a time log",
+        "tags": [
+          "time-tracking"
+        ]
+      },
+      "delete": {
+        "operationId": "TimeTrackingController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Time log deleted successfully"
+          },
+          "404": {
+            "description": "Time log not found"
+          }
+        },
+        "summary": "Delete a time log",
+        "tags": [
+          "time-tracking"
+        ]
+      }
+    },
+    "/time-tracking/{id}/verify": {
+      "put": {
+        "operationId": "TimeTrackingController_verify",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTimeLogDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Time log verified/rejected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeLogResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Time log not found"
+          }
+        },
+        "summary": "Verify or reject a time log",
+        "tags": [
+          "time-tracking"
+        ]
+      }
+    },
+    "/pay-periods": {
+      "post": {
+        "operationId": "PayPeriodsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayPeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPeriodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new pay period (status OPEN)",
+        "tags": [
+          "pay-periods"
+        ]
+      },
+      "get": {
+        "operationId": "PayPeriodsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PayPeriodResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all pay periods",
+        "tags": [
+          "pay-periods"
+        ]
+      }
+    },
+    "/pay-periods/{id}": {
+      "get": {
+        "operationId": "PayPeriodsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPeriodResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pay period not found"
+          }
+        },
+        "summary": "Get a pay period by ID",
+        "tags": [
+          "pay-periods"
+        ]
+      },
+      "patch": {
+        "operationId": "PayPeriodsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePayPeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPeriodResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pay period not found"
+          }
+        },
+        "summary": "Update a pay period",
+        "tags": [
+          "pay-periods"
+        ]
+      },
+      "delete": {
+        "operationId": "PayPeriodsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "Pay period not found"
+          }
+        },
+        "summary": "Delete a pay period",
+        "tags": [
+          "pay-periods"
+        ]
+      }
+    },
+    "/pay-periods/{id}/close": {
+      "post": {
+        "operationId": "PayPeriodsController_close",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPeriodResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid state transition"
+          }
+        },
+        "summary": "Close a pay period (OPEN -> CLOSED)",
+        "tags": [
+          "pay-periods"
+        ]
+      }
+    },
+    "/pay-periods/{id}/finalize": {
+      "post": {
+        "operationId": "PayPeriodsController_finalize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPeriodResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid state transition"
+          }
+        },
+        "summary": "Finalize a pay period (CLOSED -> FINALIZED)",
+        "tags": [
+          "pay-periods"
+        ]
+      }
+    },
+    "/payroll-entries/generate": {
+      "post": {
+        "operationId": "PayrollEntriesController_generate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeneratePayrollEntriesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratePayrollEntriesResultDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pay period not found"
+          }
+        },
+        "summary": "Generate payroll entries from verified time logs in a pay period",
+        "tags": [
+          "payroll-entries"
+        ]
+      }
+    },
+    "/payroll-entries": {
+      "get": {
+        "operationId": "PayrollEntriesController_findAll",
+        "parameters": [
+          {
+            "name": "payPeriodId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "employeeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PayrollEntryResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List payroll entries, optionally filtered by pay period or employee",
+        "tags": [
+          "payroll-entries"
+        ]
+      }
+    },
+    "/payroll-entries/{id}": {
+      "get": {
+        "operationId": "PayrollEntriesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollEntryResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payroll entry not found"
+          }
+        },
+        "summary": "Get a payroll entry by ID",
+        "tags": [
+          "payroll-entries"
+        ]
+      },
+      "delete": {
+        "operationId": "PayrollEntriesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "Payroll entry not found"
+          }
+        },
+        "summary": "Delete a payroll entry",
+        "tags": [
+          "payroll-entries"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Employee Shift & Payroll Management API",
+    "description": "API for managing employee shifts, time tracking, and payroll",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "users",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "employees",
+      "description": "Employee management endpoints"
+    },
+    {
+      "name": "master-shift-templates",
+      "description": "Master shift template endpoints"
+    },
+    {
+      "name": "sub-shift-templates",
+      "description": "Sub shift template endpoints"
+    },
+    {
+      "name": "task-templates",
+      "description": "Task template endpoints"
+    },
+    {
+      "name": "master-shifts",
+      "description": "Generated master shift endpoints"
+    },
+    {
+      "name": "sub-shifts",
+      "description": "Generated sub shift endpoints"
+    },
+    {
+      "name": "assignments",
+      "description": "Assignment endpoints"
+    },
+    {
+      "name": "tasks",
+      "description": "Task endpoints"
+    },
+    {
+      "name": "time-tracking",
+      "description": "Time tracking endpoints"
+    },
+    {
+      "name": "branches",
+      "description": "Branch management endpoints"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Click Authorize and paste ONLY the JWT (do not include \"Bearer \")."
+      },
+      "jwt-refresh": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Refresh token"
+      }
+    },
+    "schemas": {
+      "ZaloLoginDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Zalo access token from getAccessToken() on Mini App",
+            "example": "zalo_access_token_here"
+          },
+          "phoneToken": {
+            "type": "string",
+            "description": "Zalo phone token from getPhoneNumber() on Mini App",
+            "example": "phone_token_here"
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      },
+      "DevLoginDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "example": "1"
+          },
+          "email": {
+            "type": "string",
+            "example": "staff@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0901234567"
+          }
+        }
+      },
+      "AuthSessionUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "branchIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "avatarUrl",
+          "roles",
+          "permissions",
+          "branchIds"
+        ]
+      },
+      "AuthSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresIn": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthSessionUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "accessTokenExpiresIn",
+          "user"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "0907239646"
+          },
+          "password": {
+            "type": "string",
+            "example": "ChangeMe!123"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "description": "User phone number",
+            "example": "+84901234567"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "User full name",
+            "example": "Nguyễn Văn A"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User avatar URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "status": {
+            "type": "string",
+            "description": "User status",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "example": "ACTIVE"
+          },
+          "roleId": {
+            "type": "number",
+            "description": "Role ID",
+            "example": 1
+          }
+        },
+        "required": [
+          "phoneNumber",
+          "fullName",
+          "status",
+          "roleId"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "User ID"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Phone number"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "avatarUrl": {
+            "type": "object",
+            "description": "Avatar URL"
+          },
+          "status": {
+            "type": "string",
+            "description": "User status",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated timestamp"
+          },
+          "roleId": {
+            "type": "number",
+            "description": "Role ID"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "Role name"
+          },
+          "branches": {
+            "type": "array",
+            "description": "Assigned branches"
+          }
+        },
+        "required": [
+          "id",
+          "phoneNumber",
+          "fullName",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "roleId"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "description": "User phone number",
+            "example": "+84901234567"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "User full name",
+            "example": "Nguyễn Văn A"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User avatar URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "status": {
+            "type": "string",
+            "description": "User status",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "roleId": {
+            "type": "number",
+            "description": "Role ID",
+            "example": 1
+          }
+        }
+      },
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "permissionIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "permissionIds"
+        ]
+      },
+      "RoleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy",
+          "permissions"
+        ]
+      },
+      "UpdateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "permissionIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "CreatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "subject"
+        ]
+      },
+      "PermissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "action": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "object"
+          },
+          "description": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "subject",
+          "description",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy",
+          "roles"
+        ]
+      },
+      "UpdatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "AssignPermissionsDto": {
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "type": "number",
+            "description": "Role ID",
+            "example": 1
+          },
+          "permissionIds": {
+            "description": "Array of permission IDs to assign",
+            "example": [
+              1,
+              2,
+              3
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "roleId",
+          "permissionIds"
+        ]
+      },
+      "RolePermissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "type": "number",
+            "description": "Role ID"
+          },
+          "permissionId": {
+            "type": "number",
+            "description": "Permission ID"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "Role name"
+          },
+          "action": {
+            "type": "string",
+            "description": "Permission action"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Permission subject"
+          }
+        },
+        "required": [
+          "roleId",
+          "permissionId"
+        ]
+      },
+      "CreateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "1990-01-01"
+          },
+          "probationStartDate": {
+            "type": "string",
+            "example": "2023-01-01"
+          },
+          "officialStartDate": {
+            "type": "string",
+            "example": "2023-06-01"
+          },
+          "branchIds": {
+            "description": "An array of branch IDs to which the employee is assigned.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "primaryBranchId": {
+            "type": "number",
+            "description": "Primary branch ID",
+            "example": 1
+          }
+        },
+        "required": [
+          "fullName",
+          "phoneNumber",
+          "branchIds"
+        ]
+      },
+      "UserLiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "User ID"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "avatarUrl": {
+            "type": "object",
+            "description": "Avatar URL"
+          }
+        },
+        "required": [
+          "id",
+          "fullName"
+        ]
+      },
+      "BranchLiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object"
+          },
+          "email": {
+            "type": "object"
+          },
+          "address": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "abbreviation"
+        ]
+      },
+      "EmployeeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "object"
+          },
+          "avatar": {
+            "type": "object"
+          },
+          "email": {
+            "type": "object"
+          },
+          "address": {
+            "type": "object"
+          },
+          "probationStartDate": {
+            "type": "object"
+          },
+          "officialStartDate": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "user": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserLiteDto"
+              }
+            ]
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BranchLiteDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "phoneNumber",
+          "dateOfBirth",
+          "avatar",
+          "email",
+          "address",
+          "probationStartDate",
+          "officialStartDate",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "probationStartDate": {
+            "type": "string"
+          },
+          "officialStartDate": {
+            "type": "string"
+          },
+          "branchIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "UpsertEmployeeHourlyRateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "ID is required for updates, but optional for new records"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Hourly rate with up to 2 decimal places"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rate",
+          "effectiveDate"
+        ]
+      },
+      "EmployeeLiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "object"
+          },
+          "avatar": {
+            "type": "object"
+          },
+          "address": {
+            "type": "object"
+          },
+          "dateOfBirth": {
+            "type": "object"
+          },
+          "probationStartDate": {
+            "type": "object"
+          },
+          "officialStartDate": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "phoneNumber"
+        ]
+      },
+      "EmployeeHourlyRateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "employeeId": {
+            "type": "number"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "effectiveDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "employee": {
+            "description": "Employee details associated with the hourly rate",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeLiteDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "employeeId",
+          "rate",
+          "effectiveDate",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "CreateEmployeeHourlyRateDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "number"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Hourly rate with up to 2 decimal places"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "employeeId",
+          "rate",
+          "effectiveDate"
+        ]
+      },
+      "UpdateEmployeeHourlyRateDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "number"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateBranchDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "abbreviation",
+          "address"
+        ]
+      },
+      "BranchResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "employees": {
+            "type": "array",
+            "description": "List of employees associated with the branch"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "abbreviation",
+          "address",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateBranchDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateBranchScheduleConfigDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number",
+            "example": 1
+          },
+          "allowCustomAvailabilityTime": {
+            "type": "boolean",
+            "default": false
+          },
+          "availabilityOpenDaysBefore": {
+            "type": "number",
+            "example": 7
+          },
+          "availabilityCloseHoursBefore": {
+            "type": "number",
+            "example": 12
+          },
+          "scheduleGenerationDay": {
+            "type": "number",
+            "example": 25
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "branchId"
+        ]
+      },
+      "BranchScheduleConfigResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "branchId": {
+            "type": "number",
+            "example": 1
+          },
+          "allowCustomAvailabilityTime": {
+            "type": "boolean"
+          },
+          "availabilityOpenDaysBefore": {
+            "type": "object",
+            "nullable": true
+          },
+          "availabilityCloseHoursBefore": {
+            "type": "object",
+            "nullable": true
+          },
+          "scheduleGenerationDay": {
+            "type": "object",
+            "nullable": true
+          },
+          "note": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "branchId",
+          "allowCustomAvailabilityTime",
+          "availabilityOpenDaysBefore",
+          "availabilityCloseHoursBefore",
+          "scheduleGenerationDay",
+          "note",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateBranchScheduleConfigDto": {
+        "type": "object",
+        "properties": {
+          "allowCustomAvailabilityTime": {
+            "type": "boolean"
+          },
+          "availabilityOpenDaysBefore": {
+            "type": "number"
+          },
+          "availabilityCloseHoursBefore": {
+            "type": "number"
+          },
+          "scheduleGenerationDay": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateMasterShiftTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Time string accepted by Date constructor"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Time string accepted by Date constructor"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "branchId",
+          "name",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdateMasterShiftTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "abbreviation": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Time string accepted by Date constructor"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Time string accepted by Date constructor"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateSubShiftTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MAIN",
+              "SUPPORT"
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "maxAssignments": {
+            "type": "number"
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "branchId",
+          "masterShiftTemplateId",
+          "name",
+          "type",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdateSubShiftTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MAIN",
+              "SUPPORT"
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "maxAssignments": {
+            "type": "number"
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateTaskTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "subShiftTemplateId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SHARED_MANDATORY",
+              "SHARED_OPTIONAL",
+              "DEDICATED"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "branchId",
+          "title",
+          "type"
+        ]
+      },
+      "UpdateTaskTemplateDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "subShiftTemplateId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SHARED_MANDATORY",
+              "SHARED_OPTIONAL",
+              "DEDICATED"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateMasterShiftDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "workDate": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "branchId",
+          "workDate",
+          "title",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdateMasterShiftDto": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "number"
+          },
+          "masterShiftTemplateId": {
+            "type": "number"
+          },
+          "workDate": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateSubShiftDto": {
+        "type": "object",
+        "properties": {
+          "masterShiftId": {
+            "type": "number"
+          },
+          "subShiftTemplateId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MAIN",
+              "SUPPORT"
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "maxAssignments": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "masterShiftId",
+          "title",
+          "type",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdateSubShiftDto": {
+        "type": "object",
+        "properties": {
+          "masterShiftId": {
+            "type": "number"
+          },
+          "subShiftTemplateId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MAIN",
+              "SUPPORT"
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "maxAssignments": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ],
+            "default": "ACTIVE"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "number"
+          },
+          "subShiftId": {
+            "type": "number"
+          },
+          "availabilityId": {
+            "type": "number"
+          },
+          "assignedAt": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABSENT"
+            ],
+            "default": "SCHEDULED"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "employeeId",
+          "subShiftId"
+        ]
+      },
+      "UpdateAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "number"
+          },
+          "subShiftId": {
+            "type": "number"
+          },
+          "availabilityId": {
+            "type": "number"
+          },
+          "assignedAt": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABSENT"
+            ],
+            "default": "SCHEDULED"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "AssignmentCheckInDto": {
+        "type": "object",
+        "properties": {
+          "actualStartTime": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "AssignmentCheckOutDto": {
+        "type": "object",
+        "properties": {
+          "actualEndTime": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateTaskDto": {
+        "type": "object",
+        "properties": {
+          "taskTemplateId": {
+            "type": "number"
+          },
+          "masterShiftId": {
+            "type": "number"
+          },
+          "subShiftId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SHARED_MANDATORY",
+              "SHARED_OPTIONAL",
+              "DEDICATED"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED"
+            ],
+            "default": "PENDING"
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "dueAt": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "type"
+        ]
+      },
+      "UpdateTaskDto": {
+        "type": "object",
+        "properties": {
+          "taskTemplateId": {
+            "type": "number"
+          },
+          "masterShiftId": {
+            "type": "number"
+          },
+          "subShiftId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SHARED_MANDATORY",
+              "SHARED_OPTIONAL",
+              "DEDICATED"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED"
+            ],
+            "default": "PENDING"
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
+          },
+          "dueAt": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CompleteTaskDto": {
+        "type": "object",
+        "properties": {
+          "completedByEmployeeId": {
+            "type": "number"
+          },
+          "evidence": {
+            "type": "object",
+            "description": "Evidence JSON such as photo URLs"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAvailabilityDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "number",
+            "description": "Employee ID"
+          },
+          "subShiftId": {
+            "type": "number",
+            "description": "Generated sub shift ID"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "2023-01-01T08:00:00Z"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "2023-01-01T16:00:00Z"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REGISTERED",
+              "ASSIGNED",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "employeeId",
+          "subShiftId"
+        ]
+      },
+      "AvailabilityResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "employeeId": {
+            "type": "number"
+          },
+          "subShiftId": {
+            "type": "number"
+          },
+          "startTime": {
+            "type": "object"
+          },
+          "endTime": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          },
+          "employee": {
+            "type": "object"
+          },
+          "subShift": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "employeeId",
+          "subShiftId",
+          "status",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateAvailabilityDto": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "example": "2023-01-01T08:00:00Z"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "2023-01-01T16:00:00Z"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REGISTERED",
+              "ASSIGNED",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAttendanceHistoryDto": {
+        "type": "object",
+        "properties": {
+          "assignmentId": {
+            "type": "number",
+            "description": "Assignment ID",
+            "example": 1
+          },
+          "action": {
+            "type": "string",
+            "description": "Attendance action",
+            "enum": [
+              "CHECK_IN",
+              "CHECK_OUT",
+              "REPLACEMENT_REQUEST",
+              "MANAGER_ADJUST"
+            ],
+            "example": "CHECK_IN"
+          },
+          "detail": {
+            "type": "object",
+            "description": "Additional details (JSON)",
+            "example": {
+              "location": "Branch A",
+              "notes": "Early arrival"
+            }
+          }
+        },
+        "required": [
+          "assignmentId",
+          "action"
+        ]
+      },
+      "AttendanceHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Attendance history ID",
+            "example": 1
+          },
+          "assignmentId": {
+            "type": "number",
+            "description": "Work slot ID",
+            "example": 1
+          },
+          "action": {
+            "type": "string",
+            "description": "Attendance action (check-in, check-out, break-start, break-end)",
+            "enum": [
+              "CHECK_IN",
+              "CHECK_OUT",
+              "REPLACEMENT_REQUEST",
+              "MANAGER_ADJUST"
+            ],
+            "example": "CHECK_IN"
+          },
+          "detail": {
+            "type": "object",
+            "description": "Additional JSON details (location, notes, etc.)",
+            "example": {
+              "location": "Branch A",
+              "notes": "Early arrival"
+            }
+          },
+          "assignment": {
+            "type": "object",
+            "description": "Associated assignment with employee and branch information"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp when record was created",
+            "example": "2026-05-17T10:30:00Z"
+          },
+          "createdBy": {
+            "type": "number",
+            "description": "User ID who created this record",
+            "example": 1
+          }
+        },
+        "required": [
+          "id",
+          "assignmentId",
+          "action",
+          "createdAt",
+          "createdBy"
+        ]
+      },
+      "CreateLeaveRequestDto": {
+        "type": "object",
+        "properties": {
+          "assignmentId": {
+            "type": "number",
+            "description": "Assignment ID",
+            "example": 1
+          },
+          "absenceEmployeeId": {
+            "type": "number",
+            "description": "Employee requesting leave ID",
+            "example": 1
+          },
+          "replacementEmployeeId": {
+            "type": "number",
+            "description": "Replacement employee ID",
+            "example": 2
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for leave",
+            "example": "Family emergency"
+          },
+          "note": {
+            "type": "string",
+            "description": "Additional notes",
+            "example": "Will return next week"
+          },
+          "status": {
+            "type": "string",
+            "description": "Leave request status",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ],
+            "example": "PENDING",
+            "default": "PENDING"
+          }
+        },
+        "required": [
+          "assignmentId",
+          "absenceEmployeeId",
+          "replacementEmployeeId",
+          "status"
+        ]
+      },
+      "LeaveRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Leave request ID",
+            "example": 1
+          },
+          "assignmentId": {
+            "type": "number",
+            "description": "Assignment ID",
+            "example": 1
+          },
+          "absenceEmployeeId": {
+            "type": "number",
+            "description": "Absence employee ID",
+            "example": 1
+          },
+          "replacementEmployeeId": {
+            "type": "number",
+            "description": "Replacement employee ID",
+            "example": 2
+          },
+          "approvedId": {
+            "type": "object",
+            "description": "Approved by user ID"
+          },
+          "reason": {
+            "type": "object",
+            "description": "Reason for leave",
+            "example": "Family emergency"
+          },
+          "note": {
+            "type": "object",
+            "description": "Additional notes",
+            "example": "Approved - replacement confirmed"
+          },
+          "status": {
+            "type": "string",
+            "description": "Leave request status",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ],
+            "example": "PENDING"
+          },
+          "approvedAt": {
+            "type": "object",
+            "description": "Approved at timestamp"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "createdBy": {
+            "type": "number",
+            "description": "Created by user ID"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated at timestamp"
+          },
+          "updatedBy": {
+            "type": "number",
+            "description": "Updated by user ID"
+          },
+          "assignment": {
+            "type": "object",
+            "description": "Assignment details"
+          },
+          "absenceEmployee": {
+            "description": "Absence employee details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeLiteDto"
+              }
+            ]
+          },
+          "replacementEmployee": {
+            "description": "Replacement employee details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeLiteDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "assignmentId",
+          "absenceEmployeeId",
+          "replacementEmployeeId",
+          "status",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateLeaveRequestDto": {
+        "type": "object",
+        "properties": {
+          "replacementEmployeeId": {
+            "type": "number",
+            "description": "Replacement employee ID",
+            "example": 2
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for leave",
+            "example": "Family emergency"
+          },
+          "note": {
+            "type": "string",
+            "description": "Additional notes",
+            "example": "Will return next week"
+          },
+          "status": {
+            "type": "string",
+            "description": "Leave request status",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "ApproveLeaveRequestDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Approval decision",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ],
+            "example": "APPROVED"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note for the decision",
+            "example": "Approved - replacement confirmed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreateTimeLogDto": {
+        "type": "object",
+        "properties": {
+          "assignmentId": {
+            "type": "number",
+            "description": "Assignment ID",
+            "example": 1
+          },
+          "employeeId": {
+            "type": "number",
+            "description": "Employee ID",
+            "example": 1
+          },
+          "actualStartTime": {
+            "type": "string",
+            "description": "Actual start time",
+            "example": "2026-05-01T08:00:00Z"
+          },
+          "actualEndTime": {
+            "type": "string",
+            "description": "Actual end time",
+            "example": "2026-05-01T17:00:00Z"
+          },
+          "requestStartTime": {
+            "type": "string",
+            "description": "Requested start time",
+            "example": "2026-05-01T08:00:00Z"
+          },
+          "requestEndTime": {
+            "type": "string",
+            "description": "Requested end time",
+            "example": "2026-05-01T17:00:00Z"
+          },
+          "overtimeMinutes": {
+            "type": "number",
+            "description": "Overtime minutes",
+            "example": 30
+          },
+          "multiplier": {
+            "type": "number",
+            "description": "Pay multiplier (e.g., 1.5 for overtime)",
+            "example": 1
+          },
+          "requestDate": {
+            "type": "string",
+            "description": "Request date",
+            "example": "2026-05-01T00:00:00Z"
+          },
+          "requestReason": {
+            "type": "string",
+            "description": "Reason for adjustment request",
+            "example": "Forgot to clock in"
+          },
+          "status": {
+            "type": "string",
+            "description": "Time log status",
+            "enum": [
+              "PENDING",
+              "SUBMITTED",
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "example": "PENDING",
+            "default": "PENDING"
+          },
+          "note": {
+            "type": "string",
+            "description": "Additional notes",
+            "example": "Worked extra hours on project"
+          }
+        },
+        "required": [
+          "assignmentId",
+          "employeeId",
+          "multiplier",
+          "status"
+        ]
+      },
+      "TimeLogResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Time log ID",
+            "example": 1
+          },
+          "assignmentId": {
+            "type": "number",
+            "description": "Assignment ID",
+            "example": 1
+          },
+          "employeeId": {
+            "type": "number",
+            "description": "Employee ID",
+            "example": 1
+          },
+          "actualStartTime": {
+            "type": "object",
+            "description": "Actual start time"
+          },
+          "actualEndTime": {
+            "type": "object",
+            "description": "Actual end time"
+          },
+          "requestStartTime": {
+            "type": "object",
+            "description": "Requested start time"
+          },
+          "requestEndTime": {
+            "type": "object",
+            "description": "Requested end time"
+          },
+          "overtimeMinutes": {
+            "type": "object",
+            "description": "Overtime minutes"
+          },
+          "multiplier": {
+            "type": "number",
+            "description": "Pay multiplier",
+            "example": 1
+          },
+          "requestDate": {
+            "type": "object",
+            "description": "Request date"
+          },
+          "requestReason": {
+            "type": "object",
+            "description": "Reason for adjustment request"
+          },
+          "status": {
+            "type": "string",
+            "description": "Time log status",
+            "enum": [
+              "PENDING",
+              "SUBMITTED",
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "example": "PENDING"
+          },
+          "verifiedBy": {
+            "type": "object",
+            "description": "Verified by employee ID"
+          },
+          "verifiedAt": {
+            "type": "object",
+            "description": "Verified at timestamp"
+          },
+          "note": {
+            "type": "object",
+            "description": "Additional notes"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp when record was created"
+          },
+          "createdBy": {
+            "type": "number",
+            "description": "User ID who created this record"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp when record was last updated"
+          },
+          "updatedBy": {
+            "type": "number",
+            "description": "User ID who last updated this record"
+          }
+        },
+        "required": [
+          "id",
+          "assignmentId",
+          "employeeId",
+          "multiplier",
+          "status",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdateTimeLogDto": {
+        "type": "object",
+        "properties": {
+          "actualStartTime": {
+            "type": "string",
+            "description": "Actual start time",
+            "example": "2026-05-01T08:00:00Z"
+          },
+          "actualEndTime": {
+            "type": "string",
+            "description": "Actual end time",
+            "example": "2026-05-01T17:00:00Z"
+          },
+          "requestStartTime": {
+            "type": "string",
+            "description": "Requested start time",
+            "example": "2026-05-01T08:00:00Z"
+          },
+          "requestEndTime": {
+            "type": "string",
+            "description": "Requested end time",
+            "example": "2026-05-01T17:00:00Z"
+          },
+          "overtimeMinutes": {
+            "type": "number",
+            "description": "Overtime minutes",
+            "example": 30
+          },
+          "multiplier": {
+            "type": "number",
+            "description": "Pay multiplier",
+            "example": 1.5
+          },
+          "requestDate": {
+            "type": "string",
+            "description": "Request date",
+            "example": "2026-05-01T00:00:00Z"
+          },
+          "requestReason": {
+            "type": "string",
+            "description": "Reason for adjustment request",
+            "example": "Forgot to clock in"
+          },
+          "status": {
+            "type": "string",
+            "description": "Time log status",
+            "enum": [
+              "PENDING",
+              "SUBMITTED",
+              "VERIFIED",
+              "REJECTED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "Additional notes",
+            "example": "Worked extra hours on project"
+          }
+        }
+      },
+      "VerifyTimeLogDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Verification status",
+            "enum": [
+              "VERIFIED",
+              "REJECTED"
+            ],
+            "example": "VERIFIED"
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note for verification",
+            "example": "Verified - all hours correct"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreatePayPeriodDto": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "example": "2026-08-01T00:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2026-08-15T23:59:59.999Z"
+          },
+          "notes": {
+            "type": "string",
+            "example": "First half of August"
+          }
+        },
+        "required": [
+          "startDate",
+          "endDate"
+        ]
+      },
+      "PayPeriodResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "startDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "FINALIZED"
+            ]
+          },
+          "notes": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "startDate",
+          "endDate",
+          "status",
+          "notes",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdatePayPeriodDto": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "example": "2026-08-01T00:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2026-08-15T23:59:59.999Z"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "GeneratePayrollEntriesDto": {
+        "type": "object",
+        "properties": {
+          "payPeriodId": {
+            "type": "number",
+            "description": "The pay period to generate payroll entries for",
+            "example": 1
+          }
+        },
+        "required": [
+          "payPeriodId"
+        ]
+      },
+      "PayrollEntryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "timeLogId": {
+            "type": "number",
+            "example": 1
+          },
+          "employeeId": {
+            "type": "number",
+            "example": 1
+          },
+          "payPeriodId": {
+            "type": "number",
+            "example": 1
+          },
+          "payDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "calculatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "calculatedBy": {
+            "type": "number"
+          },
+          "totalPay": {
+            "type": "number",
+            "description": "Computed total pay",
+            "example": 240.5
+          },
+          "timeLog": {
+            "type": "object",
+            "description": "Source time log"
+          },
+          "employee": {
+            "type": "object",
+            "description": "Employee summary"
+          },
+          "payPeriod": {
+            "type": "object",
+            "description": "Pay period summary"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "timeLogId",
+          "employeeId",
+          "payPeriodId",
+          "payDate",
+          "workDate",
+          "calculatedAt",
+          "calculatedBy",
+          "totalPay",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "SkippedTimeLogDto": {
+        "type": "object",
+        "properties": {
+          "timeLogId": {
+            "type": "number",
+            "example": 5
+          },
+          "reason": {
+            "type": "string",
+            "example": "No applicable hourly rate for work date"
+          }
+        },
+        "required": [
+          "timeLogId",
+          "reason"
+        ]
+      },
+      "GeneratePayrollEntriesResultDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayrollEntryResponseDto"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkippedTimeLogDto"
+            }
+          }
+        },
+        "required": [
+          "created",
+          "skipped"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "access-token": []
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 import {
   Bike,
   CalendarClock,
-  CalendarCog,
   CalendarCheck,
   CalendarRange,
   Clock,
@@ -56,12 +55,6 @@ export const MANAGER_ROUTES: RouteConfig[] = [
     name: 'Ca đăng ký',
     breadcrumb: 'Ca đăng ký',
     icon: CalendarClock
-  },
-  {
-    path: '/schedules',
-    name: 'Xếp ca',
-    breadcrumb: 'Xếp ca',
-    icon: CalendarCog,
   },
   {
     path: '/rosters',

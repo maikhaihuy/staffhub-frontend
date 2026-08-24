@@ -7,7 +7,10 @@ import MasterShiftTemplateForm from "./form";
 import { MasterShiftTemplateFormValues } from "../types";
 import { masterShiftTemplateFormSchema } from "../schemas";
 import DrawerForm from "@/components/shared/drawer-form";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import SubShiftTemplateSection from "@/features/subShiftTemplate/components/sub-shift-template-section";
+import TaskTemplateSection from "@/features/taskTemplate/components/task-template-section";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getTime, getTimeFromString } from "@/lib/utils/dateTimeHelpers";
 import { useEffect } from "react";
@@ -19,6 +22,15 @@ type MasterShiftTemplateDetailProps = {
   open: boolean;
   // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
+  // Called with the new template's id right after a successful create, so
+  // the parent can switch this drawer into edit mode in place - otherwise
+  // there's no way to add sub-shift templates/tasks without closing and
+  // reopening the drawer.
+  // eslint-disable-next-line no-unused-vars
+  onCreated?: (id: number) => void;
+  // Pre-fills a fresh create form (e.g. from "Duplicate") - only applied
+  // while there's no existing template (id === 0).
+  initialValues?: Partial<MasterShiftTemplateFormValues>;
 };
 
 export default function MasterShiftTemplateDetail({
@@ -26,6 +38,8 @@ export default function MasterShiftTemplateDetail({
   id,
   open,
   setOpen,
+  onCreated,
+  initialValues,
 }: MasterShiftTemplateDetailProps) {
   const formId = "master-shift-template-form";
 
@@ -58,8 +72,18 @@ export default function MasterShiftTemplateDetail({
         status: "ACTIVE",
         note: "",
       });
+      // Applied via setValue(shouldDirty: true) rather than folded into the
+      // reset() baseline above, so the prefilled fields count as a real
+      // change - otherwise Save stays disabled since nothing would be dirty.
+      if (initialValues) {
+        Object.entries(initialValues).forEach(([key, value]) => {
+          form.setValue(key as keyof MasterShiftTemplateFormValues, value as never, {
+            shouldDirty: true,
+          });
+        });
+      }
     }
-  }, [template, branchId, form]);
+  }, [template, branchId, form, initialValues]);
 
   const createMutation = useCreateMasterShiftTemplate(branchId);
   const updateMutation = useUpdateMasterShiftTemplate(branchId);
@@ -76,7 +100,9 @@ export default function MasterShiftTemplateDetail({
     if (template && template.id) {
       updateMutation.mutate({ id: template.id, ...sanitizedData });
     } else {
-      createMutation.mutate(sanitizedData);
+      createMutation.mutate(sanitizedData, {
+        onSuccess: (created) => onCreated?.(created.id),
+      });
     }
   };
 
@@ -92,6 +118,7 @@ export default function MasterShiftTemplateDetail({
       title={template ? "Edit Shift Template" : "Create Shift Template"}
       description={template ? "Edit shift template details" : "Create a new shift template"}
       isPreventInteractOutside={isLoading || isDirty}
+      contentClassName="sm:max-w-xl"
       footer={
         <>
           <Button
@@ -119,6 +146,24 @@ export default function MasterShiftTemplateDetail({
         onSubmit={handleSubmit}
         error={form.formState.errors?.root?.message}
       />
+
+      {template?.id ? (
+        <>
+          <Separator />
+          <SubShiftTemplateSection
+            branchId={branchId}
+            masterShiftTemplateId={template.id}
+            masterLabel={template.name}
+            masterRange={{ startTime: template.startTime, endTime: template.endTime }}
+          />
+          <Separator />
+          <TaskTemplateSection branchId={branchId} masterShiftTemplateId={template.id} />
+        </>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Save the template first to add sub-shift templates - you&apos;ll see them here as a timeline.
+        </p>
+      )}
     </DrawerForm>
   );
 }
