@@ -44,8 +44,8 @@ export default function BrancDetail({ id, open, setOpen }: BranchDetailProps) {
     }
   }, [branch, form]);
 
-  const createMutation = useCreateBranch();
-  const updateMutation = useUpdateBranch();
+  const createMutation = useCreateBranch(form);
+  const updateMutation = useUpdateBranch(form);
 
   const handleSubmit = (data: BranchFormValues) => {
     // Sanitize and trim input values before mutation

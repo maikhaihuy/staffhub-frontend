@@ -10,16 +10,16 @@ export const useGetTaskTemplatesByBranch = (branchId: number) =>
     { enabled: !!branchId }
   );
 
-export const useGetTaskTemplatesByMasterShiftTemplate = (
+export const useGetTaskTemplatesBySubShiftTemplate = (
   branchId: number,
-  masterShiftTemplateId: number
+  subShiftTemplateId: number
 ) =>
   useAppQuery<TaskTemplate[]>(
     queryKeys.taskTemplates.byBranch(branchId),
     () => taskTemplateService.listByBranch(branchId),
     {
-      enabled: !!branchId && !!masterShiftTemplateId,
+      enabled: !!branchId && !!subShiftTemplateId,
       select: (taskTemplates) =>
-        taskTemplates.filter((t) => t.masterShiftTemplateId === masterShiftTemplateId),
+        taskTemplates.filter((t) => t.subShiftTemplateId === subShiftTemplateId),
     }
   );

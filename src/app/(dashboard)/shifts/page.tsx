@@ -9,25 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import MasterShiftTemplateDetail from "@/features/masterShiftTemplate/components/detail";
+import MasterShiftTemplateEditDialog from "@/features/masterShiftTemplate/components/edit-dialog";
 import MasterShiftTemplateList from "@/features/masterShiftTemplate/components/list";
-import { MasterShiftTemplate, MasterShiftTemplateFormValues } from "@/features/masterShiftTemplate/types";
+import { MasterShiftTemplate } from "@/features/masterShiftTemplate/types";
 import { useDeleteMasterShiftTemplate } from "@/features/masterShiftTemplate/hooks/useMasterShiftTemplateMutations";
 import SubShiftTemplateCompositionBadge from "@/features/subShiftTemplate/components/composition-badge";
-import { subShiftTemplateService } from "@/features/subShiftTemplate/services/subShiftTemplate.service";
-import { SubShiftTemplate } from "@/features/subShiftTemplate/types";
-import { queryKeys } from "@/lib/queryKeys";
 import { useGetBranches } from "@/features/branch/hooks/useBranchQueries";
 import { ColumnConfig } from "@/components/shared/generic-table";
-import { CalendarRange, Copy, Pen, PlusCircle, Trash2 } from "lucide-react";
+import { CalendarRange, Pen, PlusCircle, Trash2 } from "lucide-react";
 import { getTime } from "@/lib/utils/dateTimeHelpers";
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ShiftTemplatesPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { data: branches = [] } = useGetBranches();
   const [branchId, setBranchId] = useState<number>(0);
@@ -44,72 +40,13 @@ export default function ShiftTemplatesPage() {
   }, [branches, branchId]);
 
   const deleteMutation = useDeleteMasterShiftTemplate(branchId);
-  const queryClient = useQueryClient();
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number>(0);
-  const [open, setOpen] = useState(false);
-  const [duplicateInitialValues, setDuplicateInitialValues] =
-    useState<Partial<MasterShiftTemplateFormValues>>();
-  const [duplicateSubShiftTemplates, setDuplicateSubShiftTemplates] =
-    useState<SubShiftTemplate[]>();
+  const [createOpen, setCreateOpen] = useState(false);
 
-  const openCreate = () => {
-    setSelectedTemplateId(0);
-    setDuplicateInitialValues(undefined);
-    setDuplicateSubShiftTemplates(undefined);
-    setOpen(true);
-  };
+  const openCreate = () => setCreateOpen(true);
 
-  const handleDuplicate = useCallback(
-    async (template: MasterShiftTemplate) => {
-      const subShiftTemplates = await subShiftTemplateService.listByMasterShiftTemplate(
-        branchId,
-        template.id
-      );
-      setDuplicateInitialValues({
-        name: `${template.name} (Copy)`,
-        abbreviation: template.abbreviation,
-        startTime: getTime(new Date(template.startTime)),
-        endTime: getTime(new Date(template.endTime)),
-        status: "DRAFT",
-        note: template.note,
-      });
-      setDuplicateSubShiftTemplates(subShiftTemplates);
-      setSelectedTemplateId(0);
-      setOpen(true);
-    },
-    [branchId]
-  );
-
-  const handleCreated = async (newTemplateId: number) => {
-    setSelectedTemplateId(newTemplateId);
-
-    if (!duplicateSubShiftTemplates) return;
-    const sourceSubShiftTemplates = duplicateSubShiftTemplates;
-    setDuplicateSubShiftTemplates(undefined);
-    setDuplicateInitialValues(undefined);
-
-    for (const source of sourceSubShiftTemplates) {
-      try {
-        await subShiftTemplateService.create({
-          branchId,
-          masterShiftTemplateId: newTemplateId,
-          name: source.name,
-          type: source.type,
-          startTime: source.startTime,
-          endTime: source.endTime,
-          maxAssignments: source.maxAssignments,
-          sortOrder: source.sortOrder,
-          status: source.status,
-          note: source.note,
-        });
-      } catch {
-        toast.error(`Couldn't copy sub-shift "${source.name}" - add it manually`);
-      }
-    }
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.subShiftTemplates.byMasterShiftTemplate(branchId, newTemplateId),
-    });
+  const handleCreated = (newTemplateId: number) => {
+    router.push(`/shifts/${newTemplateId}`);
   };
 
   const columns: ColumnConfig<MasterShiftTemplate>[] = useMemo(
@@ -169,23 +106,10 @@ export default function ShiftTemplatesPage() {
                 <CalendarRange />
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDuplicate(template)}
-              title="Duplicate"
-            >
-              <Copy />
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => {
-                setSelectedTemplateId(template.id!);
-                setOpen(true);
-              }}
-            >
-              <Pen />
+            <Button variant="secondary" size="icon" asChild>
+              <Link href={`/shifts/${template.id}`} title="View details">
+                <Pen />
+              </Link>
             </Button>
             <Button
               variant="ghost"
@@ -201,7 +125,7 @@ export default function ShiftTemplatesPage() {
         ),
       },
     ],
-    [deleteMutation, branchId, handleDuplicate]
+    [deleteMutation, branchId]
   );
 
   return (
@@ -259,13 +183,12 @@ export default function ShiftTemplatesPage() {
               </div>
             }
           />
-          <MasterShiftTemplateDetail
+          <MasterShiftTemplateEditDialog
             branchId={branchId}
-            id={selectedTemplateId}
-            open={open}
-            setOpen={setOpen}
+            id={0}
+            open={createOpen}
+            setOpen={setCreateOpen}
             onCreated={handleCreated}
-            initialValues={duplicateInitialValues}
           />
         </>
       ) : (

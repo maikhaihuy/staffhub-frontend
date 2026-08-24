@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import {
-  useGetTaskTemplatesByMasterShiftTemplate,
+  useGetTaskTemplatesBySubShiftTemplate,
 } from "../hooks/useTaskTemplateQueries";
 import { useCreateTaskTemplate, useDeleteTaskTemplate } from "../hooks/useTaskTemplateMutations";
 import { TASK_TEMPLATE_TYPE } from "../schemas";
@@ -19,7 +19,7 @@ import { TaskTemplate } from "../types";
 
 type TaskTemplateSectionProps = {
   branchId: number;
-  masterShiftTemplateId: number;
+  subShiftTemplateId: number;
 };
 
 const TASK_TYPE_LABEL: Record<TaskTemplate["type"], string> = {
@@ -30,11 +30,11 @@ const TASK_TYPE_LABEL: Record<TaskTemplate["type"], string> = {
 
 export default function TaskTemplateSection({
   branchId,
-  masterShiftTemplateId,
+  subShiftTemplateId,
 }: TaskTemplateSectionProps) {
-  const { data: taskTemplates = [], isLoading } = useGetTaskTemplatesByMasterShiftTemplate(
+  const { data: taskTemplates = [], isLoading } = useGetTaskTemplatesBySubShiftTemplate(
     branchId,
-    masterShiftTemplateId
+    subShiftTemplateId
   );
   const createMutation = useCreateTaskTemplate(branchId);
   const deleteMutation = useDeleteTaskTemplate(branchId);
@@ -47,7 +47,7 @@ export default function TaskTemplateSection({
     if (!trimmed) return;
 
     createMutation.mutate(
-      { branchId, masterShiftTemplateId, title: trimmed, type },
+      { branchId, subShiftTemplateId, title: trimmed, type },
       { onSuccess: () => setTitle("") }
     );
   };

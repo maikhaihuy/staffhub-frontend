@@ -8,7 +8,7 @@ const base = createCrudService<TaskTemplate, CreateTaskTemplateDTO, UpdateTaskTe
 
 export const taskTemplateService = {
   ...base,
-  // Backend only filters findAll by branchId; scoping to a master shift
-  // template happens client-side (see useGetTaskTemplatesByMasterShiftTemplate).
+  // Backend only filters findAll by branchId; scoping to a sub-shift
+  // template happens client-side (see useGetTaskTemplatesBySubShiftTemplate).
   listByBranch: (branchId: number) => base.list({ branchId }),
 };
