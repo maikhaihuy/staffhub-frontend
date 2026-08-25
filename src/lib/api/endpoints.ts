@@ -40,6 +40,21 @@ export const API_ENDPOINTS = {
     BASE: '/roles',
     BY_ID: (id: number) => `/roles/${id}`,
   },
+  PERMISSIONS: {
+    BASE: '/permissions',
+    BY_ID: (id: number) => `/permissions/${id}`,
+  },
+  ROLE_PERMISSIONS: {
+    BASE: '/role-permissions',
+    BY_ROLE: (roleId: number) => `/role-permissions/role/${roleId}`,
+    BY_ROLE_AND_PERMISSION: (roleId: number, permissionId: number) =>
+      `/role-permissions/role/${roleId}/permission/${permissionId}`,
+  },
+  ME_ABILITIES: '/me/abilities',
+  USER_ABILITIES: (userId: number) => `/users/${userId}/abilities`,
+  AUDIT_LOGS: {
+    BASE: '/audit-logs',
+  },
 
   // Master Shift Templates (recurring shift definitions per branch, e.g. "Morning Shift")
   MASTER_SHIFT_TEMPLATES: {
