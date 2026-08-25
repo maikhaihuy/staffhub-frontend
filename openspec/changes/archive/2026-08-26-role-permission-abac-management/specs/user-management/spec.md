@@ -1,21 +1,4 @@
-# user-management Specification
-
-## Purpose
-
-Lets admins manage platform login accounts (as distinct from employee records) and assign each one a single role that determines its permissions.
-
-## Requirements
-
-### Requirement: User CRUD against the real backend
-The system SHALL create, list, update, and delete users via `/users` REST endpoints. Unlike other entities, updates SHALL use `PUT /users/:id`, not `PATCH`, to match the real backend's `UsersController_update` contract.
-
-#### Scenario: Update a user
-- **WHEN** an admin edits a user's fields and saves
-- **THEN** the system sends `PUT /users/:id` (not `PATCH`)
-
-#### Scenario: Create user with duplicate phone number
-- **WHEN** an admin submits a user form with a `phoneNumber` already in use
-- **THEN** the backend rejects the request and the system surfaces the error via toast without creating a record
+## MODIFIED Requirements
 
 ### Requirement: Every user has one or more roles
 The user form SHALL require at least one role, selected via `roleIds` sourced from `GET /roles`, and SHALL require `fullName`, `phoneNumber`, and `status` (`ACTIVE`/`INACTIVE`). `avatarUrl` is optional and, if provided, SHALL be a valid URL. This replaces the prior single-`roleId` constraint with a many-to-many `User`↔`Role` relationship, matching the backend's RBAC+ABAC model.
@@ -34,6 +17,8 @@ The system SHALL treat a returned user as optionally including a `roles` array o
 #### Scenario: Displaying a user row
 - **WHEN** the user list renders a row
 - **THEN** it can show all assigned role names and the primary branch directly from the embedded fields without extra requests
+
+## ADDED Requirements
 
 ### Requirement: Managed branches can be assigned when a role resolves to Manager-scoped permissions
 Managed branches (`ManagerBranch`) scope a role's ABAC-conditioned permissions to specific branches, tracked per-user and decoupled from the employee's home branch (`Employee.branchId`/the user's embedded `branches`). WHEN any of a user's selected roles resolves a grant's condition using the `$managedBranches` token (checked against the roles' real grants, not by role name), the system SHALL show a managed-branches selection UI on save, and SHALL persist newly-checked branches separately from the user's employee branch links via `POST /users/:id/manager-branches`.

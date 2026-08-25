@@ -200,6 +200,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{id}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Assign one or more roles to a user's account */
+        post: operations["UsersController_assignRoles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/roles/{roleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove one role from a user's account */
+        delete: operations["UsersController_removeRole"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/manager-branches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Assign one or more branches for a user to manage */
+        post: operations["UsersController_assignManagerBranches"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/manager-branches/{branchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a branch from the branches a user manages */
+        delete: operations["UsersController_removeManagerBranch"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit-logs": {
         parameters: {
             query?: never;
@@ -283,6 +351,23 @@ export interface paths {
         put?: never;
         /** Create a new permission */
         post: operations["PermissionsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/permissions/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Documents each permission subject's actions and supported condition tokens */
+        get: operations["PermissionsController_getCatalog"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1309,10 +1394,16 @@ export interface components {
              */
             status: "ACTIVE" | "INACTIVE";
             /**
-             * @description Role ID
-             * @example 1
+             * @description Role IDs to assign; the user must hold at least one
+             * @example [
+             *       1
+             *     ]
              */
-            roleId: number;
+            roleIds: number[];
+        };
+        RoleLiteDto: {
+            id: number;
+            name: string;
         };
         UserResponseDto: {
             /** @description User ID */
@@ -1338,10 +1429,8 @@ export interface components {
              * @description Updated timestamp
              */
             updatedAt: string;
-            /** @description Role ID */
-            roleId: number;
-            /** @description Role name */
-            roleName?: string;
+            /** @description Roles held by this user */
+            roles: components["schemas"]["RoleLiteDto"][];
             /** @description Assigned branches */
             branches?: unknown[];
         };
@@ -1376,11 +1465,24 @@ export interface components {
              * @enum {string}
              */
             status?: "ACTIVE" | "INACTIVE";
+        };
+        AssignUserRolesDto: {
             /**
-             * @description Role ID
-             * @example 1
+             * @description Role IDs to add to the user (in addition to any they already hold)
+             * @example [
+             *       2
+             *     ]
              */
-            roleId?: number;
+            roleIds: number[];
+        };
+        AssignManagerBranchesDto: {
+            /**
+             * @description Branch IDs to add to the branches this user manages
+             * @example [
+             *       3
+             *     ]
+             */
+            branchIds: number[];
         };
         AuditLogResponseDto: {
             id: number;
@@ -1433,6 +1535,29 @@ export interface components {
             updatedAt: string;
             updatedBy: number;
             roles: Record<string, never>[];
+        };
+        ConditionTokenDto: {
+            /** @example $self */
+            token: string;
+            /**
+             * @description The field name(s) on this subject the token resolves against
+             * @example [
+             *       "employeeId"
+             *     ]
+             */
+            fields: string[];
+        };
+        PermissionCatalogEntryDto: {
+            /** @example time-logs */
+            subject: string;
+            /**
+             * @example [
+             *       "create",
+             *       "read"
+             *     ]
+             */
+            actions: string[];
+            conditionTokens: components["schemas"]["ConditionTokenDto"][];
         };
         UpdatePermissionDto: {
             action?: string;
@@ -2721,6 +2846,105 @@ export interface operations {
             };
         };
     };
+    UsersController_assignRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignUserRolesDto"];
+            };
+        };
+        responses: {
+            /** @description The role(s) have been assigned. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+        };
+    };
+    UsersController_removeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                roleId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The role has been removed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"];
+                };
+            };
+            /** @description Cannot remove a user's last remaining role. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_assignManagerBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignManagerBranchesDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_removeManagerBranch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                branchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AuditLogsController_findAll: {
         parameters: {
             query?: {
@@ -2947,6 +3171,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PermissionResponseDto"];
+                };
+            };
+        };
+    };
+    PermissionsController_getCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The permission catalog. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionCatalogEntryDto"][];
                 };
             };
         };

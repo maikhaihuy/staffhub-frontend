@@ -26,13 +26,17 @@ export default function UserPage() {
         className: "w-1/8 hidden md:table-cell",
       },
       {
-        key: "roleName",
-        label: "Role",
+        key: "roles",
+        label: "Roles",
         className: "w-1/8 hidden md:table-cell",
         render: (user) => (
-          <Badge variant="outline" className="capitalize">
-            {user.roleName ?? user.roleId}
-          </Badge>
+          <div className="flex flex-wrap gap-1">
+            {user.roles.map((role) => (
+              <Badge key={role.id} variant="outline" className="capitalize">
+                {role.name}
+              </Badge>
+            ))}
+          </div>
         ),
       },
       {

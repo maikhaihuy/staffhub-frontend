@@ -34,6 +34,23 @@ export type RolePermission = {
 };
 
 /**
+ * A subject's condition-token support, as returned by
+ * GET /permissions/catalog - drives which scope presets the Permission
+ * Matrix can offer for a given subject and which field name(s) they resolve
+ * against (design.md Backend Dependency #4 / tasks.md 4.6).
+ */
+export type ConditionToken = {
+  token: string;
+  fields: string[];
+};
+
+export type PermissionCatalogEntry = {
+  subject: string;
+  actions: string[];
+  conditionTokens: ConditionToken[];
+};
+
+/**
  * A resolved CASL rule as returned by GET /me/abilities and
  * GET /users/:id/abilities - `conditions` is already resolved server-side
  * (e.g. `$self` substituted), unlike `PermissionGrant.condition` above which
