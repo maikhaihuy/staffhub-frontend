@@ -10,6 +10,7 @@
     "openapi:sync": "openapi-typescript http://localhost:3001/docs-json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
+    "@casl/ability": "^7.0.1",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.10",

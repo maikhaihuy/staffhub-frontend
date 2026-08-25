@@ -1,10 +1,7 @@
-import axios from "@/lib/api/axios";
+import { createCrudService } from "@/lib/api/createCrudService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import { Role } from "../types";
+import { Role, CreateRoleDTO, UpdateRoleDTO } from "../types";
 
-export const roleService = {
-  list: async (): Promise<Role[]> => {
-    const res = await axios.get<Role[]>(API_ENDPOINTS.ROLES.BASE);
-    return res.data;
-  },
-};
+export const roleService = createCrudService<Role, CreateRoleDTO, UpdateRoleDTO>(
+  API_ENDPOINTS.ROLES.BASE
+);

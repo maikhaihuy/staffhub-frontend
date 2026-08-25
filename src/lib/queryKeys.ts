@@ -12,6 +12,26 @@ export const queryKeys = {
     detail: (branchId: number) => ["branches", "detail", branchId],
     withSchedules: (employeeId: number) => ["branches", "withSchedules", employeeId],
   },
+  roles: {
+    all: () => ["roles"],
+    detail: (roleId: number) => ["roles", "detail", roleId],
+  },
+  permissions: {
+    all: () => ["permissions"],
+    detail: (permissionId: number) => ["permissions", "detail", permissionId],
+  },
+  rolePermissions: {
+    byRole: (roleId: number) => ["rolePermissions", "byRole", roleId],
+  },
+  abilities: {
+    // Keyed by userId (not just "me") so switching logged-in users doesn't
+    // briefly show the previous user's cached abilities before refetching.
+    me: (userId?: number) => ["abilities", "me", userId],
+    byUser: (userId: number) => ["abilities", "byUser", userId],
+  },
+  auditLogs: {
+    list: (filter: Record<string, string | number | undefined>) => ["auditLogs", "list", filter],
+  },
   rosters: {
     byEmployee: (employeeId: number) => ["rosters", "byEmployee", employeeId],
   },

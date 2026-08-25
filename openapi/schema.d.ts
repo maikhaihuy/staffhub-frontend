@@ -183,6 +183,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{id}/abilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a user's resolved abilities (admin) */
+        get: operations["UsersController_getUserAbilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List audit log entries */
+        get: operations["AuditLogsController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/abilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the caller's own resolved abilities */
+        get: operations["MeController_getMyAbilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/roles": {
         parameters: {
             query?: never;
@@ -1294,6 +1345,16 @@ export interface components {
             /** @description Assigned branches */
             branches?: unknown[];
         };
+        AbilityRuleDto: {
+            /** @description The permitted action, e.g. "read" */
+            action: string;
+            /** @description The subject the action applies to, e.g. "time-logs" */
+            subject: string;
+            /** @description Whether this rule forbids (true) rather than permits */
+            inverted: boolean;
+            /** @description Resolved row-scoping condition (post `$self` resolution against the target identity), or absent for an unconditioned grant */
+            conditions?: Record<string, never>;
+        };
         UpdateUserDto: {
             /**
              * @description User phone number
@@ -1321,6 +1382,17 @@ export interface components {
              */
             roleId?: number;
         };
+        AuditLogResponseDto: {
+            id: number;
+            actorId: number;
+            action: string;
+            subject: string;
+            entityId: number;
+            before: Record<string, never> | null;
+            after: Record<string, never> | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
         CreateRoleDto: {
             name: string;
             description?: string;
@@ -1330,6 +1402,8 @@ export interface components {
             id: number;
             name: string;
             description: Record<string, never>;
+            /** @description True for the seeded base roles (Admin, Manager, Employee); such a role cannot be deleted through the API. */
+            isSystemRole: boolean;
             /** Format: date-time */
             createdAt: string;
             createdBy: number;
@@ -1341,7 +1415,6 @@ export interface components {
         UpdateRoleDto: {
             name?: string;
             description?: string;
-            permissionIds?: number[];
         };
         CreatePermissionDto: {
             action: string;
@@ -1366,21 +1439,23 @@ export interface components {
             subject?: string;
             description?: string;
         };
+        PermissionGrantDto: {
+            /**
+             * @description Permission ID
+             * @example 1
+             */
+            permissionId: number;
+            /** @description Optional row-scoping condition for this grant (a partial Prisma `where` object, `$self`-token-bearing, e.g. { "employeeId": "$self" }). Omit for an unconditioned (unscoped) grant. */
+            condition?: Record<string, never>;
+        };
         AssignPermissionsDto: {
             /**
              * @description Role ID
              * @example 1
              */
             roleId: number;
-            /**
-             * @description Array of permission IDs to assign
-             * @example [
-             *       1,
-             *       2,
-             *       3
-             *     ]
-             */
-            permissionIds: number[];
+            /** @description Grants to create or update on this role. Additive: only the (roleId, permissionId) pairs listed here are affected — the role's other existing grants are left untouched. */
+            grants: components["schemas"]["PermissionGrantDto"][];
         };
         RolePermissionResponseDto: {
             /** @description Role ID */
@@ -1393,6 +1468,8 @@ export interface components {
             action?: string;
             /** @description Permission subject */
             subject?: string;
+            /** @description Row-scoping condition for this grant, if any */
+            condition?: Record<string, never> | null;
         };
         CreateEmployeeDto: {
             /** @example John Doe */
@@ -2612,6 +2689,90 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    UsersController_getUserAbilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The target user's resolved ability rules */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbilityRuleDto"][];
+                };
+            };
+            /** @description User not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuditLogsController_findAll: {
+        parameters: {
+            query?: {
+                /** @description Filter by subject (e.g. "leave-requests") */
+                subject?: string;
+                /** @description Filter by the actor (User) who performed the mutation */
+                actorId?: number;
+                /** @description Filter by the id of the affected entity */
+                entityId?: number;
+                /** @description Filter from date (ISO 8601) */
+                fromDate?: string;
+                /** @description Filter to date (ISO 8601) */
+                toDate?: string;
+                /** @description Page number (for pagination) */
+                page?: number;
+                /** @description Items per page (for pagination) */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of audit log entries, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponseDto"][];
+                };
+            };
+        };
+    };
+    MeController_getMyAbilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The caller's resolved ability rules */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbilityRuleDto"][];
+                };
             };
         };
     };

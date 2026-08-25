@@ -7,11 +7,14 @@ import BranchList from "@/features/branch/components/list";
 import { Branch } from "@/features/branch/types";
 import { useDeleteBranch } from "@/features/branch/hooks/useBranchMutations";
 import { ColumnConfig } from "@/components/shared/generic-table";
+import { useAbility } from "@/features/auth/hooks/useAbility";
 import { Pen, PlusCircle, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function BranchPage() {
   const deleteMutation = useDeleteBranch();
+  const { ability } = useAbility();
+  const canDeleteBranch = ability.can("delete", "Branch");
 
   const columns: ColumnConfig<Branch>[] = useMemo(
     () => [
@@ -61,21 +64,23 @@ export default function BranchPage() {
             >
               <Pen />
             </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                if (window.confirm(`Delete branch "${branch.name}"?`)) {
-                  deleteMutation.mutate(branch.id);
-                }
-              }}
-            >
-              <Trash2 />
-            </Button>
+            {canDeleteBranch && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  if (window.confirm(`Delete branch "${branch.name}"?`)) {
+                    deleteMutation.mutate(branch.id);
+                  }
+                }}
+              >
+                <Trash2 />
+              </Button>
+            )}
           </>
         ),
       },
     ],
-    [deleteMutation]
+    [deleteMutation, canDeleteBranch]
   );
 
   const [selectedBranchId, setSelectedBranchId] = useState<number>(0);

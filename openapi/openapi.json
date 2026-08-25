@@ -326,6 +326,173 @@
         ]
       }
     },
+    "/users/{id}/abilities": {
+      "get": {
+        "operationId": "UsersController_getUserAbilities",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The target user's resolved ability rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AbilityRuleDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Get a user's resolved abilities (admin)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/audit-logs": {
+      "get": {
+        "operationId": "AuditLogsController_findAll",
+        "parameters": [
+          {
+            "name": "subject",
+            "required": false,
+            "in": "query",
+            "description": "Filter by subject (e.g. \"leave-requests\")",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by the actor (User) who performed the mutation",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "entityId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by the id of the affected entity",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter from date (ISO 8601)",
+            "schema": {
+              "example": "2026-05-01T00:00:00Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter to date (ISO 8601)",
+            "schema": {
+              "example": "2026-05-31T23:59:59Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (for pagination)",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page (for pagination)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of audit log entries, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List audit log entries",
+        "tags": [
+          "audit-logs"
+        ]
+      }
+    },
+    "/me/abilities": {
+      "get": {
+        "operationId": "MeController_getMyAbilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The caller's resolved ability rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AbilityRuleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the caller's own resolved abilities",
+        "tags": [
+          "abilities"
+        ]
+      }
+    },
     "/roles": {
       "post": {
         "operationId": "RolesController_create",
@@ -4319,6 +4486,32 @@
           "roleId"
         ]
       },
+      "AbilityRuleDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The permitted action, e.g. \"read\""
+          },
+          "subject": {
+            "type": "string",
+            "description": "The subject the action applies to, e.g. \"time-logs\""
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "Whether this rule forbids (true) rather than permits"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "Resolved row-scoping condition (post `$self` resolution against the target identity), or absent for an unconditioned grant"
+          }
+        },
+        "required": [
+          "action",
+          "subject",
+          "inverted"
+        ]
+      },
       "UpdateUserDto": {
         "type": "object",
         "properties": {
@@ -4351,6 +4544,48 @@
             "example": 1
           }
         }
+      },
+      "AuditLogResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "actorId": {
+            "type": "number"
+          },
+          "action": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "number"
+          },
+          "before": {
+            "type": "object",
+            "nullable": true
+          },
+          "after": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "action",
+          "subject",
+          "entityId",
+          "before",
+          "after",
+          "createdAt"
+        ]
       },
       "CreateRoleDto": {
         "type": "object",
@@ -4385,6 +4620,10 @@
           "description": {
             "type": "object"
           },
+          "isSystemRole": {
+            "type": "boolean",
+            "description": "True for the seeded base roles (Admin, Manager, Employee); such a role cannot be deleted through the API."
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -4410,6 +4649,7 @@
           "id",
           "name",
           "description",
+          "isSystemRole",
           "createdAt",
           "createdBy",
           "updatedAt",
@@ -4425,12 +4665,6 @@
           },
           "description": {
             "type": "string"
-          },
-          "permissionIds": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
           }
         }
       },
@@ -4514,6 +4748,23 @@
           }
         }
       },
+      "PermissionGrantDto": {
+        "type": "object",
+        "properties": {
+          "permissionId": {
+            "type": "number",
+            "description": "Permission ID",
+            "example": 1
+          },
+          "condition": {
+            "type": "object",
+            "description": "Optional row-scoping condition for this grant (a partial Prisma `where` object, `$self`-token-bearing, e.g. { \"employeeId\": \"$self\" }). Omit for an unconditioned (unscoped) grant."
+          }
+        },
+        "required": [
+          "permissionId"
+        ]
+      },
       "AssignPermissionsDto": {
         "type": "object",
         "properties": {
@@ -4522,22 +4773,17 @@
             "description": "Role ID",
             "example": 1
           },
-          "permissionIds": {
-            "description": "Array of permission IDs to assign",
-            "example": [
-              1,
-              2,
-              3
-            ],
+          "grants": {
+            "description": "Grants to create or update on this role. Additive: only the (roleId, permissionId) pairs listed here are affected — the role's other existing grants are left untouched.",
             "type": "array",
             "items": {
-              "type": "number"
+              "$ref": "#/components/schemas/PermissionGrantDto"
             }
           }
         },
         "required": [
           "roleId",
-          "permissionIds"
+          "grants"
         ]
       },
       "RolePermissionResponseDto": {
@@ -4562,6 +4808,11 @@
           "subject": {
             "type": "string",
             "description": "Permission subject"
+          },
+          "condition": {
+            "type": "object",
+            "description": "Row-scoping condition for this grant, if any",
+            "nullable": true
           }
         },
         "required": [
