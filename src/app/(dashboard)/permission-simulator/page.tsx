@@ -49,11 +49,15 @@ export default function PermissionSimulatorPage() {
 
     const instance = caslSubject(checkSubject, resourceAttrs);
     const allowed = ability.can(checkAction, instance);
-    // relevantRuleFor matches on action+subject type only (ignores
-    // conditions), so it lets us distinguish "no rule at all" from
-    // "a rule exists but its condition wasn't satisfied" or "an inverted
-    // rule applies" - the three denial reasons this simulator surfaces.
-    const rule = ability.relevantRuleFor(checkAction, instance);
+    // relevantRuleFor only returns a rule whose conditions already match
+    // (see CASL's Ability#relevantRuleFor), so it can't distinguish "no rule
+    // at all" from "a rule exists but its condition wasn't satisfied" - both
+    // come back null. possibleRulesFor ignores conditions entirely, giving
+    // us the most relevant rule regardless of whether it matched, so we can
+    // check its `inverted`/`matchesConditions` separately for the three
+    // denial reasons this simulator surfaces.
+    const subjectType = ability.detectSubjectType(instance);
+    const rule = ability.possibleRulesFor(checkAction, subjectType)[0] ?? null;
 
     if (!rule) {
       setResult({ allowed: false, reason: "No matching rule found for this action+subject." });

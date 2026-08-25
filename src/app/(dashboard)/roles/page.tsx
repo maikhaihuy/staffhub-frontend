@@ -11,6 +11,7 @@ import RoleDetail from "@/features/roles/components/detail";
 import RoleList from "@/features/roles/components/list";
 import { Role } from "@/features/roles/types";
 import { useDeleteRole } from "@/features/roles/hooks/useRoleMutations";
+import { useGetUsers } from "@/features/users/hooks/useUserQueries";
 import { ColumnConfig } from "@/components/shared/generic-table";
 import { Pen, PlusCircle, ShieldCheck, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ import { useMemo, useState } from "react";
 export default function RolesPage() {
   const router = useRouter();
   const deleteMutation = useDeleteRole();
+  const { data: users = [] } = useGetUsers();
 
   const columns: ColumnConfig<Role>[] = useMemo(
     () => [
@@ -43,6 +45,13 @@ export default function RolesPage() {
         label: "Permissions",
         className: "w-1/8",
         render: (role) => role.permissions?.length ?? 0,
+      },
+      {
+        key: "users",
+        label: "Users",
+        className: "w-1/8",
+        render: (role) =>
+          users.filter((u) => u.roles.some((r) => r.id === role.id)).length,
       },
       {
         key: "actions",
@@ -95,7 +104,7 @@ export default function RolesPage() {
         ),
       },
     ],
-    [deleteMutation, router]
+    [deleteMutation, router, users]
   );
 
   const [selectedRoleId, setSelectedRoleId] = useState<number>(0);

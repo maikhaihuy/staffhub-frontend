@@ -14,7 +14,7 @@ import { useMemo, useState } from "react";
 export default function BranchPage() {
   const deleteMutation = useDeleteBranch();
   const { ability } = useAbility();
-  const canDeleteBranch = ability.can("delete", "Branch");
+  const canDeleteBranch = ability.can("delete", "branches");
 
   const columns: ColumnConfig<Branch>[] = useMemo(
     () => [

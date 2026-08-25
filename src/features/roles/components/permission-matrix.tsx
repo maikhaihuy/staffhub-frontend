@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  useGetPermissionCatalog,
   useGetPermissions,
   useGetRolePermissions,
 } from "@/features/permissions/hooks/usePermissionQueries";
@@ -32,6 +33,7 @@ import {
   PermissionScope,
   buildConditionForScope,
   describeScope,
+  isScopeSupported,
   scopeFromCondition,
 } from "@/features/permissions/utils/condition";
 import { useGetUsers } from "@/features/users/hooks/useUserQueries";
@@ -81,6 +83,7 @@ export default function PermissionMatrix({ role }: PermissionMatrixProps) {
     useGetPermissions();
   const { data: grants = [], isLoading: isGrantsLoading } =
     useGetRolePermissions(role.id);
+  const { data: catalog } = useGetPermissionCatalog();
   const { data: users = [] } = useGetUsers();
 
   const [state, setState] = useState<MatrixState>({});
@@ -107,9 +110,9 @@ export default function PermissionMatrix({ role }: PermissionMatrixProps) {
     return groups;
   }, [permissions]);
 
-  // Users still carry a single roleId until multi-role assignment ships
-  // (design.md Backend Dependency #1) - count against that today.
-  const affectedUserCount = users.filter((u) => u.roleId === role.id).length;
+  const affectedUserCount = users.filter((u) =>
+    u.roles?.some((r) => r.id === role.id)
+  ).length;
 
   const changes: MatrixChange[] = useMemo(() => {
     const result: MatrixChange[] = [];
@@ -148,7 +151,7 @@ export default function PermissionMatrix({ role }: PermissionMatrixProps) {
       if (cell.checked) {
         toUpsert.push({
           permissionId: change.permissionId,
-          condition: buildConditionForScope(cell.scope, cell.customJson),
+          condition: buildConditionForScope(cell.scope, change.subject, catalog, cell.customJson),
         });
       } else {
         toRemove.push(change.permissionId);
@@ -204,6 +207,8 @@ export default function PermissionMatrix({ role }: PermissionMatrixProps) {
                 </TableRow>
                 {subjectPermissions.map((permission) => {
                   const cell = state[permission.id] ?? { checked: false, scope: "none" as PermissionScope };
+                  const selfSupported = isScopeSupported("self", catalog, subject);
+                  const managedBranchesSupported = isScopeSupported("managedBranches", catalog, subject);
                   return (
                     <TableRow key={permission.id}>
                       <TableCell>
@@ -231,13 +236,23 @@ export default function PermissionMatrix({ role }: PermissionMatrixProps) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">No restriction</SelectItem>
-                            <SelectItem value="self">Own records only</SelectItem>
+                            <SelectItem
+                              value="self"
+                              disabled={!selfSupported}
+                              title={selfSupported ? undefined : `"${subject}" has no $self field mapping`}
+                            >
+                              Own records only
+                            </SelectItem>
                             <SelectItem
                               value="managedBranches"
-                              disabled
-                              title="Pending backend support for ManagerBranch/$managedBranches"
+                              disabled={!managedBranchesSupported}
+                              title={
+                                managedBranchesSupported
+                                  ? undefined
+                                  : `"${subject}" has no $managedBranches field mapping`
+                              }
                             >
-                              Managed branches only (coming soon)
+                              Managed branches only
                             </SelectItem>
                             <SelectItem value="custom">Custom JSON</SelectItem>
                           </SelectContent>

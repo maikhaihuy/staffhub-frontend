@@ -11,6 +11,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -117,27 +119,34 @@ export default function UserForm({
         />
         <FormField
           control={form.control}
-          name="roleId"
+          name="roleIds"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(Number(value))}
-                value={field.value ? String(field.value) : undefined}
-              >
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role.id} value={String(role.id)}>
-                      {role.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel>Roles</FormLabel>
+              <div className="flex flex-col gap-2 rounded-md border p-3">
+                {roles.map((role) => {
+                  const checked = field.value?.includes(role.id) ?? false;
+                  return (
+                    <div key={role.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`role-${role.id}`}
+                        checked={checked}
+                        onCheckedChange={(next) => {
+                          const current = field.value ?? [];
+                          field.onChange(
+                            next
+                              ? [...current, role.id]
+                              : current.filter((id) => id !== role.id)
+                          );
+                        }}
+                      />
+                      <Label htmlFor={`role-${role.id}`} className="font-normal">
+                        {role.name}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
               <FormMessage />
             </FormItem>
           )}

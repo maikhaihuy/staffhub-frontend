@@ -20,3 +20,27 @@ export const useDeleteUser = () =>
     invalidateKey: queryKeys.users.all(),
     successMessage: "User deleted",
   });
+
+export const useAssignUserRoles = () =>
+  useAppMutation<User, { userId: number; roleIds: number[] }>(
+    ({ userId, roleIds }) => userService.assignRoles(userId, roleIds),
+    { invalidateKey: queryKeys.users.all() }
+  );
+
+export const useRemoveUserRole = () =>
+  useAppMutation<User, { userId: number; roleId: number }>(
+    ({ userId, roleId }) => userService.removeRole(userId, roleId),
+    { invalidateKey: queryKeys.users.all() }
+  );
+
+export const useAssignManagerBranches = () =>
+  useAppMutation<void, { userId: number; branchIds: number[] }>(
+    ({ userId, branchIds }) => userService.assignManagerBranches(userId, branchIds),
+    { successMessage: "Managed branches updated" }
+  );
+
+export const useRemoveManagerBranch = () =>
+  useAppMutation<void, { userId: number; branchId: number }>(
+    ({ userId, branchId }) => userService.removeManagerBranch(userId, branchId),
+    { successMessage: "Managed branch removed" }
+  );

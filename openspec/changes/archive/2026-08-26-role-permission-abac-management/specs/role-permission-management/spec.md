@@ -30,7 +30,7 @@ Permission entities SHALL be modeled as `{action, subject, description?}` and ma
 - **THEN** the system sends `POST /permissions` and, on success, shows a success toast and invalidates the permissions list
 
 ### Requirement: Permission Matrix assigns scoped grants per role
-The Role Detail screen SHALL render an action × subject grid, one cell per `(role, permission)` pair. Each cell reflects whether the role currently holds a grant for that permission, and its scope (derived from the grant's `condition`). Checking a cell SHALL require picking one of: "No restriction" (no `condition`), "Own records only" (`condition` built from the `$self` token), "Managed branches only" (`condition` built from the `$managedBranches` token — unavailable until the backend supports it, see design.md), or "Custom JSON" (admin-entered `condition` object). On save, the system SHALL create or update the role's grant for that permission via `POST /role-permissions` with the resulting `condition`; unchecking a cell SHALL remove the grant via `DELETE /role-permissions/role/:roleId/permission/:permissionId`.
+The Role Detail screen SHALL render an action × subject grid, one cell per `(role, permission)` pair. Each cell reflects whether the role currently holds a grant for that permission, and its scope (derived from the grant's `condition`). Checking a cell SHALL require picking one of: "No restriction" (no `condition`), "Own records only" (`condition` built from the `$self` token), "Managed branches only" (`condition` built from the `$managedBranches` token), or "Custom JSON" (admin-entered `condition` object). "Own records only" and "Managed branches only" are only offered when `GET /permissions/catalog` confirms the row's subject supports that token; otherwise the option is disabled. On save, the system SHALL create or update the role's grant for that permission via `POST /role-permissions` with the resulting `condition`; unchecking a cell SHALL remove the grant via `DELETE /role-permissions/role/:roleId/permission/:permissionId`.
 
 #### Scenario: Grant a permission with no restriction
 - **WHEN** an admin checks the "approve OvertimeRequest" cell for the Manager role and selects "No restriction"
@@ -63,7 +63,7 @@ Before persisting any change to a role's permission grants, the system SHALL sho
 On login and app load, the system SHALL fetch the authenticated admin's resolved rules via `GET /me/abilities` (each rule shaped `{action, subject, inverted, conditions?}`), build a CASL `Ability` instance from them using `@casl/ability`, and use `ability.can(action, subject)` to gate admin navigation and actions — replacing the previously hardcoded `role="admin"` prop passed to the sidebar.
 
 #### Scenario: Nav item hidden without a matching ability
-- **WHEN** the admin's resolved rules include no rule for subject `"Branch"`
+- **WHEN** the admin's resolved rules include no rule for subject `"branches"` (the real backend's permission-catalog subject name)
 - **THEN** the sidebar does not render a link to the branches section
 
 #### Scenario: Existing unconditioned rules keep working

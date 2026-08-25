@@ -33,6 +33,11 @@ export const API_ENDPOINTS = {
   USERS: {
     BASE: '/users',
     BY_ID: (id: number) => `/users/${id}`,
+    ROLES: (id: number) => `/users/${id}/roles`,
+    ROLE_BY_ID: (id: number, roleId: number) => `/users/${id}/roles/${roleId}`,
+    MANAGER_BRANCHES: (id: number) => `/users/${id}/manager-branches`,
+    MANAGER_BRANCH_BY_ID: (id: number, branchId: number) =>
+      `/users/${id}/manager-branches/${branchId}`,
   },
 
   // Roles
@@ -43,6 +48,7 @@ export const API_ENDPOINTS = {
   PERMISSIONS: {
     BASE: '/permissions',
     BY_ID: (id: number) => `/permissions/${id}`,
+    CATALOG: '/permissions/catalog',
   },
   ROLE_PERMISSIONS: {
     BASE: '/role-permissions',

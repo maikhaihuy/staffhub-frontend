@@ -19,6 +19,7 @@ export const queryKeys = {
   permissions: {
     all: () => ["permissions"],
     detail: (permissionId: number) => ["permissions", "detail", permissionId],
+    catalog: () => ["permissions", "catalog"],
   },
   rolePermissions: {
     byRole: (roleId: number) => ["rolePermissions", "byRole", roleId],

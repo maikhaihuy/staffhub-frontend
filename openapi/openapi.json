@@ -363,6 +363,155 @@
         ]
       }
     },
+    "/users/{id}/roles": {
+      "post": {
+        "operationId": "UsersController_assignRoles",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignUserRolesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The role(s) have been assigned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Assign one or more roles to a user's account",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}/roles/{roleId}": {
+      "delete": {
+        "operationId": "UsersController_removeRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The role has been removed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot remove a user's last remaining role."
+          }
+        },
+        "summary": "Remove one role from a user's account",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}/manager-branches": {
+      "post": {
+        "operationId": "UsersController_assignManagerBranches",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignManagerBranchesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Assign one or more branches for a user to manage",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}/manager-branches/{branchId}": {
+      "delete": {
+        "operationId": "UsersController_removeManagerBranch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "branchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Remove a branch from the branches a user manages",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/audit-logs": {
       "get": {
         "operationId": "AuditLogsController_findAll",
@@ -689,6 +838,31 @@
           }
         },
         "summary": "Retrieve a list of all permissions",
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/permissions/catalog": {
+      "get": {
+        "operationId": "PermissionsController_getCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The permission catalog.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionCatalogEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Documents each permission subject's actions and supported condition tokens",
         "tags": [
           "permissions"
         ]
@@ -4413,17 +4587,37 @@
             ],
             "example": "ACTIVE"
           },
-          "roleId": {
-            "type": "number",
-            "description": "Role ID",
-            "example": 1
+          "roleIds": {
+            "description": "Role IDs to assign; the user must hold at least one",
+            "example": [
+              1
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           }
         },
         "required": [
           "phoneNumber",
           "fullName",
           "status",
-          "roleId"
+          "roleIds"
+        ]
+      },
+      "RoleLiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
         ]
       },
       "UserResponseDto": {
@@ -4463,13 +4657,12 @@
             "type": "string",
             "description": "Updated timestamp"
           },
-          "roleId": {
-            "type": "number",
-            "description": "Role ID"
-          },
-          "roleName": {
-            "type": "string",
-            "description": "Role name"
+          "roles": {
+            "description": "Roles held by this user",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleLiteDto"
+            }
           },
           "branches": {
             "type": "array",
@@ -4483,7 +4676,7 @@
           "status",
           "createdAt",
           "updatedAt",
-          "roleId"
+          "roles"
         ]
       },
       "AbilityRuleDto": {
@@ -4537,13 +4730,44 @@
               "ACTIVE",
               "INACTIVE"
             ]
-          },
-          "roleId": {
-            "type": "number",
-            "description": "Role ID",
-            "example": 1
           }
         }
+      },
+      "AssignUserRolesDto": {
+        "type": "object",
+        "properties": {
+          "roleIds": {
+            "description": "Role IDs to add to the user (in addition to any they already hold)",
+            "example": [
+              2
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "roleIds"
+        ]
+      },
+      "AssignManagerBranchesDto": {
+        "type": "object",
+        "properties": {
+          "branchIds": {
+            "description": "Branch IDs to add to the branches this user manages",
+            "example": [
+              3
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "branchIds"
+        ]
       },
       "AuditLogResponseDto": {
         "type": "object",
@@ -4732,6 +4956,59 @@
           "updatedAt",
           "updatedBy",
           "roles"
+        ]
+      },
+      "ConditionTokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "$self"
+          },
+          "fields": {
+            "description": "The field name(s) on this subject the token resolves against",
+            "example": [
+              "employeeId"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "token",
+          "fields"
+        ]
+      },
+      "PermissionCatalogEntryDto": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "example": "time-logs"
+          },
+          "actions": {
+            "example": [
+              "create",
+              "read"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conditionTokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConditionTokenDto"
+            }
+          }
+        },
+        "required": [
+          "subject",
+          "actions",
+          "conditionTokens"
         ]
       },
       "UpdatePermissionDto": {
