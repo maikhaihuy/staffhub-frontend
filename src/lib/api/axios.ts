@@ -10,6 +10,11 @@ const instance: AxiosInstance = axios.create({
   // withCredentials: true, // if using cookies/session
 });
 
+const authCookieOptions = {
+  sameSite: 'strict' as const,
+  secure: process.env.NODE_ENV === 'production',
+};
+
 // Token management utilities
 export const tokenManager = {
   getAccessToken: (): string | null => {
@@ -24,29 +29,14 @@ export const tokenManager = {
 
   setTokens: (accessToken: string, refreshToken: string): void => {
     if (typeof window === 'undefined') return;
-    Cookies.set('access_token', accessToken);
-    Cookies.set('refresh_token', refreshToken);
-    // secure: true khi production
-    // Cookies.set('access_token', accessToken, { expires: 1 }); // 1 ngày
-    // Cookies.set('refresh_token', refreshToken, { expires: 7 });
+    Cookies.set('access_token', accessToken, authCookieOptions);
+    Cookies.set('refresh_token', refreshToken, authCookieOptions);
   },
 
   clearTokens: (): void => {
     if (typeof window === 'undefined') return;
-    Cookies.remove('access_token');
-    Cookies.remove('refresh_token');
-    localStorage.removeItem('user');
-  },
-
-  setUser: (user: any): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('user', JSON.stringify(user));
-  },
-
-  getUser: (): any | null => {
-    if (typeof window === 'undefined') return null;
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    Cookies.remove('access_token', authCookieOptions);
+    Cookies.remove('refresh_token', authCookieOptions);
   },
 };
 

@@ -22,8 +22,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Initialize auth state on mount from whatever was persisted at login/refresh time
-  // (there's no /auth/me endpoint to re-fetch the user from).
+  // Initialize auth state on mount by re-deriving the user from the access token cookie
+  // (there's no /auth/me endpoint, and the user is never persisted in localStorage).
   useEffect(() => {
     const token = tokenManager.getAccessToken();
 
