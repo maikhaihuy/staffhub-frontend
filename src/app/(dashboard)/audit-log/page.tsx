@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RequireAbility } from "@/components/require-ability";
 import { useGetAuditLogs } from "@/features/auditLogs/hooks/useAuditLogQueries";
 import { AuditLogFilter } from "@/features/auditLogs/types";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -40,6 +41,7 @@ export default function AuditLogPage() {
   const handleApplyFilters = () => setPage(1);
 
   return (
+    <RequireAbility action="read" subject="audit-logs">
     <div className="flex flex-col gap-8">
       <div className="px-2 flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Audit Log</h1>
@@ -180,5 +182,6 @@ export default function AuditLogPage() {
         </Button>
       </div>
     </div>
+    </RequireAbility>
   );
 }

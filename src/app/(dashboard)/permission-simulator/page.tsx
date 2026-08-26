@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RequireAbility } from "@/components/require-ability";
 import { useGetUsers } from "@/features/users/hooks/useUserQueries";
 import { useGetUserAbilities } from "@/features/permissions/hooks/usePermissionQueries";
 import { buildAbility } from "@/lib/casl/ability";
@@ -74,105 +75,107 @@ export default function PermissionSimulatorPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="px-2 flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">Permission Simulator</h1>
-        <div className="text-sm font-medium text-muted-foreground">
-          Pick a user to see their resolved effective permissions, and debug
-          why a specific action+subject check would pass or fail.
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2 max-w-sm">
-        <Label>User</Label>
-        <Select
-          value={selectedUserId ? String(selectedUserId) : undefined}
-          onValueChange={(value) => setSelectedUserId(Number(value))}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a user" />
-          </SelectTrigger>
-          <SelectContent>
-            {users.map((user) => (
-              <SelectItem key={user.id} value={String(user.id)}>
-                {user.fullName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {selectedUserId && (
-        <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-medium">Resolved effective permissions</h2>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : rules.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              This user has no resolved permissions.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {rules.map((rule, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <Badge variant={rule.inverted ? "destructive" : "outline"}>
-                    {rule.inverted ? "Cannot" : "Can"}
-                  </Badge>
-                  <span className="font-medium">
-                    {rule.action} {rule.subject}
-                  </span>
-                  <span className="text-muted-foreground">
-                    — {describeCondition(rule.conditions)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <h2 className="text-lg font-medium mt-4">Debug a specific check</h2>
-          <div className="flex flex-row gap-2 items-end flex-wrap">
-            <div className="flex flex-col gap-1">
-              <Label>Action</Label>
-              <Input
-                placeholder="approve"
-                value={checkAction}
-                onChange={(e) => setCheckAction(e.target.value)}
-                className="w-40"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label>Subject</Label>
-              <Input
-                placeholder="OvertimeRequest"
-                value={checkSubject}
-                onChange={(e) => setCheckSubject(e.target.value)}
-                className="w-48"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label>Resource attributes (optional JSON)</Label>
-              <Input
-                placeholder='{"employeeId": 42}'
-                value={resourceJson}
-                onChange={(e) => setResourceJson(e.target.value)}
-                className="w-64"
-              />
-            </div>
-            <Button onClick={handleCheck} disabled={!checkAction || !checkSubject}>
-              Check
-            </Button>
+    <RequireAbility action="read" subject="permissions">
+      <div className="flex flex-col gap-8">
+        <div className="px-2 flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold">Permission Simulator</h1>
+          <div className="text-sm font-medium text-muted-foreground">
+            Pick a user to see their resolved effective permissions, and debug
+            why a specific action+subject check would pass or fail.
           </div>
-
-          {result && (
-            <div className="flex items-center gap-2 text-sm">
-              <Badge variant={result.allowed ? "outline" : "destructive"}>
-                {result.allowed ? "Allowed" : "Denied"}
-              </Badge>
-              <span>{result.reason}</span>
-            </div>
-          )}
         </div>
-      )}
-    </div>
+
+        <div className="flex flex-col gap-2 max-w-sm">
+          <Label>User</Label>
+          <Select
+            value={selectedUserId ? String(selectedUserId) : undefined}
+            onValueChange={(value) => setSelectedUserId(Number(value))}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a user" />
+            </SelectTrigger>
+            <SelectContent>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={String(user.id)}>
+                  {user.fullName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedUserId && (
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg font-medium">Resolved effective permissions</h2>
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : rules.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                This user has no resolved permissions.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {rules.map((rule, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <Badge variant={rule.inverted ? "destructive" : "outline"}>
+                      {rule.inverted ? "Cannot" : "Can"}
+                    </Badge>
+                    <span className="font-medium">
+                      {rule.action} {rule.subject}
+                    </span>
+                    <span className="text-muted-foreground">
+                      — {describeCondition(rule.conditions)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <h2 className="text-lg font-medium mt-4">Debug a specific check</h2>
+            <div className="flex flex-row gap-2 items-end flex-wrap">
+              <div className="flex flex-col gap-1">
+                <Label>Action</Label>
+                <Input
+                  placeholder="approve"
+                  value={checkAction}
+                  onChange={(e) => setCheckAction(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>Subject</Label>
+                <Input
+                  placeholder="OvertimeRequest"
+                  value={checkSubject}
+                  onChange={(e) => setCheckSubject(e.target.value)}
+                  className="w-48"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>Resource attributes (optional JSON)</Label>
+                <Input
+                  placeholder='{"employeeId": 42}'
+                  value={resourceJson}
+                  onChange={(e) => setResourceJson(e.target.value)}
+                  className="w-64"
+                />
+              </div>
+              <Button onClick={handleCheck} disabled={!checkAction || !checkSubject}>
+                Check
+              </Button>
+            </div>
+
+            {result && (
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant={result.allowed ? "outline" : "destructive"}>
+                  {result.allowed ? "Allowed" : "Denied"}
+                </Badge>
+                <span>{result.reason}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </RequireAbility>
   );
 }

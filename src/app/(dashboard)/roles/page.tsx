@@ -7,6 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RequireAbility } from "@/components/require-ability";
 import RoleDetail from "@/features/roles/components/detail";
 import RoleList from "@/features/roles/components/list";
 import { Role } from "@/features/roles/types";
@@ -111,30 +112,32 @@ export default function RolesPage() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-row justify-between items-center">
-        <div className="px-2 flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold">Roles</h1>
-          <div className="text-sm font-medium text-muted-foreground">
-            Manage roles and their permission grants.
+    <RequireAbility action="read" subject="roles">
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-row justify-between items-center">
+          <div className="px-2 flex flex-col gap-2">
+            <h1 className="text-2xl font-semibold">Roles</h1>
+            <div className="text-sm font-medium text-muted-foreground">
+              Manage roles and their permission grants.
+            </div>
           </div>
+          <Button
+            variant="outline"
+            className="gap-1"
+            onClick={() => {
+              setSelectedRoleId(0);
+              setOpen(true);
+            }}
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Add role
+            </span>
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          className="gap-1"
-          onClick={() => {
-            setSelectedRoleId(0);
-            setOpen(true);
-          }}
-        >
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            Add role
-          </span>
-        </Button>
+        <RoleList columns={columns} />
+        <RoleDetail id={selectedRoleId} open={open} setOpen={setOpen} />
       </div>
-      <RoleList columns={columns} />
-      <RoleDetail id={selectedRoleId} open={open} setOpen={setOpen} />
-    </div>
+    </RequireAbility>
   );
 }
