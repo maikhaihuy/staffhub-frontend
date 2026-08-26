@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RequireAbility } from "@/components/require-ability";
 import BrancDetail from "@/features/branch/components/detail";
 import BranchList from "@/features/branch/components/list";
 import { Branch } from "@/features/branch/types";
@@ -87,6 +88,7 @@ export default function BranchPage() {
   const [open, setOpen] = useState(false);
 
   return (
+    <RequireAbility action="read" subject="branches">
     <div className="flex flex-col gap-8">
       <div className="flex flex-row justify-between items-center">
         <div className="px-2 flex flex-col gap-2">
@@ -113,5 +115,6 @@ export default function BranchPage() {
       <BranchList columns={columns} />
       <BrancDetail id={selectedBranchId} open={open} setOpen={setOpen} />
     </div>
+    </RequireAbility>
   );
 }

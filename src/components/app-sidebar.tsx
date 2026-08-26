@@ -7,9 +7,9 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import { GENERAL_ROUTES, ADMIN_ROUTES, MANAGER_ROUTES, RouteConfig } from "@/constants/routes";
 import { AppsSwitcherRoutes } from "@/constants/appSwitcherUrls";
 import { useAbility } from "@/features/auth/hooks/useAbility";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
 const data = {
-  user: { name: "shadcn", email: "m@example.com", avatar: "/avatars/shadcn.jpg" },
   apps: AppsSwitcherRoutes,
   manager: { title: "Quản lý", items: MANAGER_ROUTES },
   genenal: { title: "", items: GENERAL_ROUTES },
@@ -34,6 +34,7 @@ function filterByAbility(
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { ability, isLoading } = useAbility();
+  const { user } = useAuth();
 
   const routes = isLoading
     ? [data.genenal]
@@ -49,7 +50,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {routes.map(group => <NavMain key={group.title} title={group.title} items={group.items} />)}
       </SidebarContent>
-      <SidebarFooter><NavUser user={data.user} /></SidebarFooter>
+      <SidebarFooter>
+        {user && <NavUser user={{ phone: user.phone, role: user.role }} />}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

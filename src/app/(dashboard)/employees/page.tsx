@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RequireAbility } from "@/components/require-ability";
 import EmployeeDetail from "@/features/employee/components/detail";
 import EmployeeList from "@/features/employee/components/list";
 import { Employee } from "@/features/employee/types";
@@ -76,6 +77,7 @@ export default function EmployeePage() {
   const [open, setOpen] = useState(false);
 
   return (
+    <RequireAbility action="read" subject="employees">
     <div className="flex flex-col gap-8">
       <div className="flex flex-row justify-between items-center">
         <div className="px-2 flex flex-col gap-2">
@@ -102,5 +104,6 @@ export default function EmployeePage() {
       <EmployeeList columns={columns} />
       <EmployeeDetail id={selectedEmployeeId} open={open} setOpen={setOpen} />
     </div>
+    </RequireAbility>
   );
 }

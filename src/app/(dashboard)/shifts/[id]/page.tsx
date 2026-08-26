@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Archive, ArrowLeft, Copy, MoreHorizontal, Pen } from "lucide-react";
 
+import { RequireAbility } from "@/components/require-ability";
 import MasterShiftTemplateEditDialog from "@/features/masterShiftTemplate/components/edit-dialog";
 import { useGetMasterShiftTemplate } from "@/features/masterShiftTemplate/hooks/useMasterShiftTemplateQueries";
 import { useUpdateMasterShiftTemplate } from "@/features/masterShiftTemplate/hooks/useMasterShiftTemplateMutations";
@@ -99,24 +100,31 @@ export default function ShiftTemplateDetailPage() {
   };
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Loading...</p>;
+    return (
+      <RequireAbility action="read" subject="Shift">
+        <p className="text-muted-foreground">Loading...</p>
+      </RequireAbility>
+    );
   }
 
   if (!template) {
     return (
-      <div className="flex flex-col gap-4">
-        <Button variant="ghost" className="w-fit gap-1 px-2" asChild>
-          <Link href="/shifts">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Shift Templates
-          </Link>
-        </Button>
-        <p className="text-muted-foreground">This shift template couldn&apos;t be found.</p>
-      </div>
+      <RequireAbility action="read" subject="Shift">
+        <div className="flex flex-col gap-4">
+          <Button variant="ghost" className="w-fit gap-1 px-2" asChild>
+            <Link href="/shifts">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Shift Templates
+            </Link>
+          </Button>
+          <p className="text-muted-foreground">This shift template couldn&apos;t be found.</p>
+        </div>
+      </RequireAbility>
     );
   }
 
   return (
+    <RequireAbility action="read" subject="Shift">
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
         <Button variant="ghost" className="w-fit gap-1 px-2" asChild>
@@ -213,5 +221,6 @@ export default function ShiftTemplateDetailPage() {
         initialValues={duplicateInitialValues}
       />
     </div>
+    </RequireAbility>
   );
 }

@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RequireAbility } from "@/components/require-ability";
 import MasterShiftTemplateEditDialog from "@/features/masterShiftTemplate/components/edit-dialog";
 import MasterShiftTemplateList from "@/features/masterShiftTemplate/components/list";
 import { MasterShiftTemplate } from "@/features/masterShiftTemplate/types";
@@ -129,6 +130,7 @@ export default function ShiftTemplatesPage() {
   );
 
   return (
+    <RequireAbility action="read" subject="Shift">
     <div className="flex flex-col gap-8">
       <div className="flex flex-row justify-between items-center">
         <div className="px-2 flex flex-col gap-2">
@@ -195,5 +197,6 @@ export default function ShiftTemplatesPage() {
         <p className="text-muted-foreground">No branches available.</p>
       )}
     </div>
+    </RequireAbility>
   );
 }
