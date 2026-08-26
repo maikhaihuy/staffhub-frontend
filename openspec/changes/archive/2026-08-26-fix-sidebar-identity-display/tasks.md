@@ -18,6 +18,6 @@
 ## 3. Verification
 
 - [x] 3.1 Run `pnpm lint` and confirm no new errors.
-- [ ] 3.2 Manually log in and confirm the sidebar footer shows the real logged-in user's phone
+- [x] 3.2 Manually log in and confirm the sidebar footer shows the real logged-in user's phone
       (and role, if linked to an employee) instead of "shadcn" / "m@example.com", and that the
       avatar shows the fallback rather than a broken image.
