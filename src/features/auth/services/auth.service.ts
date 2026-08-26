@@ -30,11 +30,10 @@ class AuthService {
     const user = userFromAccessToken(tokens.accessToken);
 
     tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
-    tokenManager.setUser(user);
 
     return { tokens, user };
   }
-  
+
   /**
    * Register new user
    */
@@ -47,11 +46,10 @@ class AuthService {
       validated
     );
 
-    const { user, tokens } = response.data;
+    const { tokens } = response.data;
 
-    // Store tokens and user
+    // Store tokens
     tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
-    tokenManager.setUser(user);
 
     return response.data;
   }
@@ -91,7 +89,6 @@ class AuthService {
     const user = userFromAccessToken(tokens.accessToken);
 
     tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
-    tokenManager.setUser(user);
 
     return { tokens, user };
   }
@@ -125,10 +122,11 @@ class AuthService {
   }
 
   /**
-   * Get stored user
+   * Derive the current user from the stored access token (no persisted user object).
    */
   getStoredUser(): AuthUser | null {
-    return tokenManager.getUser();
+    const accessToken = tokenManager.getAccessToken();
+    return accessToken ? userFromAccessToken(accessToken) : null;
   }
 }
 
