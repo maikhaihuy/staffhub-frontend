@@ -18,4 +18,5 @@ imported anywhere in `src` (every shadcn component already lives directly under
 (none)
 
 ## Impact
-`package.json`, `package-lock.json`.
+`package.json`, `pnpm-lock.yaml` (this project's package manager is pnpm, not npm - see
+`pnpm-lock.yaml` in the repo root; no `package-lock.json` exists here).

@@ -1,6 +1,5 @@
 
-import { Branch, BranchWithSchedules } from "../../features/branch/types";
-import { sampleSchedules } from "./schedules";
+import { Branch } from "../../features/branch/types";
 
 const AUDIT_FIELDS = {
   createdAt: new Date().toISOString(),
@@ -14,8 +13,3 @@ export const sampleBranches: Branch[] = [
   { id: 2, name: "Branch 2", abbreviation: "B2", address: "Address 2", phone: "987-654-3210", email: "branch2@example.com", ...AUDIT_FIELDS },
   { id: 3, name: "Branch 3", abbreviation: "B3", address: "Address 3", phone: "555-555-5555", email: "branch3@example.com", ...AUDIT_FIELDS },
 ];
-
-export const sampleBranchesWithSchedules = ():BranchWithSchedules[] => sampleBranches.map(branch => ({
-  ...branch,
-  schedules: sampleSchedules.filter(s => s.branchId === branch.id), // always where in date range
-}));
