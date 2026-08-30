@@ -14,8 +14,16 @@ export function middleware(request: NextRequest) {
   // Kiểm tra token (middleware chỉ đọc được cookie, không đọc localStorage)
   // -> Cần chuyển token sang cookie (xem bước 2)
   const token = request.cookies.get('access_token')?.value;
+  const refreshToken = request.cookies.get('refresh_token')?.value;
 
-  if (!isPublicPath && (!token || isTokenExpired(token))) {
+  // access_token hết hạn nhưng còn refresh_token hợp lệ -> phiên vẫn có thể
+  // khôi phục, để axios interceptor tự làm mới ngầm ở lần gọi API đầu tiên
+  // trên trang thay vì bắt logout ngay khi điều hướng.
+  const isRecoverable =
+    !!token && isTokenExpired(token) && !!refreshToken && !isTokenExpired(refreshToken);
+  const isSessionValid = (!!token && !isTokenExpired(token)) || isRecoverable;
+
+  if (!isPublicPath && !isSessionValid) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnUrl', buildReturnUrl(pathname, search)); // lưu trang muốn vào
     const response = NextResponse.redirect(loginUrl);
@@ -24,7 +32,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Đã login rồi mà vào /login -> về trang chủ
-  if (isPublicPath && token && !isTokenExpired(token)) {
+  if (isPublicPath && isSessionValid) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
