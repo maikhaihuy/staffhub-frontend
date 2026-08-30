@@ -62,8 +62,11 @@ export function useAppMutation<TData, TVariables>(
           toast.error(body?.message || error.message)
         }
       } else {
-        // ✅ hiển thị lỗi mặc định hoặc custom
-        toast.error(options?.errorMessage || error.message)
+        // ✅ hiển thị lỗi mặc định hoặc custom - ưu tiên message thật từ
+        // backend (vd 401 "Current password is incorrect") thay vì message
+        // chung chung của axios ("Request failed with status code ...")
+        const body = error.response?.data as ValidationErrorBody | undefined
+        toast.error(options?.errorMessage || body?.message || error.message)
       }
 
       // ✅ callback người dùng

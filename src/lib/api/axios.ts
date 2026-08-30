@@ -1,6 +1,7 @@
 // lib/axios.ts
 import Cookies from 'js-cookie';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import { isPasswordChangeRequiredError } from './errors';
 
 const instance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "",
@@ -80,6 +81,16 @@ instance.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
+
+    // Session is flagged mustChangePassword on the backend - broadcast so
+    // AuthContext can redirect to /change-password, mirroring how an
+    // unrecoverable 401 broadcasts auth:session-expired.
+    if (isPasswordChangeRequiredError(error)) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:password-change-required'));
+      }
+      return Promise.reject(error);
+    }
 
     // If error is 401 and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
