@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { scheduleSchema } from "../schedule/schemas/schedule.schema";
 
 /**
  * Fields editable via the create/update form - matches the real backend's
@@ -33,8 +32,4 @@ export const branchSchema = branchFormSchema.extend({
   updatedAt: z.string(),
   updatedBy: z.number(),
   employees: z.array(z.object({ id: z.number(), fullName: z.string() })).optional(),
-});
-
-export const branchWithSchedulesSchema = branchSchema.extend({
-  schedules: z.array(scheduleSchema),
 });

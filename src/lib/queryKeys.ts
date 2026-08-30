@@ -10,7 +10,6 @@ export const queryKeys = {
   branches: {
     all: () => ["branches"],
     detail: (branchId: number) => ["branches", "detail", branchId],
-    withSchedules: (employeeId: number) => ["branches", "withSchedules", employeeId],
   },
   roles: {
     all: () => ["roles"],

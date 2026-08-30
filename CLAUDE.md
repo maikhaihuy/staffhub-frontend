@@ -5,17 +5,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 **StaffHub** is a workforce management system for a small milk tea shop. This repository
-(package name `berd.em-frontend`) is the **web dashboard**, used by Admin, Manager, and Staff.
+(package name `berd.em-frontend`) is the **single web app** for Admin, Manager, and Staff —
+including the employee self-service experience.
 
-The employee-facing **Zalo Mini App** (on-shift check-in/check-out, mobile experience) lives in a
-**separate repository** (backend shared with this app is `staffhub-backend`) and is out of scope
-for this codebase. Nothing here should be built as a Zalo Mini App screen or use the Zalo Mini App
-SDK — this repo is a standard responsive web app.
+**Scope pivot (2026-08-30):** a separate Zalo Mini App repo was previously planned for the
+employee-facing self-service screens (on-shift check-in/check-out, mobile experience). That plan
+is **retired** — it was never started, and will not be built as a separate app.
+`staffhub-frontend` now covers that role itself, as a plain responsive web app — **no Zalo Mini
+App SDK / ZaUI / `zmp-sdk` integration**. Staff open this same web dashboard (on desktop or a
+mobile browser) to check in/out, manage tasks, and view earnings. Zalo's only remaining role here
+is as an **identity provider** (login / optional account linking) — not a runtime platform.
+
+Primary login for this app is standard backend username/password auth (see Auth below). The
+backend (shared with this app) is `staffhub-backend`.
 
 > The "Domain Context", "App Responsibility", "UX Direction", "Screen Specifications", and "Copy &
-> Tone" sections below describe the intended product/UX scope. They are not all necessarily
-> implemented yet — cross-check against the actual route groups and features (see Architecture)
-> before assuming a screen exists.
+> Tone" sections below describe the intended product/UX scope, reflecting the 2026-08-30 pivot.
+> They are not all necessarily implemented yet — cross-check against the actual route groups and
+> features (see Architecture) before assuming a screen exists.
 
 ## Commands
 
@@ -64,7 +71,7 @@ Data flow: component → feature hook (`use<Feature>Queries.ts` / `use<Feature>M
 
 The backend/Prisma layer was removed from this repo (see git history: "remove prisma and restructure api layer"). Some services still call real endpoints via the shared axios instance; others (e.g. `employee.service.ts`'s `getEmployees`) currently return static data from `src/mocks/data/*.ts` with an artificial `setTimeout` delay instead of hitting the network. When touching a service, check whether it's still mock-backed before assuming API behavior — don't assume a service function reflects a real backend contract.
 
-### Auth
+### Auth (implementation)
 
 - `src/features/auth/context/AuthContext.tsx` (`AuthProvider`/`useAuth`) holds user/token state, wraps the app in `src/app/providers.tsx` (alongside the React Query `QueryClientProvider`), and drives login/register/logout/refresh flows with toast feedback and router redirects.
 - Tokens are stored in cookies via `js-cookie` (`tokenManager` in `src/lib/api/axios.ts`), not localStorage, because `middleware.ts` (server-side) can only read cookies.
@@ -102,11 +109,11 @@ StaffHub manages:
 
 ### User Roles
 
-| Role | Scope | Uses this web dashboard for |
+| Role | Scope | Uses this app for |
 |---|---|---|
 | Owner / Admin | Full system access | Full management: users, roles, permissions, branches, schedules, audit log |
 | Manager | Branch-level management | Branch-scoped scheduling, employee, and approval screens |
-| Staff (Employee) | This app + the separate Zalo Mini App | Self-service screens below (schedule, tasks, income, profile) via web; on-shift actions (check-in/check-out on the go) via the separate Zalo Mini App |
+| Staff (Employee) | This app only | Self-service screens (schedule, tasks, income, profile) — desktop or mobile browser |
 
 ### Core Business Rules
 
@@ -117,30 +124,46 @@ StaffHub manages:
 - **Mandatory tasks** must be completed before checkout is allowed.
 - **Todo tasks** can remain pending but must trigger a warning.
 - Delivery receipt OCR is a suggestion only; manager must approve the final amount.
-- Backend JWT is the source of truth for API calls. Zalo identity (used by the separate Mini App)
-  only helps authenticate/link the employee account — it never grants access on its own.
+- Backend JWT is the source of truth for API calls. **Password login is the primary way this app
+  obtains that JWT.** Zalo identity is a secondary, optional link — it never grants access on its
+  own.
+
+## Auth (product)
+
+- **Primary: standard username/password login** against the backend, issuing the backend JWT
+  (access + refresh pair) used for all API calls, by every role including Staff.
+- **Secondary: Zalo account linking** — optional, for Staff who want to log in with Zalo instead
+  of remembering a password. Not required to use this app.
+- ⚠️ **Known cross-repo dependency**: this depends on backend proposal `make-password-login-primary`
+  (adds a `password` field to Users create/update DTOs, restores forgot/reset-password, adds
+  authenticated Zalo-linking). Until that lands, Staff accounts effectively need a
+  backend-seeded password to log in the standard way.
 
 ## App Responsibility
 
-This repo is the **web dashboard** — Admin, Manager, and Staff all use it.
+This repo is the **only** frontend — Admin, Manager, and Staff all use it.
 
 ✅ Implement:
-- Login / backend auth (web session)
+- Login via standard backend username/password (see Auth above)
 - Admin & Manager management screens: users, roles & permissions, branches, employees, schedules,
   rosters, shifts, audit log
 - Staff self-service screens (see Screen Specifications below): viewing assigned shifts,
   completing mandatory tasks, viewing/acknowledging todo items, submitting delivery receipts,
   viewing estimated earnings, viewing approval status
-- Desktop-appropriate, responsive web UI/layouts
+- Responsive UI/layouts that work acceptably on both desktop and mobile browsers — Staff screens
+  in particular should be designed mobile-first, since most Staff will use a phone browser
 
 ❌ Do not implement:
-- Zalo Mini App screens or SDK integration — that build lives in the separate Mini App repo
-- Native-mobile-only interaction patterns (e.g. bottom tab bars, swipe gestures) where a
-  standard web navigation pattern (sidebar/top nav) fits better
+- A separate Zalo Mini App / ZaUI components / `zmp-sdk` — **retired**, not in scope
+- Zalo as the *primary* or *only* login method
+- Any assumption that Staff access this app only from inside the Zalo app — treat it as a normal
+  mobile browser session
+- Native-mobile-only interaction patterns (e.g. swipe gestures) where a standard responsive web
+  pattern fits better
 
 ## UX Direction
 
-- **Responsive web-first.** Built for desktop and tablet browsers; not a Zalo Mini App.
+- **Responsive, mobile-first for Staff screens; desktop-first for Admin/Manager screens.**
 - Simple, friendly, and clear. No enterprise HR wording.
 - One clear primary action per screen state.
 - Vietnamese user-facing copy throughout.
@@ -148,36 +171,84 @@ This repo is the **web dashboard** — Admin, Manager, and Staff all use it.
 ### Staff's Core Questions (answered at a glance, on the self-service screens)
 > Am I working today? · What time is my shift? · Can I check in? · What tasks must I complete? · Can I check out? · How much have I earned? · What is pending approval?
 
-## App Structure — Primary Navigation (4 sections)
+## App Structure — Staff Navigation (4 sections)
 
-Rendered as standard web navigation (sidebar/top nav) rather than a mobile bottom tab bar, since
-this is a web dashboard, not the Zalo Mini App.
+Rendered as standard responsive web navigation (bottom tab bar on mobile widths, sidebar/top nav
+on desktop widths) — same 4 sections either way:
 
 ```
 [ Lịch ca ]  [ Nhiệm vụ ]  [ Thu nhập ]  [ Cá nhân ]
 ```
 
-| Section | Label (VI) | Label (EN) |
-|---|---|---|
-| 1 | Lịch ca | Schedule |
-| 2 | Nhiệm vụ | Task |
-| 3 | Thu nhập | Income |
-| 4 | Cá nhân | Profile |
+| Section | Label (VI) | Label (EN) | Milestone |
+|---|---|---|---|
+| 1 | Lịch ca | Schedule | M1 (Bản biểu) / M2 (Đăng ban, Bản ký) |
+| 2 | Nhiệm vụ | Task | M1 (mandatory tasks, check-in/out) / M2 (todo, evidence) |
+| 3 | Thu nhập | Income | M3 |
+| 4 | Cá nhân | Profile | M2 |
 
 Admin/Manager management screens (users, roles, permissions, branches, audit log, etc.) sit
-alongside these as their own navigation section — see App Responsibility above.
+alongside these as their own navigation section, visible only to those roles — see App
+Responsibility above.
+
+## Delivery Roadmap / Milestones (confirmed 2026-08-30)
+
+### M1 — Core attendance loop (MVP)
+The minimum for a Staff member to use the app day-to-day. Nothing else in Staff scope ships
+before this works end-to-end.
+- Login (password)
+- Home / "Nhiệm vụ hôm nay": greeting, live clock, shift status, primary action slot
+- Check-in / Check-out
+- Mandatory tasks (block checkout)
+- Lịch ca → **Bản biểu** tab only (view assigned/current shifts, weekly layout, today highlight)
+
+### M2 — Complete the daily-use experience
+Not blocking the core loop, but needed before Staff scope feels "done."
+- Todo tasks (warn-only at checkout)
+- Evidence zone (photo/notes attached to tasks)
+- Lịch ca → **Đăng ban** (register available shifts) and **Bản ký** (shift history) tabs
+- Cá nhân: view/update personal info, change password, log out
+
+### M3 — Thu nhập (Income), UI-first against mock data
+Backend delivery-receipt/OCR/approval model does not exist yet (`add-delivery-receipt-ocr-approval`,
+still pre-`design.md`). Decision: **do not block Staff-app UI work on that backend proposal.**
+Build the Thu nhập screens now against mocked data, matching the real shape the eventual API is
+expected to return (status enum `PENDING_OCR | PENDING_APPROVAL | APPROVED | REJECTED`, separate
+`ocrSuggestedAmount` vs `approvedAmount`, etc., per the backend proposal's `DeliveryReceipt`
+model) so swapping mocks for the real API later is a data-layer change, not a UI rewrite.
+- Tổng quan (Overview): month-to-date estimated earnings breakdown, latest paid amount, pending
+  approval summary
+- Tiền ca (Shift Earnings): list of completed shifts with earning info
+- Tiền ship (Delivery Earnings): list + status of delivery receipts — **mocked**
+- Delivery receipt upload flow — **mocked**
+- Payroll detail / Previous payroll screens
+
+Mock data for this milestone should live in an isolated service layer (e.g.
+`src/features/income/services/*.mock.ts`), following the same pattern already used/cleaned up
+elsewhere in this repo (see `remove-dead-roster-schedule-services` — don't repeat that mock/real
+split confusion here; keep the mock clearly labeled and swap-ready).
+
+### M4 — Wire M3 to the real backend
+Once `add-delivery-receipt-ocr-approval` lands on the backend:
+- Replace the mock service layer with real API calls
+- Remove mock data files
+- Add real error/loading states for OCR-pending / rejection flows that mocks likely
+  under-modeled
 
 ## Screen Specifications
+
+*(Feature scope unchanged from the original spec — only the platform framing and milestone
+ordering above changed.)*
 
 ### 1. Lịch ca (Schedule)
 
 Three top tabs, all sharing a **weekly shift layout**:
 
-| Tab | Label (VI) | Purpose |
-|---|---|---|
-| 1 | Bản biểu | View assigned / current shifts |
-| 2 | Đăng ban | Register available shifts |
-| 3 | Bản ký | View completed shift history |
+| Tab | Label (VI) | Purpose | Milestone |
+|---|---|---|---|
+| 1 | Bản biểu | View assigned / current shifts | M1 |
+| 2 | Đăng ban | Register available shifts | M2 |
+| 3 | Bản ký | View completed shift history | M2 |
 
 #### Weekly Layout Rules
 - Displays days of the week with dates.
@@ -191,7 +262,7 @@ Three top tabs, all sharing a **weekly shift layout**:
 - Supports a `children` slot for custom content inside the block.
 - Must be reusable across all three tabs (Bản biểu, Đăng ban, Bản ký).
 
-### 2. Nhiệm vụ (Task)
+### 2. Nhiệm vụ (Task) — M1 (core) + M2 (todo/evidence)
 
 The task screen is state-driven. Layout slots must remain **positionally consistent** across all states.
 
@@ -214,20 +285,20 @@ The task screen is state-driven. Layout slots must remain **positionally consist
 
 #### Task Types
 
-**Mandatory Tasks**
+**Mandatory Tasks** — M1
 - Must be completed before checkout is allowed.
 - Show completion status clearly.
 - Block checkout if any mandatory task is incomplete.
 
-**Todo Tasks**
+**Todo Tasks** — M2
 - Can remain pending.
 - Show a warning if any todo task is still pending at checkout time.
 
-#### Evidence Zone
+#### Evidence Zone — M2
 - Allows employee to attach photos and/or notes as evidence for tasks.
 - Displayed within the task screen, accessible per task or per shift.
 
-### 3. Thu nhập (Income)
+### 3. Thu nhập (Income) — M3, UI-first against mock data (see Milestones above)
 
 Three top tabs:
 
@@ -254,46 +325,53 @@ Three top tabs:
 #### Tiền ship (Delivery Earnings)
 - List of delivery orders / submitted receipts.
 - Status of each receipt (pending OCR, pending approval, approved, rejected).
+- **Mocked in M3** — see Milestones section for the expected data shape to mock against.
 
-### 4. Cá nhân (Profile)
+### 4. Cá nhân (Profile) — M2
 
 - View and update personal information.
 - Change password.
 - Log out.
 
-## Zalo Integration (context only — implemented in the separate Mini App repo, not here)
+## Zalo Integration (secondary — identity only, not a runtime platform)
 
-- Zalo identity is used to help **authenticate and link** the employee account, in the separate
-  Zalo Mini App.
-- **Backend remains the source of truth**, regardless of which frontend is calling it.
-- All API calls use the **backend-issued JWT**.
-- This repo does not implement any Zalo-specific auth logic — it uses standard web/backend auth.
+- This app's login screen is **standard username/password** (see Auth above).
+- Zalo identity linking is optional; it exists to let Staff log in with Zalo instead of a
+  password, if they prefer.
+- **Backend remains the source of truth**, regardless of login method.
+- All API calls use the **backend-issued JWT**, however it was obtained.
+- No Zalo Mini App SDK, ZaUI components, or Zalo-specific runtime APIs (camera, location, etc. via
+  `zmp-sdk`) are used anywhere in this repo. If a Staff screen needs camera access (e.g. evidence
+  photo upload, delivery receipt upload), use standard browser APIs (`<input type="file"
+  capture>`), not the Zalo SDK.
 
 ## Important Screens (Full List)
 
-**Admin / Manager (this repo):**
+**Admin / Manager:**
 - Users, roles & permissions management
 - Branches, employees management
 - Schedules, rosters, shift templates
 - Audit log
 
-**Staff self-service (this repo):**
-- Home / Today shift
-- Schedule (Bản biểu · Đăng ban · Bản ký)
-- Shift detail
-- Check-in / Check-out
-- Mandatory tasks
-- Todo list
-- Earnings overview (Tổng quan)
-- Shift earnings (Tiền ca)
-- Delivery earnings (Tiền ship)
-- Delivery receipt upload
-- Payroll detail
-- Previous payroll
-- Profile
+**Staff self-service:**
+- Home / Today shift — M1
+- Schedule — Bản biểu (M1), Đăng ban / Bản ký (M2)
+- Shift detail — M1
+- Check-in / Check-out — M1
+- Mandatory tasks — M1
+- Todo list — M2
+- Evidence zone — M2
+- Earnings overview (Tổng quan) — M3, mocked
+- Shift earnings (Tiền ca) — M3, mocked
+- Delivery earnings (Tiền ship) — M3, mocked
+- Delivery receipt upload — M3, mocked
+- Payroll detail — M3, mocked
+- Previous payroll — M3, mocked
+- Profile — M2
 
-**Not in this repo (separate Zalo Mini App):**
-- On-shift mobile check-in/check-out and task flows for Staff
+**Retired — not building:**
+- A separate Zalo Mini App repo/build for any of the above. This app covers Staff self-service
+  directly.
 
 ## Copy & Tone Guidelines
 
