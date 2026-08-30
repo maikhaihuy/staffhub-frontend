@@ -63,6 +63,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
   }, [router]);
 
+  // Signaled by the axios interceptor when the backend rejects a request
+  // because this session is flagged mustChangePassword. The session itself
+  // is still valid (unlike session-expired) - just confined to
+  // /change-password until the user clears the flag there.
+  useEffect(() => {
+    const handlePasswordChangeRequired = () => {
+      if (window.location.pathname.startsWith('/change-password')) {
+        return;
+      }
+
+      const returnUrl = buildReturnUrl(
+        window.location.pathname,
+        window.location.search,
+        window.location.hash
+      );
+      router.push(`/change-password?returnUrl=${encodeURIComponent(returnUrl)}`);
+    };
+
+    window.addEventListener('auth:password-change-required', handlePasswordChangeRequired);
+    return () =>
+      window.removeEventListener('auth:password-change-required', handlePasswordChangeRequired);
+  }, [router]);
+
   // Trong AuthProvider
   const searchParams = useSearchParams(); // thêm vào
 
