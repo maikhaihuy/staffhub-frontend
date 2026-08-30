@@ -23,9 +23,9 @@ The system SHALL support generating a master shift (and its sub-shifts/tasks) fr
 ### Requirement: Master shift embeds branch, template, and sub-shift data
 A master shift response SHALL include `workDate` (date-only), full `startTime`/`endTime` (`DateTime`), `status`, an optional `branch` summary, a nullable `masterShiftTemplate` summary, and an array of `subShifts`.
 
-#### Scenario: Matching a shift to a calendar cell
+#### Scenario: Matching a shift to a day section
 - **WHEN** the roster calendar looks up which template/day a master shift belongs to
-- **THEN** it compares `masterShiftTemplateId` and the date-only form of `workDate` against the grid's template and day, without a separate lookup request
+- **THEN** it compares `masterShiftTemplateId` and the date-only form of `workDate` against the displayed day's date, without a separate lookup request
 
 ### Requirement: workDate and date comparisons avoid timezone-round-trip corruption
 Date-only values (`workDate`) SHALL be compared and formatted using local `Date` component accessors (`getFullYear`/`getMonth`/`getDate`), never via `.toISOString()`, to avoid an off-by-one-day shift near midnight in timezones behind UTC.

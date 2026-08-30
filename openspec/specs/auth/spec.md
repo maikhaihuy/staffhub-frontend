@@ -81,8 +81,8 @@ The backend's refresh-token strategy reads `refresh_token` (snake_case) from the
 - **WHEN** the system calls `POST /auth/refresh` or `POST /auth/logout`
 - **THEN** the request body includes both `refreshToken` and `refresh_token` set to the same value
 
-### Requirement: Unauthenticated access to protected routes is blocked server-side
-`middleware.ts` SHALL redirect any request to a non-public path that lacks an `access_token` cookie to `/login`, carrying the original path and query string as a `returnUrl` query param. An authenticated user (has `access_token`) hitting a public path (e.g. `/login`) SHALL be redirected to `/`.
+### Requirement: Unauthenticated or expired access to protected routes is blocked server-side
+`middleware.ts` SHALL redirect any request to a non-public path that lacks a valid, unexpired `access_token` cookie to `/login`, carrying the original path and query string as a `returnUrl` query param. An authenticated user (has a valid `access_token`) hitting a public path (e.g. `/login`) SHALL be redirected to `/`. See the `page-level-authorization` capability for the full expiry/malformed-token validation rules this check applies.
 
 #### Scenario: Anonymous user requests a dashboard page
 - **WHEN** a request has no `access_token` cookie and targets a non-public path
@@ -93,5 +93,5 @@ The backend's refresh-token strategy reads `refresh_token` (snake_case) from the
 - **THEN** the response redirects to `/login?returnUrl=%2Fschedules%2F123%3Fdate%3D2026-08-24`, preserving the query string
 
 #### Scenario: Authenticated user requests the login page
-- **WHEN** a request has an `access_token` cookie and targets `/login`
+- **WHEN** a request has a valid, unexpired `access_token` cookie and targets `/login`
 - **THEN** the response redirects to `/`
