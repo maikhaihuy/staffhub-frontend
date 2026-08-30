@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Gives admins a read-only weekly calendar view, per branch, of which shift templates ran on which days, who's assigned, and aggregate coverage stats — built entirely by composing master-shift-template, master-shift, sub-shift, and assignment data.
+Gives managers an interactive weekly schedule view, per branch, of which shift templates run on which days: generating shifts from templates, assigning employees inline, and surfacing aggregate coverage stats and gaps — built entirely by composing master-shift-template, master-shift, sub-shift, and assignment data.
 
 ## Requirements
 
