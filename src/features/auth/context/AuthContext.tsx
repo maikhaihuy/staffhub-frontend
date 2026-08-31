@@ -1,7 +1,17 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  Suspense,
+  ReactNode,
+} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { authService } from '@/features/auth/services/auth.service';
 import { tokenManager } from '@/lib/api/axios';
 import { buildReturnUrl, resolveReturnUrl } from '@/lib/utils/returnUrl';
@@ -14,6 +24,20 @@ import {
 import { toast } from 'sonner';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// useSearchParams() opts a route out of static prerendering unless it sits
+// inside a Suspense boundary. AuthProvider wraps the whole app (see
+// providers.tsx), so the hook is isolated here rather than called directly
+// in AuthProvider - this keeps every other page statically prerenderable.
+function ReturnUrlSync({ onChange }: { onChange: (params: URLSearchParams) => void }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    onChange(searchParams);
+  }, [searchParams, onChange]);
+
+  return null;
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -86,8 +110,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.removeEventListener('auth:password-change-required', handlePasswordChangeRequired);
   }, [router]);
 
-  // Trong AuthProvider
-  const searchParams = useSearchParams(); // thêm vào
+  const searchParamsRef = useRef<URLSearchParams>(new URLSearchParams());
+  const handleSearchParamsChange = useCallback((params: URLSearchParams) => {
+    searchParamsRef.current = params;
+  }, []);
 
   const login = async (credentials: LoginData) => {
     try {
@@ -99,13 +125,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       toast.success('Login successful!');
       // Redirect về trang trước đó nếu có (chỉ khi an toàn, cùng origin)
-      const returnUrl = resolveReturnUrl(searchParams.get('returnUrl'), '/');
+      const returnUrl = resolveReturnUrl(searchParamsRef.current.get('returnUrl'), '/');
       router.push(returnUrl);
 
-    } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.response?.data?.message || 'Login failed');
-      throw error;
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      console.error('Login error:', axiosError);
+      toast.error(axiosError.response?.data?.message || 'Login failed');
+      throw axiosError;
     }
   };
 
@@ -118,9 +145,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       toast.success('Registration successful!');
       router.push('/');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
-      throw error;
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(axiosError.response?.data?.message || 'Registration failed');
+      throw axiosError;
     }
   };
 
@@ -170,6 +198,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         refreshAccessToken,
       }}
     >
+      <Suspense fallback={null}>
+        <ReturnUrlSync onChange={handleSearchParamsChange} />
+      </Suspense>
       {children}
     </AuthContext.Provider>
   );

@@ -44,8 +44,8 @@ export const tokenManager = {
 // Flag to prevent multiple refresh requests
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value?: string | null) => void;
+  reject: (reason?: Error) => void;
 }> = [];
 
 const processQueue = (error: Error | null, token: string | null = null) => {

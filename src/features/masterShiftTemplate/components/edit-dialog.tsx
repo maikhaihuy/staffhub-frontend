@@ -23,11 +23,9 @@ type MasterShiftTemplateEditDialogProps = {
   branchId: number;
   id: number;
   open: boolean;
-  // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
   // Called with the new template's id right after a successful create, so
   // the caller can navigate to its detail page.
-  // eslint-disable-next-line no-unused-vars
   onCreated?: (id: number) => void;
   // Pre-fills a fresh create form (e.g. from "Duplicate") - only applied
   // while there's no existing template (id === 0).

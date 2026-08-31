@@ -20,7 +20,6 @@ export type MatrixChange = {
 
 type PermissionMatrixConfirmDialogProps = {
   open: boolean;
-  // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
   changes: MatrixChange[];
   affectedUserCount: number;

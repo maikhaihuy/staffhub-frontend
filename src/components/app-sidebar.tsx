@@ -24,7 +24,6 @@ const data = {
  */
 function filterByAbility(
   items: RouteConfig[],
-  // eslint-disable-next-line no-unused-vars
   can: (action: string, subject: string) => boolean
 ): RouteConfig[] {
   return items.filter(

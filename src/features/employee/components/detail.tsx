@@ -13,7 +13,6 @@ import { useForm } from "react-hook-form";
 type EmployeeDetailProps = {
   id: number;
   open: boolean;
-  // eslint-disable-next-line no-unused-vars
   setOpen: (open: boolean) => void;
 };
 

@@ -8,7 +8,7 @@ import { getFieldErrors, normalizeFieldPath, ValidationErrorBody } from "@/lib/a
 // dynamic strings (not known ahead of time), so they can't be checked against
 // a specific form's statically-typed field-path union.
 export interface FormErrorSetter {
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setError: (name: any, error: { message: string }) => void
 }
 
