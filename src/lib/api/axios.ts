@@ -1,6 +1,7 @@
 // lib/axios.ts
 import Cookies from 'js-cookie';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import { isPasswordChangeRequired } from "./errors";
 
 const instance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "",
@@ -80,6 +81,18 @@ instance.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
+
+    // Reactive fallback: the backend's force-password-change guard rejected
+    // this request. The session itself is still valid - don't clear tokens,
+    // just let AuthContext redirect to /change-password. This is a
+    // fallback for a token minted before the mustChangePassword claim
+    // existed; login() and middleware.ts are the primary, proactive gates.
+    if (error.response?.status === 403 && isPasswordChangeRequired(error)) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:password-change-required'));
+      }
+      return Promise.reject(error);
+    }
 
     // If error is 401 and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
