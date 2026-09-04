@@ -15,6 +15,7 @@ function userFromAccessToken(accessToken: string): AuthUser | null {
     role: claims.role,
     branches: claims.branches,
     employeeId: claims.empId,
+    mustChangePassword: claims.mustChangePassword === true,
   };
 }
 
@@ -95,6 +96,10 @@ class AuthService {
 
   /**
    * Change password
+   *
+   * `confirmPassword` exists only for the frontend's match validation - the
+   * backend DTO whitelist-validates its body and 400s on unknown
+   * properties, so it must not be forwarded.
    */
   async changePassword(data: ChangePasswordData): Promise<void> {
     // Backend's ValidationPipe runs with forbidNonWhitelisted: true - only

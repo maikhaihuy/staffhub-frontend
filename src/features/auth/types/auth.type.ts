@@ -44,7 +44,9 @@ export interface AuthTokens {
 /**
  * Claims present in the decoded access token JWT payload.
  * `role`/`branches`/`empId` are only present once the user has an employee
- * record linked - don't assume they're always set.
+ * record linked - don't assume they're always set. `mustChangePassword` is
+ * absent on tokens minted before the backend adds it - treat a missing claim
+ * as `false`, not as unknown.
  */
 export interface AccessTokenClaims {
   sub: number;
@@ -52,6 +54,7 @@ export interface AccessTokenClaims {
   role?: string;
   branches?: number[];
   empId?: number;
+  mustChangePassword?: boolean;
   iat: number;
   exp: number;
 }
@@ -66,6 +69,7 @@ export interface AuthUser {
   role?: string;
   branches?: number[];
   employeeId?: number;
+  mustChangePassword?: boolean;
 }
 
 /**
@@ -87,4 +91,5 @@ export interface AuthContextType extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string>;
+  changePassword: (data: ChangePasswordData) => Promise<void>;
 }

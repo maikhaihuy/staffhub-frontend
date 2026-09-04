@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { buildReturnUrl } from '@/lib/utils/returnUrl';
-import { isTokenExpired } from '@/lib/utils/jwt';
+import { decodeJwt, isTokenExpired } from '@/lib/utils/jwt';
 
 const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
+const CHANGE_PASSWORD_PATH = '/change-password';
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -34,6 +35,30 @@ export function middleware(request: NextRequest) {
   // Đã login rồi mà vào /login -> về trang chủ
   if (isPublicPath && isSessionValid) {
     return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // Flagged user: confined to /change-password until they replace it,
+  // regardless of how they reached this request (direct URL, bookmark,
+  // reload) - none of which run the client-side login redirect.
+  //
+  // Only checked against a currently-valid (unexpired) access token - a
+  // merely-recoverable session (expired access token, valid refresh token)
+  // defers to the client-side axios interceptor's reactive
+  // auth:password-change-required fallback once it actually refreshes and
+  // makes a guarded API call, rather than decoding a stale token here.
+  const isCurrentlyValid = !!token && !isTokenExpired(token);
+  const claims = isCurrentlyValid
+    ? decodeJwt<{ mustChangePassword?: boolean }>(token)
+    : null;
+
+  if (
+    isCurrentlyValid &&
+    claims?.mustChangePassword === true &&
+    !pathname.startsWith(CHANGE_PASSWORD_PATH)
+  ) {
+    const changePasswordUrl = new URL(CHANGE_PASSWORD_PATH, request.url);
+    changePasswordUrl.searchParams.set('returnUrl', buildReturnUrl(pathname, search));
+    return NextResponse.redirect(changePasswordUrl);
   }
 
   return NextResponse.next();

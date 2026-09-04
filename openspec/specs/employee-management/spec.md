@@ -25,17 +25,18 @@ The system SHALL accept and display, but not yet expose an editing UI for, the b
 - **THEN** the system renders the employee without error and without assuming a login exists
 
 ### Requirement: Employee creation surfaces the auto-provisioned login account
-When an Employee is created, the backend auto-provisions a matching login account whose default
-password is the employee's phone number (see `staffhub-backend`'s
-`employee-user-auto-provisioning` capability). The system SHALL, on successful `POST /employees`,
-notify the Admin that a login account was created and what its default password is, so this isn't
-discovered only when the new employee asks how to log in.
+The system SHALL, on successful `POST /employees`, notify the Admin that a matching login account
+was auto-provisioned and surface its one-time password for copying, so this isn't discovered only
+when the new employee asks how to log in. When an Employee is created, the backend auto-provisions
+a matching login account with a backend-generated one-time password, returned exactly once as
+`temporaryPassword` on the create response (confirmed live against `staffhub-backend`'s
+`employee.service.ts`, which calls `generateOneTimeCredential()` — **not** the employee's phone
+number). The password SHALL NOT be derivable from any field the admin entered on the form.
 
 #### Scenario: Employee created successfully
-- **WHEN** an Admin's `POST /employees` succeeds
-- **THEN** the system shows a notice stating that a login account was created and that its
-  default password is the employee's phone number, in addition to the existing
-  employee-created confirmation
+- **WHEN** an Admin's `POST /employees` succeeds and the response includes `temporaryPassword`
+- **THEN** the system shows a notice that a login account was created, and displays the
+  `temporaryPassword` value in a copyable field so the Admin can relay it to the employee
 
 #### Scenario: Phone number collides with an existing account
 - **WHEN** `POST /employees` fails because a `User` with that phone number already exists

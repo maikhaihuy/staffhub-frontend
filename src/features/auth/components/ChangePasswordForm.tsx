@@ -2,11 +2,9 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useChangePassword } from '../hooks/useChangePassword';
 import { ChangePasswordData } from '../types/auth.type';
 import { changePasswordSchema } from '../schemas/auth.schema';
-import { resolveReturnUrl } from '@/lib/utils/returnUrl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,9 +18,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export function ChangePasswordForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const form = useForm<ChangePasswordData>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -34,13 +29,11 @@ export function ChangePasswordForm() {
 
   const { mutate: changePassword, isPending } = useChangePassword(form);
 
+  // Navigation, success/failure toasts, and clearing the mustChangePassword
+  // flag (via a session refresh) all happen inside AuthContext.changePassword
+  // - this form only needs to trigger it.
   const onSubmit = (data: ChangePasswordData) => {
-    changePassword(data, {
-      onSuccess: () => {
-        const returnUrl = resolveReturnUrl(searchParams.get('returnUrl'), '/');
-        router.push(returnUrl);
-      },
-    });
+    changePassword(data);
   };
 
   return (

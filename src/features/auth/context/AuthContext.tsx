@@ -18,6 +18,7 @@ import { buildReturnUrl, resolveReturnUrl } from '@/lib/utils/returnUrl';
 import {
   AuthContextType,
   AuthUser,
+  ChangePasswordData,
   LoginData,
   RegisterData,
 } from '@/features/auth/types/auth.type';
@@ -136,6 +137,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const changePassword = async (data: ChangePasswordData) => {
+    try {
+      await authService.changePassword(data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Đổi mật khẩu thất bại');
+      throw error;
+    }
+
+    try {
+      // The change-password endpoint's response shape (whether it returns a
+      // fresh token pair) isn't confirmed - refresh unconditionally via the
+      // confirmed-working /auth/refresh path so the stored token no longer
+      // carries mustChangePassword, rather than parsing a speculative one.
+      const { tokens, user } = await authService.refreshToken();
+      setUser(user);
+      setAccessToken(tokens.accessToken);
+      setRefreshToken(tokens.refreshToken);
+    } catch (refreshError) {
+      // Don't log the user out here - the password change itself succeeded.
+      // Logging out would just send them back to /login to sign back in
+      // with the password they just set. Surface the failure and leave them
+      // on /change-password instead of navigating into a middleware bounce
+      // loop with a still-flagged token.
+      toast.error('Đổi mật khẩu thành công nhưng không thể làm mới phiên đăng nhập. Vui lòng tải lại trang.');
+      throw refreshError;
+    }
+
+    toast.success('Đổi mật khẩu thành công!');
+    const returnUrl = resolveReturnUrl(searchParamsRef.current.get('returnUrl'), '/');
+    router.push(returnUrl);
+  };
+
   const register = async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
@@ -196,6 +229,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         register,
         logout,
         refreshAccessToken,
+        changePassword,
       }}
     >
       <Suspense fallback={null}>
