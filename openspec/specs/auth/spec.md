@@ -93,8 +93,24 @@ The backend's refresh-token strategy reads `refresh_token` (snake_case) from the
 - **WHEN** the system calls `POST /auth/refresh` or `POST /auth/logout`
 - **THEN** the request body includes both `refreshToken` and `refresh_token` set to the same value
 
-### Requirement: Unauthenticated access to protected routes is blocked server-side
-`middleware.ts` SHALL redirect any request to a non-public path that lacks an `access_token` cookie, or whose `access_token` is expired, to `/login`, carrying the original path and query string as a `returnUrl` query param. An authenticated user (has a valid `access_token`) hitting a public path (e.g. `/login`) SHALL be redirected to `/`. After those rules, and only for a request carrying a valid unexpired token, `middleware.ts` SHALL decode that token and, when its `mustChangePassword` claim is true, redirect any path other than `/change-password` to `/change-password`, carrying the original path and query string as a `returnUrl` query param. `/change-password` SHALL be reachable only with a valid token — it is not a public path — so an anonymous request for it is still sent to `/login`.
+### Requirement: Unauthenticated or expired access to protected routes is blocked server-side
+`middleware.ts` SHALL redirect a request to a non-public path to `/login`, carrying the original
+path and query string as a `returnUrl` query param, only when there is no recoverable session:
+either there is no `access_token` cookie at all, or the `access_token` is expired **and** the
+`refresh_token` cookie is also missing or expired.
+
+When the `access_token` is expired but the `refresh_token` cookie is present and unexpired, the
+system SHALL treat the session as recoverable and allow the request through without redirecting to
+`/login` — the client-side axios interceptor performs the actual silent refresh via `POST
+/auth/refresh` on that page's first API call, the same way it already does for a `401` mid-session
+(see "Expired access tokens are refreshed transparently" above).
+
+A request considered authenticated or refreshable (a valid `access_token`, or an expired
+`access_token` with a valid `refresh_token`) hitting a public path (e.g. `/login`) SHALL be
+redirected to `/`.
+
+See the `page-level-authorization` capability for the full expiry/malformed-token validation rules
+this check applies.
 
 #### Scenario: Anonymous user requests a dashboard page
 - **WHEN** a request has no `access_token` cookie and targets a non-public path
@@ -105,17 +121,13 @@ The backend's refresh-token strategy reads `refresh_token` (snake_case) from the
 - **THEN** the response redirects to `/login?returnUrl=%2Fschedules%2F123%3Fdate%3D2026-08-24`, preserving the query string
 
 #### Scenario: Authenticated user requests the login page
-- **WHEN** a request has an `access_token` cookie and targets `/login`
+- **WHEN** a request has a valid, unexpired `access_token` cookie and targets `/login`
 - **THEN** the response redirects to `/`
 
-#### Scenario: Flagged user requests a dashboard page
-- **WHEN** a request carries a valid `access_token` cookie whose `mustChangePassword` claim is true and targets `/employees`
-- **THEN** the response redirects to `/change-password?returnUrl=%2Femployees`
+#### Scenario: Access token expired but refresh token still valid, dashboard page
+- **WHEN** a request targets a non-public path, its `access_token` cookie is present but expired, and its `refresh_token` cookie is present and unexpired
+- **THEN** the response is not redirected to `/login`; the request proceeds to the requested page, leaving the actual token refresh to the client-side axios interceptor on that page's first API call
 
-#### Scenario: Flagged user requests the change-password page
-- **WHEN** a request carries a valid `access_token` cookie whose `mustChangePassword` claim is true and targets `/change-password`
-- **THEN** the request is allowed through without redirect
-
-#### Scenario: Anonymous user requests the change-password page
-- **WHEN** a request has no `access_token` cookie and targets `/change-password`
-- **THEN** the response redirects to `/login?returnUrl=%2Fchange-password`
+#### Scenario: Access token expired but refresh token still valid, login page
+- **WHEN** a request targets `/login`, its `access_token` cookie is present but expired, and its `refresh_token` cookie is present and unexpired
+- **THEN** the response redirects to `/`

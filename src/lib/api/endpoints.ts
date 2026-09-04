@@ -1,9 +1,10 @@
 export const API_ENDPOINTS = {
   // Auth
-  // NOTE: REGISTER/CHANGE_PASSWORD/FORGOT_PASSWORD/RESET_PASSWORD don't exist
-  // on the backend anymore (password-reset flows were dropped in favor of
-  // Zalo auth) - the corresponding auth.service.ts methods are dead until
-  // the backend adds them back or the frontend drops these flows.
+  // NOTE: REGISTER/FORGOT_PASSWORD/RESET_PASSWORD don't exist on the backend
+  // (password-reset flows were dropped in favor of Zalo auth) - the
+  // corresponding auth.service.ts methods are dead until the backend adds
+  // them back or the frontend drops these flows. CHANGE_PASSWORD is live
+  // (staffhub-backend's auto-provision-user-on-employee-create).
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',

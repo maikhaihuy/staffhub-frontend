@@ -102,6 +102,8 @@ class AuthService {
    * properties, so it must not be forwarded.
    */
   async changePassword(data: ChangePasswordData): Promise<void> {
+    // Backend's ValidationPipe runs with forbidNonWhitelisted: true - only
+    // send the fields it actually expects, not the client-only confirmPassword.
     const { currentPassword, newPassword } = data;
     await axios.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, { currentPassword, newPassword });
   }

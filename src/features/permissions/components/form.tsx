@@ -15,7 +15,6 @@ import { UseFormReturn } from "react-hook-form";
 type PermissionFormProps = {
   formId: string;
   form: UseFormReturn<PermissionFormValues>;
-  // eslint-disable-next-line no-unused-vars
   onSubmit(data: PermissionFormValues): void;
   error?: string;
 };

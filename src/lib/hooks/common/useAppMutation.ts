@@ -8,7 +8,7 @@ import { getFieldErrors, normalizeFieldPath, ValidationErrorBody } from "@/lib/a
 // dynamic strings (not known ahead of time), so they can't be checked against
 // a specific form's statically-typed field-path union.
 export interface FormErrorSetter {
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setError: (name: any, error: { message: string }) => void
 }
 
@@ -62,8 +62,11 @@ export function useAppMutation<TData, TVariables>(
           toast.error(body?.message || error.message)
         }
       } else {
-        // ✅ hiển thị lỗi mặc định hoặc custom
-        toast.error(options?.errorMessage || error.message)
+        // ✅ hiển thị lỗi mặc định hoặc custom - ưu tiên message thật từ
+        // backend (vd 401 "Current password is incorrect") thay vì message
+        // chung chung của axios ("Request failed with status code ...")
+        const body = error.response?.data as ValidationErrorBody | undefined
+        toast.error(options?.errorMessage || body?.message || error.message)
       }
 
       // ✅ callback người dùng

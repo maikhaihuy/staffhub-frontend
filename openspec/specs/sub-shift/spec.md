@@ -13,7 +13,7 @@ The system SHALL create, update, and delete sub-shifts via `/sub-shifts` REST en
 - **WHEN** `maxAssignments` is set on a sub-shift
 - **THEN** the system can compare it against the count of assignments for that sub-shift to show remaining capacity (e.g. "1/3")
 
-### Requirement: One default sub-shift is auto-created per master shift
+### Requirement: All of a master shift's generated sub-shifts are rendered
 The frontend SHALL render every sub-shift generated for a master shift, one per the source template's `SubShiftTemplate`s, instead of assuming a single default `MAIN` sub-shift. A master shift with multiple generated sub-shifts (e.g. two `MAIN` slots plus a `SUPPORT` slot) SHALL show all of them in its calendar cell.
 
 #### Scenario: Rendering a master shift's sub-shifts

@@ -29,7 +29,7 @@ The user form SHALL require at least one role, selected via `roleIds` sourced fr
 - **THEN** the system persists both role assignments, and subsequent permission checks for that user reflect the union of both roles' grants
 
 ### Requirement: User responses embed role names and branch links
-The system SHALL treat a returned user as optionally including a `roles` array of `{roleId, roleName}` (replacing the prior singular `roleName` field) and a `branches` array of `{branchId, branchName, isPrimary}`, reflecting which branch(es) the user's linked employee (if any) belongs to.
+The system SHALL treat a returned user as optionally including a `roles` array of `{id, name}` (replacing the prior singular `roleName` field) and a `branches` array of `{branchId, branchName, isPrimary}`, reflecting which branch(es) the user's linked employee (if any) belongs to.
 
 #### Scenario: Displaying a user row
 - **WHEN** the user list renders a row

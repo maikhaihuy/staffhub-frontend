@@ -1,6 +1,3 @@
-// ============================================
-// features/auth/components/ChangePasswordForm.tsx
-// ============================================
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -21,8 +18,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export function ChangePasswordForm() {
-  const { mutate: changePassword, isPending } = useChangePassword();
-
   const form = useForm<ChangePasswordData>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -32,6 +27,11 @@ export function ChangePasswordForm() {
     },
   });
 
+  const { mutate: changePassword, isPending } = useChangePassword(form);
+
+  // Navigation, success/failure toasts, and clearing the mustChangePassword
+  // flag (via a session refresh) all happen inside AuthContext.changePassword
+  // - this form only needs to trigger it.
   const onSubmit = (data: ChangePasswordData) => {
     changePassword(data);
   };
@@ -41,7 +41,7 @@ export function ChangePasswordForm() {
       <CardHeader>
         <CardTitle className="text-2xl text-center">Đổi mật khẩu</CardTitle>
         <CardDescription className="text-center">
-          Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng hệ thống.
+          Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng ứng dụng.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -90,7 +90,7 @@ export function ChangePasswordForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu'}
+              {isPending ? 'Đang lưu...' : 'Đổi mật khẩu'}
             </Button>
           </form>
         </Form>

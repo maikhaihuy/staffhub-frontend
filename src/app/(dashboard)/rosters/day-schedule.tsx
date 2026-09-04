@@ -8,7 +8,6 @@ interface DayScheduleProps {
   branchId: number;
   day: Weekday;
   masterShifts: MasterShift[];
-  // eslint-disable-next-line no-unused-vars
   colorForTemplate: (templateId: number) => string;
 }
 

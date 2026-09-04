@@ -51,7 +51,9 @@ export function GenericTable<T>({
             <TableRow key={rowKey(item)}>
               {columns.map((col) => (
                 <TableCell key={col.key as string} className={col.className}>
-                  {col.render ? col.render(item) : (item as any)[col.key]}
+                  {col.render
+                    ? col.render(item)
+                    : (item[col.key as keyof T] as React.ReactNode)}
                 </TableCell>
               ))}
             </TableRow>

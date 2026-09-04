@@ -7,7 +7,7 @@ import { useGetMasterShiftsByBranch } from "@/features/masterShift/hooks/useMast
 import { useGetAssignmentsByEmployee } from "@/features/assignment/hooks/useAssignmentQueries";
 import { generateWeekdays, toDateOnlyString } from "@/lib/utils/dateTimeHelpers";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { Calendar, Loader2 } from "lucide-react";
 
 interface MyAvailabilityPageProps {
@@ -24,7 +24,7 @@ export default function MyAvailabilityPage({
 
   const { data: employee, isLoading: isFetchingEmployee } =
     useGetEmployee(employeeId);
-  const branches = employee?.branches ?? [];
+  const branches = useMemo(() => employee?.branches ?? [], [employee?.branches]);
 
   useEffect(() => {
     if (branches.length === 0) return;

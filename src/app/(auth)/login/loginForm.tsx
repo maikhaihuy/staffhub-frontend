@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -73,10 +74,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             </div>
           </form>
           <div className="relative hidden bg-muted md:block">
-            <img
+            <Image
               src="/login.svg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              fill
+              className="object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>

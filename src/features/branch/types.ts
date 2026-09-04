@@ -4,7 +4,6 @@ import {
   branchFormSchema,
   createBranchSchema,
   updateBranchSchema,
-  branchWithSchedulesSchema,
 } from './schemas';
 
 /**
@@ -31,5 +30,3 @@ export type UpdateBranchDTO = z.infer<typeof updateBranchSchema>;
  * Update mutation input - the DTO plus which branch it targets
  */
 export type UpdateBranchInput = UpdateBranchDTO & { id: number };
-
-export type BranchWithSchedules = z.infer<typeof branchWithSchedulesSchema>;

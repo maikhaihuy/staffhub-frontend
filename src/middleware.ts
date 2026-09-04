@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { buildReturnUrl } from '@/lib/utils/returnUrl';
-import { decodeJwt } from '@/lib/utils/jwt';
+import { decodeJwt, isTokenExpired } from '@/lib/utils/jwt';
 
 const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
 const CHANGE_PASSWORD_PATH = '/change-password';
-
-interface MiddlewareTokenClaims {
-  exp?: number;
-  mustChangePassword?: boolean;
-}
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -20,15 +15,16 @@ export function middleware(request: NextRequest) {
   // Kiểm tra token (middleware chỉ đọc được cookie, không đọc localStorage)
   // -> Cần chuyển token sang cookie (xem bước 2)
   const token = request.cookies.get('access_token')?.value;
+  const refreshToken = request.cookies.get('refresh_token')?.value;
 
-  // Decoded once and reused below - an undecodable/expired token fails the
-  // session closed (redirect to /login), but a decodable token missing the
-  // optional mustChangePassword claim fails that check open (not gated) -
-  // it just means the backend hasn't started sending the claim yet.
-  const claims = token ? decodeJwt<MiddlewareTokenClaims>(token) : null;
-  const isExpired = !claims?.exp || claims.exp * 1000 <= Date.now();
+  // access_token hết hạn nhưng còn refresh_token hợp lệ -> phiên vẫn có thể
+  // khôi phục, để axios interceptor tự làm mới ngầm ở lần gọi API đầu tiên
+  // trên trang thay vì bắt logout ngay khi điều hướng.
+  const isRecoverable =
+    !!token && isTokenExpired(token) && !!refreshToken && !isTokenExpired(refreshToken);
+  const isSessionValid = (!!token && !isTokenExpired(token)) || isRecoverable;
 
-  if (!isPublicPath && (!token || isExpired)) {
+  if (!isPublicPath && !isSessionValid) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnUrl', buildReturnUrl(pathname, search)); // lưu trang muốn vào
     const response = NextResponse.redirect(loginUrl);
@@ -37,16 +33,26 @@ export function middleware(request: NextRequest) {
   }
 
   // Đã login rồi mà vào /login -> về trang chủ
-  if (isPublicPath && token && !isExpired) {
+  if (isPublicPath && isSessionValid) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
   // Flagged user: confined to /change-password until they replace it,
   // regardless of how they reached this request (direct URL, bookmark,
   // reload) - none of which run the client-side login redirect.
+  //
+  // Only checked against a currently-valid (unexpired) access token - a
+  // merely-recoverable session (expired access token, valid refresh token)
+  // defers to the client-side axios interceptor's reactive
+  // auth:password-change-required fallback once it actually refreshes and
+  // makes a guarded API call, rather than decoding a stale token here.
+  const isCurrentlyValid = !!token && !isTokenExpired(token);
+  const claims = isCurrentlyValid
+    ? decodeJwt<{ mustChangePassword?: boolean }>(token)
+    : null;
+
   if (
-    token &&
-    !isExpired &&
+    isCurrentlyValid &&
     claims?.mustChangePassword === true &&
     !pathname.startsWith(CHANGE_PASSWORD_PATH)
   ) {
