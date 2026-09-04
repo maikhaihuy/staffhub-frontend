@@ -18,6 +18,18 @@ export const createEmployeeSchema = employeeFormSchema;
 export const updateEmployeeSchema = employeeFormSchema.partial();
 
 /**
+ * Fields an employee may edit on their own profile - a deliberately narrower
+ * whitelist than updateEmployeeSchema (never fullName/branchIds), so a
+ * self-service form can't submit identity/org-assignment fields regardless
+ * of what the shared PATCH /employees/:id DTO accepts server-side.
+ */
+export const selfUpdateEmployeeSchema = z.object({
+  phoneNumber: z.string().min(1, "Phone is required").optional(),
+  email: z.string().email("Invalid email").nullable().optional(),
+  address: z.string().nullable().optional(),
+});
+
+/**
  * Full entity as returned by the backend (EmployeeResponseDto).
  */
 export const employeeSchema = employeeFormSchema.extend({

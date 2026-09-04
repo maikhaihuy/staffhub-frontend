@@ -1,8 +1,13 @@
 import { toast } from "sonner";
 import { FormErrorSetter, useAppMutation } from "@/lib/hooks/common/useAppMutation";
 import { queryKeys } from "@/lib/queryKeys";
-import { Employee, CreateEmployeeDTO, UpdateEmployeeInput } from "@/features/employee/types";
-import { employeeService } from "@/features/employee/services/employee.service";
+import {
+  Employee,
+  CreateEmployeeDTO,
+  UpdateEmployeeInput,
+  SelfUpdateEmployeeDTO,
+} from "@/features/employee/types";
+import { employeeService, updateMyProfile } from "@/features/employee/services/employee.service";
 
 export const useCreateEmployee = (form?: FormErrorSetter) =>
   useAppMutation<Employee, CreateEmployeeDTO>((data) => employeeService.create(data), {
@@ -25,6 +30,13 @@ export const useUpdateEmployee = (form?: FormErrorSetter) =>
   useAppMutation<Employee, UpdateEmployeeInput>(({ id, ...data }) => employeeService.update(id, data), {
     invalidateKey: queryKeys.employees.all(),
     successMessage: "Employee updated",
+    form,
+  });
+
+export const useUpdateMyProfile = (form?: FormErrorSetter) =>
+  useAppMutation<Employee, SelfUpdateEmployeeDTO>((data) => updateMyProfile(data), {
+    invalidateKey: queryKeys.employees.all(),
+    successMessage: "Đã cập nhật thông tin cá nhân",
     form,
   });
 

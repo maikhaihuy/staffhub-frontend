@@ -28,6 +28,11 @@ export const API_ENDPOINTS = {
     BASE: '/employees',
     BY_ID: (id: number) => `/employees/${id}`,
     HOURLY_RATES: (id: number) => `/employees/${id}/hourly-rates`,
+    // Self-service update, resolved from the caller's JWT - no :id param, so
+    // there is no way to target another employee. Restricted server-side to
+    // phoneNumber/email/address (any other field hard-400s); 403s if the
+    // caller's account has no linked Employee.
+    ME: '/employees/me',
   },
 
   // Users

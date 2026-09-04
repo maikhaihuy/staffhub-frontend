@@ -13,6 +13,7 @@ import {
   Store,
   Users,
   UserCog,
+  UserRound,
   CalendarPlus2,
 } from 'lucide-react';
 import React from 'react';
@@ -60,6 +61,12 @@ export const GENERAL_ROUTES: RouteConfig[] = [
     name: 'Điểm danh',
     breadcrumb: 'Điểm danh',
     icon: MapPinned,
+  },
+  {
+    path: '/profile',
+    name: 'Cá nhân',
+    breadcrumb: 'Cá nhân',
+    icon: UserRound,
   },
 ];
 
