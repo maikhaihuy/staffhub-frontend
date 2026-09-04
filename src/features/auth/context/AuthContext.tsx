@@ -140,9 +140,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const changePassword = async (data: ChangePasswordData) => {
     try {
       await authService.changePassword(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Đổi mật khẩu thất bại');
-      throw error;
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(axiosError.response?.data?.message || 'Đổi mật khẩu thất bại');
+      throw axiosError;
     }
 
     try {
