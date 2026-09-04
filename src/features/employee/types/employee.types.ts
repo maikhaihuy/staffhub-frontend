@@ -4,6 +4,7 @@ import {
   employeeFormSchema,
   createEmployeeSchema,
   updateEmployeeSchema,
+  selfUpdateEmployeeSchema,
 } from "../schemas/employee.schema";
 
 /**
@@ -30,6 +31,13 @@ export type UpdateEmployeeDTO = z.infer<typeof updateEmployeeSchema>;
  * Update mutation input - the DTO plus which employee it targets
  */
 export type UpdateEmployeeInput = UpdateEmployeeDTO & { id: number };
+
+/**
+ * Self-service profile update DTO (phoneNumber/email/address only) - sent to
+ * PATCH /employees/me, which resolves the target from the caller's JWT, so
+ * no `id` field is needed here.
+ */
+export type SelfUpdateEmployeeDTO = z.infer<typeof selfUpdateEmployeeSchema>;
 
 /**
  * @deprecated The backend already embeds `branches` on every Employee

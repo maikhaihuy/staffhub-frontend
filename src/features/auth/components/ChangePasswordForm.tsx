@@ -17,7 +17,15 @@ import {
 } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-export function ChangePasswordForm() {
+type ChangePasswordFormProps = {
+  title?: string;
+  description?: string;
+};
+
+export function ChangePasswordForm({
+  title = 'Đổi mật khẩu',
+  description = 'Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng ứng dụng.',
+}: ChangePasswordFormProps = {}) {
   const form = useForm<ChangePasswordData>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -39,10 +47,8 @@ export function ChangePasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Đổi mật khẩu</CardTitle>
-        <CardDescription className="text-center">
-          Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng ứng dụng.
-        </CardDescription>
+        <CardTitle className="text-2xl text-center">{title}</CardTitle>
+        <CardDescription className="text-center">{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
