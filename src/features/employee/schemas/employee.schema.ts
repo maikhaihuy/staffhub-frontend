@@ -22,6 +22,13 @@ export const updateEmployeeSchema = employeeFormSchema.partial();
  */
 export const employeeSchema = employeeFormSchema.extend({
   id: z.number(),
+  /**
+   * Only present in the POST /employees create response - the backend
+   * provisions a one-time password for the linked User account and returns
+   * it here exactly once (never again, and never on GET/list). Not shown to
+   * the employee automatically yet - an admin must relay it out of band.
+   */
+  temporaryPassword: z.string().optional(),
   email: z.string().nullable().optional(),
   address: z.string().nullable().optional(),
   avatar: z.string().nullable().optional(),
